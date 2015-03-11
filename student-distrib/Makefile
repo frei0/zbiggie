@@ -33,7 +33,7 @@ Makefile.dep: $(SRC)
 
 .PHONY: clean
 clean: 
-	rm -f *.o Makefile.dep bootimg
+	rm -f *.o Makefile.dep
 
 ifneq ($(MAKECMDGOALS),dep)
 ifneq ($(MAKECMDGOALS),clean)
