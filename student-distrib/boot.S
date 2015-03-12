@@ -25,11 +25,6 @@ _start:
 
 continue:
 	# Load the GDT
-	# 2.1.1 Intel manual page 43
-	# 2.4.1 Intel manual page 51
-	# 3.5.1 Intel manual page 82
-	lgdt gdt_desc
-	
 
 	# Load CS with the new descriptor value
 	ljmp    $KERNEL_CS, $keep_going
