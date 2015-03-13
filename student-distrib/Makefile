@@ -22,7 +22,7 @@ OBJS += $(filter-out boot.o,$(patsubst %.S,%.o,$(filter %.S,$(SRC))))
 OBJS += $(patsubst %.c,%.o,$(filter %.c,$(SRC))) 
 
 
-bootimg: Makefile $(OBJS)
+bootimg: Makefile $(OBJS) orig.img dep
 	$(CC) $(LDFLAGS) $(OBJS) -Ttext=0x400000 -o bootimg
 	sudo ./debug.sh
 
@@ -33,7 +33,11 @@ Makefile.dep: $(SRC)
 
 .PHONY: clean
 clean: 
+<<<<<<< HEAD
 	rm -f *.o Makefile.dep bootimg
+=======
+	rm -f *.o Makefile.dep bootimg mp3.img
+>>>>>>> 4babfa37860340c9dd49c8260a8ab285eebc6797
 
 ifneq ($(MAKECMDGOALS),dep)
 ifneq ($(MAKECMDGOALS),clean)
