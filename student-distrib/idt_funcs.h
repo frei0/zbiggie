@@ -1,6 +1,8 @@
 #ifndef IDT_FUNCS_H
 #define IDT_FUNCS_H
 
+
+
 extern void common_interrupt();
 extern void divide_by_zero();
 extern void reserved_1();
@@ -27,5 +29,7 @@ extern void SIMD_floating_point_exception();
 
 //32-255
 //User Defined: Call common interrupt
+
+extern void something_went_wrong(); 
 
 #endif
