@@ -3,6 +3,7 @@
 
 
 
+
 extern void common_interrupt()
 {
 	//clear();
@@ -133,4 +134,19 @@ extern void SIMD_floating_point_exception()
 
 //32-255
 //User Defined: Call common interrupt
+
+
+
+extern void something_went_wrong()
+{
+	printf("Ughhhh we did something wrong. . . Awks \n");
+	while(1);
+}
+
+
+
+
+
+
+
 

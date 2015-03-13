@@ -18,7 +18,6 @@
 void populate_idt()
 {
 	int i;
-	//void * common (void)= &common_interrupt;
 	for(i = 0; i<NUM_VEC; i++)
 	{
 		idt[i].present = 1;
@@ -30,15 +29,22 @@ void populate_idt()
 		idt[i].reserved3 = 0;
 		idt[i].reserved4 = 0;
 		idt[i].seg_selector = KERNEL_CS;
-		if(i==0)
-		{
-			SET_IDT_ENTRY(idt[i],&divide_by_zero);
-		}
-		if((i>0 && i<20) || i>=0x20)
+
+		if(i>=0x20) 
 		{
 			SET_IDT_ENTRY(idt[i],&common_interrupt);	
 		}
+		else if(i < 20)
+		{
+			if( i == 15 )
+			{
+				//DO NOTHING
+			}else{
+				SET_IDT_ENTRY(idt[i], arr[i]); 
+			}	
+		}
 	}
+
 	lidt(idt_desc_ptr);
 	i = i/0;
 }
