@@ -1,6 +1,6 @@
 #include "idt_funcs.h"
 #include "lib.h"
-
+#include "x86_desc.h"
 
 
 

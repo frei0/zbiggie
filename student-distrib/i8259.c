@@ -3,6 +3,7 @@
  */
 
 #include "i8259.h"
+#include "x86_desc.h"
 #include "lib.h"
 
 /* Interrupt masks to determine which interrupts

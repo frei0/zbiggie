@@ -16,6 +16,11 @@
 #define KERNEL_TSS 0x0030
 #define KERNEL_LDT 0x0038
 
+#define PIC1_COMMAND	0x20
+#define PIC1_DATA		0x21
+#define PIC2_COMMAND	0xA0	
+#define PIC2_DATA		0xA1	
+
 /* Size of the task state segment (TSS) */
 #define TSS_SIZE 104
 
@@ -210,6 +215,59 @@ do {                                    \
 			: "a" (desc)                \
 			: "memory" );               \
 } while(0)
+
+/* macro used to write a byte to a port */
+#define OUTB(port,val)                                                  \
+do {                                                                    \
+    asm volatile ("                                                     \
+        outb %b1,(%w0)                                                  \
+    " : /* no outputs */                                                \
+      : "d" ((port)), "a" ((val))                                       \
+      : "memory", "cc");                                                \
+} while (0)
+
+/* macro used to write two bytes to two consecutive ports */
+#define OUTW(port,val)                                                  \
+do {                                                                    \
+    asm volatile ("                                                     \
+        outw %w1,(%w0)                                                  \
+    " : /* no outputs */                                                \
+      : "d" ((port)), "a" ((val))                                       \
+      : "memory", "cc");                                                \
+} while (0)
+
+/* 
+ * macro used to write an array of two-byte values to two consecutive ports 
+ */
+#define REP_OUTSW(port,source,count)                                    \
+do {                                                                    \
+    asm volatile ("                                                     \
+     1: movw 0(%1),%%ax                                                ;\
+	outw %%ax,(%w2)                                                ;\
+	addl $2,%1                                                     ;\
+	decl %0                                                        ;\
+	jne 1b                                                          \
+    " : /* no outputs */                                                \
+      : "c" ((count)), "S" ((source)), "d" ((port))                     \
+      : "eax", "memory", "cc");                                         \
+} while (0)
+
+/* 
+ * macro used to write an array of one-byte values to two consecutive ports 
+ */
+#define REP_OUTSB(port,source,count)                                    \
+do {                                                                    \
+    asm volatile ("                                                     \
+     1: movb 0(%1),%%al                                                ;\
+	outb %%al,(%w2)                                                ;\
+	incl %1                                                        ;\
+	decl %0                                                        ;\
+	jne 1b                                                          \
+    " : /* no outputs */                                                \
+      : "c" ((count)), "S" ((source)), "d" ((port))                     \
+      : "eax", "memory", "cc");                                         \
+} while (0)
+
 
 #endif /* ASM */
 
