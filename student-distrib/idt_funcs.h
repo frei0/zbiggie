@@ -2,7 +2,7 @@
 #define IDT_FUNCS_H
 
 
-
+extern void PIC_sendEOI(unsigned char irq);
 extern void common_interrupt();
 extern void divide_by_zero();
 extern void reserved_1();
