@@ -9,23 +9,24 @@
 #include "types.h"
 
 /* Segment selector values */
-#define KERNEL_CS 0x0010
-#define KERNEL_DS 0x0018
-#define USER_CS 0x0023
-#define USER_DS 0x002B
-#define KERNEL_TSS 0x0030
-#define KERNEL_LDT 0x0038
+#define KERNEL_CS 		0x0010
+#define KERNEL_DS 		0x0018
+#define USER_CS 		0x0023
+#define USER_DS 		0x002B
+#define KERNEL_TSS		0x0030
+#define KERNEL_LDT		0x0038
 
 #define PIC1_COMMAND	0x20
 #define PIC1_DATA		0x21
 #define PIC2_COMMAND	0xA0	
 #define PIC2_DATA		0xA1	
-
+#define PIC_EOI			0x20	
+ 
 /* Size of the task state segment (TSS) */
-#define TSS_SIZE 104
+#define TSS_SIZE 		104
 
 /* Number of vectors in the interrupt descriptor table (IDT) */
-#define NUM_VEC 256
+#define NUM_VEC 		256
 
 #ifndef ASM
 
