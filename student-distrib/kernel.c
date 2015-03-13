@@ -7,13 +7,43 @@
 #include "lib.h"
 #include "i8259.h"
 #include "debug.h"
-
+#include "idt_funcs.h"
 /* Macros. */
 /* Check if the bit BIT in FLAGS is set. */
 #define CHECK_FLAG(flags,bit)   ((flags) & (1 << (bit)))
 
 /* Check if MAGIC is valid and print the Multiboot information structure
    pointed by ADDR. */
+
+void populate_idt()
+{
+	int i;
+	//void * common (void)= &common_interrupt;
+	for(i = 0; i<NUM_VEC; i++)
+	{
+		idt[i].present = 1;
+		idt[i].dpl = 0;
+		idt[i].reserved0 = 0;
+		idt[i].size = 1;
+		idt[i].reserved1 = 1;
+		idt[i].reserved2 = 1;
+		idt[i].reserved3 = 0;
+		idt[i].reserved4 = 0;
+		idt[i].seg_selector = KERNEL_CS;
+		if(i==0)
+		{
+			SET_IDT_ENTRY(idt[i],&divide_by_zero);
+		}
+		if((i>0 && i<20) || i>=0x20)
+		{
+			SET_IDT_ENTRY(idt[i],&common_interrupt);	
+		}
+	}
+	lidt(idt_desc_ptr);
+	i = i/0;
+}
+
+
 void
 entry (unsigned long magic, unsigned long addr)
 {
@@ -143,9 +173,13 @@ entry (unsigned long magic, unsigned long addr)
 		tss.esp0 = 0x800000;
 		ltr(KERNEL_TSS);
 	}
-
+	//printf("Enabling Interrupts\n");
 	/* Init the PIC */
-	i8259_init();
+
+	populate_idt();
+	//int j = 5/0;
+
+	//i8259_init();
 
 	/* Initialize devices, memory, filesystem, enable device interrupts on the
 	 * PIC, any other initialization stuff... */
@@ -155,6 +189,7 @@ entry (unsigned long magic, unsigned long addr)
 	 * IDT correctly otherwise QEMU will triple fault and simple close
 	 * without showing you any output */
 	/*printf("Enabling Interrupts\n");
+	populate_idt();
 	sti();*/
 
 	/* Execute the first program (`shell') ... */
@@ -162,4 +197,5 @@ entry (unsigned long magic, unsigned long addr)
 	/* Spin (nicely, so we don't chew up cycles) */
 	asm volatile(".1: hlt; jmp .1;");
 }
+
 
