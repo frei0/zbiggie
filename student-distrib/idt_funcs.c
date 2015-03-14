@@ -4,11 +4,10 @@
 
 /*Sends end of interrupt command to pic. called
  *after interrupt handler has completed */
-extern void PIC_sendEOI(unsigned char irq)
+extern void PIC_EOI(unsigned char irq)
 {
 	if(irq >= 8)
 		OUTB(PIC2_COMMAND,PIC_EOI);
- 
 	OUTB(PIC1_COMMAND,PIC_EOI);
 }
 
