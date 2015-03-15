@@ -2,6 +2,7 @@
 #include "lib.h"
 #include "x86_desc.h"
 #include "i8259.h"
+#include "rtc.h"
 
 char scan2ASCII[256] = 
 	{
@@ -198,8 +199,8 @@ extern void rtc_handler()
 	//puts("hi ");
 	outb(0x8C, RTC_INDEX_PORT);
 	inb(RTC_RW_PORT );
-    outb( inb(RTC_INDEX_PORT) & 0x7F, RTC_INDEX_PORT); //enable NMI again
-    //test_interrupts();
+    	outb( inb(RTC_INDEX_PORT) & 0x7F, RTC_INDEX_PORT); //enable NMI again
+    	test_interrupts();
 	sti();
 	send_eoi(8);
 }
