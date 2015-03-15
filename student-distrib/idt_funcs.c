@@ -196,9 +196,9 @@ extern void rtc_handler()
 {
 	cli();
 	//puts("hi ");
-	OUTB(0x70, 0x8C);
+	outb(0x8C, 0x70);
 	INB(0x71);
-    OUTB(0x70, INB(0x70)&0x7F); //enable NMI again
+    outb(INB(0x70)&0x7F, 0x70); //enable NMI again
     //test_interrupts();
 	sti();
 	send_eoi(8);
