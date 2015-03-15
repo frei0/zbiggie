@@ -212,62 +212,6 @@ do {                                    \
 			: "memory" );               \
 } while(0)
 
-/* macro used to write a byte to a port */
-#define OUTB(port,val)                                                  \
-do {                                                                    \
-    asm volatile ("                                                     \
-        outb %b1,(%w0)                                                  \
-    " : /* no outputs */                                                \
-      : "d" ((port)), "a" ((val))                                       \
-      : "memory", "cc");                                                \
-} while (0)
-
-/* macro used to write two bytes to two consecutive ports */
-#define OUTW(port,val)                                                  \
-do {                                                                    \
-    asm volatile ("                                                     \
-        outw %w1,(%w0)                                                  \
-    " : /* no outputs */                                                \
-      : "d" ((port)), "a" ((val))                                       \
-      : "memory", "cc");                                                \
-} while (0)
-
-/* 
- * macro used to write an array of two-byte values to two consecutive ports 
- */
-#define REP_OUTSW(port,source,count)                                    \
-do {                                                                    \
-    asm volatile ("                                                     \
-     1: movw 0(%1),%%ax                                                ;\
-	outw %%ax,(%w2)                                                ;\
-	addl $2,%1                                                     ;\
-	decl %0                                                        ;\
-	jne 1b                                                          \
-    " : /* no outputs */                                                \
-      : "c" ((count)), "S" ((source)), "d" ((port))                     \
-      : "eax", "memory", "cc");                                         \
-} while (0)
-
-/* 
- * macro used to write an array of one-byte values to two consecutive ports 
- */
-#define REP_OUTSB(port,source,count)                                    \
-do {                                                                    \
-    asm volatile ("                                                     \
-     1: movb 0(%1),%%al                                                ;\
-	outb %%al,(%w2)                                                ;\
-	incl %1                                                        ;\
-	decl %0                                                        ;\
-	jne 1b                                                          \
-    " : /* no outputs */                                                \
-      : "c" ((count)), "S" ((source)), "d" ((port))                     \
-      : "eax", "memory", "cc");                                         \
-} while (0)
-
-extern uint8_t INB (uint16_t port);
-extern uint16_t INW (uint16_t port);
-
-
 #endif /* ASM */
 
 #endif /* _x86_DESC_H */
