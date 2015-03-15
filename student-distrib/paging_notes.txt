@@ -1,0 +1,7 @@
+Paging Notes:
+
+page_directory[1] = 0x100000 |3;
+
+page_directory[0] = first_page_table [size 1024] |3;
+
+first_page_table[0xB8] = 0xB8000 |3;
