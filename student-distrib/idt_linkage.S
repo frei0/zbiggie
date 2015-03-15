@@ -12,6 +12,6 @@ asm_keyboard:
 
 asm_rtc:
 	pushal 
-	call something_went_wrong
+	call rtc_handler
 	popal
 	iret
