@@ -9,6 +9,7 @@
 #include "debug.h"
 #include "idt_funcs.h"
 #include "idt_linkage.h"
+#include "rtc.h"
 /* Macros. */
 /* Check if the bit BIT in FLAGS is set. */
 #define CHECK_FLAG(flags,bit)   ((flags) & (1 << (bit)))
@@ -54,7 +55,9 @@ void populate_idt()
 		}
 
 	}
+	SET_IDT_ENTRY(idt[0x20],&asm_rtc);
 	SET_IDT_ENTRY(idt[0x21],&asm_keyboard);
+
 
 	lidt(idt_desc_ptr);
 }
@@ -196,6 +199,7 @@ entry (unsigned long magic, unsigned long addr)
 	//int j = 5/0;
 
 	i8259_init();
+	rtc_init();
 
 	/* Initialize devices, memory, filesystem, enable device interrupts on the
 	 * PIC, any other initialization stuff... */
@@ -206,6 +210,7 @@ entry (unsigned long magic, unsigned long addr)
 	 * without showing you any output */
 	printf("Enabling Interrupts\n");
 	sti();
+
 
 	/* Execute the first program (`shell') ... */
 

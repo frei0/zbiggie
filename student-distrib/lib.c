@@ -7,7 +7,8 @@
 #define NUM_COLS 80
 #define NUM_ROWS 25
 #define ATTRIB 0x7
-
+#define SCREEN_W 320
+#define CHAR_W 8
 static int screen_x;
 static int screen_y;
 static char* video_mem = (char *)VIDEO;
@@ -198,7 +199,24 @@ putc(uint8_t c)
         screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
     }
 }
-
+void
+putc_kb(uint8_t c)
+{
+    if(c == '\n' || c == '\r') {
+        screen_y++;
+        screen_x=0;
+    } else {
+    	if(screen_x > SCREEN_W - CHAR_W){
+    		screen_y++;
+    		screen_x = 0;
+    	}
+        *(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1)) = c;
+        *(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1) + 1) = ATTRIB;
+        screen_x++;
+        screen_x %= NUM_COLS;
+        screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
+    }
+}
 /*
 * int8_t* itoa(uint32_t value, int8_t* buf, int32_t radix);
 *   Inputs: uint32_t value = number to convert

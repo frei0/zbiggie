@@ -180,7 +180,7 @@ extern void key_handler()
 	in = (char)INB(0x60);
 	if(in <= 0x59 && in >0)
 	{
-		putc(scan2ASCII[(int)in]);
+		putc_kb(scan2ASCII[(int)in]);
 	}
 	else
 	{
@@ -190,6 +190,14 @@ extern void key_handler()
 	sti();
 	send_eoi(1);	
 	//while(1);
+}
+
+extern void rtc_handler()
+{
+	cli();
+	puts("hi ");
+	sti();
+	send_eoi(0);
 }
 
 extern void something_went_wrong()
