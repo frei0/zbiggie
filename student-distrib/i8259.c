@@ -69,7 +69,10 @@ void
 send_eoi(uint32_t irq_num)
 {
 	if(irq_num >= 8)
-		OUTB(SLAVE_8259_PORT,EOI);
-	OUTB(MASTER_8259_PORT,EOI);
+    {
+        uint32_t temp = irq_num -8;
+		OUTB(SLAVE_8259_PORT,EOI|temp);
+    }
+	OUTB(MASTER_8259_PORT,EOI|irq_num);
 }
 

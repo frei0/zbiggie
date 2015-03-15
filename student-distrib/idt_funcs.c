@@ -195,9 +195,13 @@ extern void key_handler()
 extern void rtc_handler()
 {
 	cli();
-	puts("hi ");
+	//puts("hi ");
+	OUTB(0x70, 0x8C);
+	INB(0x71);
+    OUTB(0x70, INB(0x70)&0x7F); //enable NMI again
+    //test_interrupts();
 	sti();
-	send_eoi(0);
+	send_eoi(8);
 }
 
 extern void something_went_wrong()
