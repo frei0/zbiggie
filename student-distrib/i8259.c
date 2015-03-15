@@ -42,7 +42,7 @@ enable_irq(uint32_t irq_num)
         port = SLAVE_8259_PORT + 1;
         irq_num -= 8;
     }
-    value = INB(port) | (1 << irq_num);
+    value = inb(port) | (1 << irq_num);
     outb(value, port);        
 }
 
@@ -60,7 +60,7 @@ disable_irq(uint32_t irq_num)
         port = SLAVE_8259_PORT +1;
         irq_num -= 8;
     }
-    value = INB(port) & ~(1 << irq_num);
+    value = inb(port) & ~(1 << irq_num);
     outb(value, port);      
 }
 

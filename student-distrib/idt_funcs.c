@@ -177,7 +177,7 @@ extern void key_handler()
 	//clear()
 	char in;
 	cli();
-	in = (char)INB(0x60);
+	in = (char)inb(0x60);
 	if(in <= 0x59 && in >0)
 	{
 		putc_kb(scan2ASCII[(int)in]);
@@ -197,8 +197,8 @@ extern void rtc_handler()
 	cli();
 	//puts("hi ");
 	outb(0x8C, 0x70);
-	INB(0x71);
-    outb(INB(0x70)&0x7F, 0x70); //enable NMI again
+	inb(0x71);
+    outb( inb(0x70) & 0x7F, 0x70); //enable NMI again
     //test_interrupts();
 	sti();
 	send_eoi(8);
