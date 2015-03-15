@@ -23,6 +23,7 @@ extern void floating_point_error();
 extern void alignment_check();
 extern void machine_check();
 extern void SIMD_floating_point_exception();
+extern int system_calls();
 
 //20-31 Intel Reserved
 
