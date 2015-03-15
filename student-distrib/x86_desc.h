@@ -16,12 +16,7 @@
 #define KERNEL_TSS		0x0030
 #define KERNEL_LDT		0x0038
 
-#define PIC1_COMMAND	0x20
-#define PIC1_DATA		0x21
-#define PIC2_COMMAND	0xA0	
-#define PIC2_DATA		0xA1	
-#define PIC_EOI			0x20	
- 
+
 /* Size of the task state segment (TSS) */
 #define TSS_SIZE 		104
 
@@ -268,6 +263,9 @@ do {                                                                    \
       : "c" ((count)), "S" ((source)), "d" ((port))                     \
       : "eax", "memory", "cc");                                         \
 } while (0)
+
+extern uint8_t INB (uint16_t port);
+extern uint16_t INW (uint16_t port);
 
 
 #endif /* ASM */
