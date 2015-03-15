@@ -160,10 +160,14 @@ extern void SIMD_floating_point_exception()
 //0x21 - keyboard
 extern void key_handler()
 {
-	//clear();
-	printf("KEYBOARD!!!!\n");
+	//clear()
+	char in;
+	cli();
+	in = INB(0x60);
+	printf("%x ", in);
+	sti();
 	send_eoi(1);	
-	while(1);
+	//while(1);
 }
 
 extern void something_went_wrong()
