@@ -211,7 +211,11 @@ extern void something_went_wrong()
 	while(1);
 }
 
-
+extern int system_calls()
+{
+	printf("system_calls to be set up later\n");
+	return 0;
+}
 
 
 

@@ -57,6 +57,7 @@ void populate_idt()
 	}
 	SET_IDT_ENTRY(idt[0x28],&asm_rtc);
 	SET_IDT_ENTRY(idt[0x21],&asm_keyboard);
+	SET_IDT_ENTRY(idt[0x80],&system_calls);
 
 
 	lidt(idt_desc_ptr);
