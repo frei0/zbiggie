@@ -8,6 +8,7 @@
 #include "i8259.h"
 #include "debug.h"
 #include "idt_funcs.h"
+#include "idt_linkage.h"
 /* Macros. */
 /* Check if the bit BIT in FLAGS is set. */
 #define CHECK_FLAG(flags,bit)   ((flags) & (1 << (bit)))
@@ -38,9 +39,7 @@ void populate_idt()
 		idt[i].reserved3 = 0;
 		idt[i].reserved4 = 0;
 		idt[i].seg_selector = KERNEL_CS;
-		if(i == 0x21)
-			SET_IDT_ENTRY(idt[i],&key_handler);
-		else if(i>=0x20) 
+		if(i>=0x20) 
 		{
 			SET_IDT_ENTRY(idt[i],&common_interrupt);	
 		}
@@ -55,6 +54,7 @@ void populate_idt()
 		}
 
 	}
+	SET_IDT_ENTRY(idt[0x21],&asm_keyboard);
 
 	lidt(idt_desc_ptr);
 }
