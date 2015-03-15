@@ -38,8 +38,9 @@ void populate_idt()
 		idt[i].reserved3 = 0;
 		idt[i].reserved4 = 0;
 		idt[i].seg_selector = KERNEL_CS;
-
-		if(i>=0x20) 
+		if(i == 0x21)
+			SET_IDT_ENTRY(idt[i],&key_handler);
+		else if(i>=0x20) 
 		{
 			SET_IDT_ENTRY(idt[i],&common_interrupt);	
 		}
@@ -52,6 +53,7 @@ void populate_idt()
 				SET_IDT_ENTRY(idt[i], arr[i]); 
 			}	
 		}
+
 	}
 
 	lidt(idt_desc_ptr);
@@ -193,7 +195,7 @@ entry (unsigned long magic, unsigned long addr)
 	populate_idt();
 	//int j = 5/0;
 
-	//i8259_init();
+	i8259_init();
 
 	/* Initialize devices, memory, filesystem, enable device interrupts on the
 	 * PIC, any other initialization stuff... */
@@ -202,9 +204,8 @@ entry (unsigned long magic, unsigned long addr)
 	/* Do not enable the following until after you have set up your
 	 * IDT correctly otherwise QEMU will triple fault and simple close
 	 * without showing you any output */
-	/*printf("Enabling Interrupts\n");
-	populate_idt();
-	sti();*/
+	printf("Enabling Interrupts\n");
+	sti();
 
 	/* Execute the first program (`shell') ... */
 

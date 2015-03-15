@@ -1,20 +1,35 @@
 #include "idt_funcs.h"
 #include "lib.h"
 #include "x86_desc.h"
+#include "i8259.h"
 
-/*Sends end of interrupt command to pic. called
- *after interrupt handler has completed */
-extern void PIC_EOI(unsigned char irq)
+extern uint8_t
+INB (uint16_t port)
 {
-	if(irq >= 8)
-		OUTB(PIC2_COMMAND,PIC_EOI);
-	OUTB(PIC1_COMMAND,PIC_EOI);
+ register uint8_t ret;
+ asm volatile("inb %%dx, %%al"
+ : "=a" (ret)
+ : "d" (port)
+ );
+ return ret;
+}
+
+extern uint16_t
+INW (uint16_t port)
+{
+ register uint16_t ret;
+ asm volatile("inw %%dx, %%ax"
+ : "=a" (ret)
+ : "d" (port)
+ );
+ return ret;
 }
 
 extern void common_interrupt()
 {
 	//clear();
 	printf("common_interrupt\n");
+
 	while(1);
 }
 
@@ -137,12 +152,19 @@ extern void SIMD_floating_point_exception()
 	while(1);
 }
 
-//20-31 Intel Reserved
+//dec. 20-31 Intel Reserved
 
 //32-255
 //User Defined: Call common interrupt
 
-
+//0x21 - keyboard
+extern void key_handler()
+{
+	//clear();
+	printf("KEYBOARD!!!!\n");
+	send_eoi(1);	
+	while(1);
+}
 
 extern void something_went_wrong()
 {
