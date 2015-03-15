@@ -10,6 +10,7 @@
 #include "idt_funcs.h"
 #include "idt_linkage.h"
 #include "rtc.h"
+#include "page.h"
 /* Macros. */
 /* Check if the bit BIT in FLAGS is set. */
 #define CHECK_FLAG(flags,bit)   ((flags) & (1 << (bit)))
@@ -212,9 +213,10 @@ entry (unsigned long magic, unsigned long addr)
 	printf("Enabling Interrupts\n");
 	sti();
 
-
+	init_paging();
 	/* Execute the first program (`shell') ... */
-
+	int * p = NULL;
+	//*p = 1;
 	/* Spin (nicely, so we don't chew up cycles) */
 	asm volatile(".1: hlt; jmp .1;");
 }
