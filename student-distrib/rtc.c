@@ -18,10 +18,10 @@ rtc_init(void)
     //OUTB(RTC_RW_PORT,0x20);
 
 	// enable irq 8
-    OUTB(RTC_INDEX_PORT, 0x8B); //select port B, keep NMI disabled
+    outb(0x8B, RTC_INDEX_PORT); //select port B, keep NMI disabled
     char current_b = INB(RTC_RW_PORT);
-    OUTB(RTC_INDEX_PORT, 0x8B); //select port B, keep NMI disabled
-    OUTB(RTC_RW_PORT, current_b | 0x40); //enable IR
-    OUTB(RTC_INDEX_PORT, INB(RTC_INDEX_PORT)&0x7F); //enable NMI again
+    outb(0x8B, RTC_INDEX_PORT); //select port B, keep NMI disabled
+    outb(current_b | 0x40, RTC_RW_PORT); //enable IR
+    outb(INB(RTC_INDEX_PORT)&0x7F, RTC_INDEX_PORT); //enable NMI again
     enable_irq(8);
 }
