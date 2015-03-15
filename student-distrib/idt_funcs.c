@@ -170,7 +170,7 @@ extern void key_handler()
 	}
 	else
 	{
-		putc(in);
+		putc(scan2ASCII[in]);
 	}
 	
 	sti();
