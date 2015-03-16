@@ -1,6 +1,9 @@
 #ifndef IDT_FUNCS_H
 #define IDT_FUNCS_H
 
+#define KEY_PORT	0x60
+#define KEY_LINE	1
+#define PRESSED_RANGE	0x59
 
 extern void common_interrupt();
 extern void divide_by_zero();

@@ -178,18 +178,14 @@ extern void key_handler()
 	//clear()
 	char in;
 	cli();
-	in = (char)inb(0x60);
-	if(in <= 0x59 && in >0)
+	in = (char)inb(KEY_PORT);
+	if(in <= PRESSED_RANGE && in > 0)
 	{
 		putc_kb(scan2ASCII[(int)in]);
 	}
-	else
-	{
-		//printf("%x", in);
-	}
 	
 	sti();
-	send_eoi(1);	
+	send_eoi(KEY_LINE);	
 	//while(1);
 }
 
