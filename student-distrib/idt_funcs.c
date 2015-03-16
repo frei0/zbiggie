@@ -200,7 +200,7 @@ extern void rtc_handler()
 	outb(0x8C, RTC_INDEX_PORT);
 	inb(RTC_RW_PORT );
     	outb( inb(RTC_INDEX_PORT) & 0x7F, RTC_INDEX_PORT); //enable NMI again
-    	test_interrupts();
+    	//test_interrupts();
 	sti();
 	send_eoi(8);
 }
