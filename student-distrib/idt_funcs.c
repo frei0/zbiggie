@@ -196,13 +196,11 @@ extern void key_handler()
 extern void rtc_handler()
 {
 	cli();
-	//puts("hi ");
-	outb(0x8C, RTC_INDEX_PORT);
-	inb(RTC_RW_PORT );
-    	outb( inb(RTC_INDEX_PORT) & 0x7F, RTC_INDEX_PORT); //enable NMI again
-    	//test_interrupts();
+	outb(NO_NMI_C, RTC_INDEX_PORT); //Turn of NMI and select C port
+	inb(RTC_RW_PORT ); //Read data and throw it out to clear buffer
+    outb( inb(RTC_INDEX_PORT) & NMI_ON, RTC_INDEX_PORT); //enable NMI again
 	sti();
-	send_eoi(8);
+	send_eoi(RTC_LINE);
 }
 
 extern void something_went_wrong()
