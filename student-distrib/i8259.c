@@ -18,14 +18,14 @@ i8259_init(void)
 	outb(ICW1, MASTER_8259_PORT);
     outb(ICW1, SLAVE_8259_PORT);
    
-    outb(ICW2_MASTER, MASTER_8259_PORT+1);
-    outb(ICW2_SLAVE, SLAVE_8259_PORT+1);
+    outb(ICW2_MASTER, MASTER_8259_PORT+DATA_OFFSET);
+    outb(ICW2_SLAVE, SLAVE_8259_PORT+DATA_OFFSET);
    
-    outb(ICW3_MASTER, MASTER_8259_PORT+1);
-    outb(ICW3_SLAVE, MASTER_8259_PORT+1);
+    outb(ICW3_MASTER, MASTER_8259_PORT+DATA_OFFSET);
+    outb(ICW3_SLAVE, MASTER_8259_PORT+DATA_OFFSET);
    
-    outb(ICW4, MASTER_8259_PORT+1);
-    outb(ICW4, MASTER_8259_PORT+1);
+    outb(ICW4, MASTER_8259_PORT+DATA_OFFSET);
+    outb(ICW4, MASTER_8259_PORT+DATA_OFFSET);
 }
 
 /* Enable (unmask) the specified IRQ 
@@ -36,11 +36,11 @@ enable_irq(uint32_t irq_num)
 	uint16_t port;
     uint8_t value;
  
-    if(irq_num < 8) {
-        port = MASTER_8259_PORT + 1;
+    if(irq_num < 8) { // Check if master or slave
+        port = MASTER_8259_PORT + DATA_OFFSET;
     } else {
-        port = SLAVE_8259_PORT + 1;
-        irq_num -= 8;
+        port = SLAVE_8259_PORT + DATA_OFFSET;
+        irq_num -= 8; //If slave, decrement irq_num by 8
     }
     value = inb(port) | (1 << irq_num);
     outb(value, port);        
@@ -54,11 +54,11 @@ disable_irq(uint32_t irq_num)
 	uint16_t port;
     uint8_t value;
  
-    if(irq_num < 8) {
-        port = MASTER_8259_PORT + 1;
+    if(irq_num < 8) { // Check if master or slave
+        port = MASTER_8259_PORT + DATA_OFFSET;
     } else {
-        port = SLAVE_8259_PORT +1;
-        irq_num -= 8;
+        port = SLAVE_8259_PORT + DATA_OFFSET;
+        irq_num -= 8; //If slave, decrement irq_num by 8
     }
     value = inb(port) & ~(1 << irq_num);
     outb(value, port);      
@@ -68,9 +68,9 @@ disable_irq(uint32_t irq_num)
 void
 send_eoi(uint32_t irq_num)
 {
-	if(irq_num >= 8)
+	if(irq_num >= 8) // If interrupt came from slave, send EOI to both
     {
-        uint32_t temp = irq_num -8;
+        uint32_t temp = irq_num - 8;
 		outb(EOI|temp, SLAVE_8259_PORT);
     }
 	outb(EOI|irq_num, MASTER_8259_PORT);
