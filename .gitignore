@@ -3,3 +3,4 @@ student-distrib/Makefile.dep
 student-distrib/bootimg
 student-distrib/mp3.img
 */tags
+*/.DS_Store
