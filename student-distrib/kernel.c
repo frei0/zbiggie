@@ -215,6 +215,7 @@ entry (unsigned long magic, unsigned long addr)
 	init_paging();
 	/* Execute the first program (`shell') ... */
 	int * p = NULL;
+	*p =1;
 	//*p = 1;
 	/* Spin (nicely, so we don't chew up cycles) */
 	asm volatile(".1: hlt; jmp .1;");
