@@ -43,7 +43,7 @@ void init_paging(void){
           mov %%eax, %%cr0;   \
           "
     : 
-    : "r" (page_directory), "g" (PAGING_PSE), "g" (PAGING_ENABLE)
+    : "r" (page_directory), "i" (PAGING_PSE), "i" (PAGING_ENABLE)
     : "ax", "cc","memory" 
     );
 }
