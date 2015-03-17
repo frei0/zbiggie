@@ -15,13 +15,20 @@
 /* Check if the bit BIT in FLAGS is set. */
 #define CHECK_FLAG(flags,bit)   ((flags) & (1 << (bit)))
 
+/*Magic Numbers*/ 
+#define EXCEPTION_INDEX 0x20
+#define KEYBOARD_INDEX 0x21
+#define RTC_INDEX 0x28
+#define SYS_CALLS_INDEX 0x80
+
 /* Check if MAGIC is valid and print the Multiboot information structure
    pointed by ADDR. */
 
 void populate_idt()
 {
 	int i;
-	void (* arr[256]) = 
+	/*initializing the specific interrupts 0 - 20*/ 
+	void (* arr[NUM_VEC]) = 
 	{ &divide_by_zero, &reserved_1, &non_maskable_interrupt, 
 	&breakpoint, &overflow, &BOUND_range_exceeded, &invalid_opcode,
 	&device_not_available, &double_fault, &coprocessor_segment_overrun, 
@@ -30,7 +37,8 @@ void populate_idt()
 	&machine_check, &SIMD_floating_point_exception
 	};
 
-	for(i = 0; i<NUM_VEC; i++)
+	/*iterating through idt, populating with correct interrupts*/
+	for(i = 0; i< NUM_VEC; i++)
 	{
 		idt[i].present = 1;
 		idt[i].dpl = 0;
@@ -41,26 +49,29 @@ void populate_idt()
 		idt[i].reserved3 = 0;
 		idt[i].reserved4 = 0;
 		idt[i].seg_selector = KERNEL_CS;
-		if(i>=0x20) 
+
+		/*Do not set IDT_ENTRY for 20 - 32 (Intel Reserved) */ 
+		if(i >= EXCEPTION_INDEX) 
 		{
+			/*Set common interrupt for user defined*/ 
 			SET_IDT_ENTRY(idt[i],&common_interrupt);	
 		}
 		else if(i < 20)
 		{
 			if( i == 15 )
 			{
-				//DO NOTHING
+				/*DO NOTHING, Intel Reserved*/ 
 			}else{
 				SET_IDT_ENTRY(idt[i], arr[i]); 
 			}	
 		}
-
 	}
-	SET_IDT_ENTRY(idt[0x28],&asm_rtc);
-	SET_IDT_ENTRY(idt[0x21],&asm_keyboard);
-	SET_IDT_ENTRY(idt[0x80],&system_calls);
+	/*setting more specific interrupts*/ 
+	SET_IDT_ENTRY(idt[RTC_INDEX],&asm_rtc);
+	SET_IDT_ENTRY(idt[KEYBOARD_INDEX],&asm_keyboard);
+	SET_IDT_ENTRY(idt[SYS_CALLS_INDEX],&system_calls);
 
-
+	/*loading IDTR*/ 
 	lidt(idt_desc_ptr);
 }
 
@@ -107,7 +118,7 @@ entry (unsigned long magic, unsigned long addr)
 			printf("Module %d loaded at address: 0x%#x\n", mod_count, (unsigned int)mod->mod_start);
 			printf("Module %d ends at address: 0x%#x\n", mod_count, (unsigned int)mod->mod_end);
 			printf("First few bytes of module:\n");
-			for(i = 0; i<16; i++) {
+			for(i = 0; i < 16; i++) {
 				printf("0x%x ", *((char*)(mod->mod_start+i)));
 			}
 			printf("\n");
@@ -198,7 +209,6 @@ entry (unsigned long magic, unsigned long addr)
 	/* Init the PIC */
 
 	populate_idt();
-	//int j = 5/0;
 
 	i8259_init();
 	rtc_init();
@@ -215,8 +225,9 @@ entry (unsigned long magic, unsigned long addr)
 
 	init_paging();
 	/* Execute the first program (`shell') ... */
-	int * p = NULL;
+	//int * p = NULL;
 	//*p =1;
+
 	/* Spin (nicely, so we don't chew up cycles) */
 	asm volatile(".1: hlt; jmp .1;");
 }
