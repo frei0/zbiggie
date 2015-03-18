@@ -36,7 +36,9 @@ extern int system_calls();
 //User Defined: Call common interrupt
 extern void key_handler();
 
-extern void something_went_wrong(); 
+extern void something_went_wrong();
+extern volatile int rtc_f; 
+
 
 
 
