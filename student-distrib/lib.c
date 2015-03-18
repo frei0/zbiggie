@@ -212,6 +212,7 @@ putc(uint8_t c)
 	}
 	if(screen_y >= NUM_ROWS)
 		scroll();
+	update_cursor(screen_y, screen_x);
 
 }
 void
@@ -243,6 +244,7 @@ putc_kb(uint8_t c)
 	}
 	if(screen_y >= NUM_ROWS)
 		scroll();
+	update_cursor(screen_y, screen_x);
     
 }
 
@@ -635,3 +637,22 @@ test_interrupts(void)
 		video_mem[i<<1]++;
 	}
 }
+
+
+ /* void update_cursor(int row, int col)
+  * by Dark Fiber
+  */
+ void update_cursor(int row, int col)
+ {
+    unsigned short position=(row*80) + col;
+ 
+    // cursor LOW port to vga INDEX register
+    outb(0x0F, 0x3D4);
+    outb((unsigned char)(position&0xFF), 0x3D5);
+    // cursor HIGH port to vga INDEX register
+    outb(0x0E, 0x3D4);
+    outb((unsigned char )((position>>8)&0xFF), 0x3D5);
+ }
+
+
+
