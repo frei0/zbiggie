@@ -39,3 +39,10 @@ int change_rtc_freq(int rate)
 	return (int)previous_rate;
 
 }
+
+int rtc_read(void)
+{
+	rtc_f = 1;
+	while(rtc_f);
+	return 0;
+}
