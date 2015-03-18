@@ -202,9 +202,13 @@ putc(uint8_t c)
 void
 putc_kb(uint8_t c)
 {
-    if(c == '\n' || c == '\r') {
+    if(c == 0x0A || c == '\r') {
         screen_y++;
         screen_x=0;
+    }else if( c == 0x08){
+    	screen_x--; 
+    	putc(0);
+    	screen_x --;  
     } else {
     	if(screen_x > SCREEN_W - CHAR_W){
     		screen_y++;
