@@ -196,12 +196,12 @@ extern void key_handler()
 		return;
 	}
 
-	if ((0x000000FF && in) == 0xAA)
+	if ((0x000000FF & in) == 0xAA)
 	{
 		shift_l_flag = 0; 
 		return;
 	}
-	if (in == (char)0xB6)
+	if ((0x000000FF & in) == 0xB6)
 	{
 		shift_r_flag = 0; 
 		return;
