@@ -33,7 +33,7 @@ char shift2ASCII[256] =
 	};
 
 
-int shift_l_flag = 0, shift_r_flag = 0; 
+int shift_l_flag = 0, shift_r_flag = 0, caps_lock_flag = 0; 
 
 volatile int rtc_f = 0;
 
@@ -211,7 +211,11 @@ extern void key_handler()
 		shift_r_flag = 1;
 		return;
 	}
-
+	if (in == 0x3A)
+	{
+		caps_lock_flag = !caps_lock_flag; 
+		return; 
+	}
 	if ((0x000000FF & in) == 0xAA)
 	{
 		shift_l_flag = 0; 
@@ -229,14 +233,27 @@ extern void key_handler()
 		{
 			if ( (scan2ASCII[(int)in] > 96) && (scan2ASCII[(int)in] < 123) )
 			{
-				putc_kb(scan2ASCII[(int)in] - 32);
+				if (caps_lock_flag)
+				{
+					putc_kb(scan2ASCII[(int)in]);
+				}else{
+					putc_kb(scan2ASCII[(int)in] - 32);
+				}
 			}else{
 				putc_kb(shift2ASCII[(int)in]); 
 			}
-
-				
 		}else{
-			putc_kb(scan2ASCII[(int)in]);
+			if ( (scan2ASCII[(int)in] > 96) && (scan2ASCII[(int)in] < 123) )
+			{
+				if (caps_lock_flag)
+				{
+					putc_kb(scan2ASCII[(int)in] - 32);
+				}else{
+					putc_kb(scan2ASCII[(int)in]);
+				}
+			}else{
+				putc_kb(scan2ASCII[(int)in]); 
+			}
 		}
 	}
 	
