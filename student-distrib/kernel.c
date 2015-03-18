@@ -230,6 +230,8 @@ entry (unsigned long magic, unsigned long addr)
 
 	//change_rtc_freq(8);
 
+	clear();
+	clear_pos();
 	/* Spin (nicely, so we don't chew up cycles) */
 	asm volatile(".1: hlt; jmp .1;");
 }
