@@ -195,12 +195,26 @@ extern void SIMD_floating_point_exception()
 extern void key_handler()
 {
 	
-	//clear()
 	char in;
 	cli();
 	in = (char)inb(KEY_PORT);
 
 	//printf("%x", in);
+	if ((in == 0x48) || (in == 0x50))
+	{
+		//do nothing
+		return;
+	}
+	if (in == 0x4B)
+	{
+		move_left(); 
+		return;
+	}
+	if (in == 0x4D)
+	{
+		move_right(); 
+		return;
+	}
 	if (in == 0x1D)
 	{
 		ctrl_flag = 1; 
