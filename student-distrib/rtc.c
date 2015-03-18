@@ -22,3 +22,20 @@ rtc_init(void)
     outb( inb(RTC_INDEX_PORT) & NMI_ON, RTC_INDEX_PORT); //enable NMI again
     enable_irq(RTC_LINE);
 }
+
+int change_rtc_freq(int rate)
+{
+	if(rate<3 || rate >15)
+	{
+		return -1;
+	}
+	cli();
+	outb(NO_NMI_A, RTC_INDEX_PORT); //select port A, keep NMI disabled
+	char previous_rate = inb(RTC_RW_PORT);
+	outb(NO_NMI_A, RTC_INDEX_PORT); // reselect A
+	outb((previous_rate & RATE_MASK)|rate, RTC_RW_PORT);
+	outb( inb(RTC_INDEX_PORT) & NMI_ON, RTC_INDEX_PORT); //enable NMI again
+	sti();
+	return (int)previous_rate;
+
+}
