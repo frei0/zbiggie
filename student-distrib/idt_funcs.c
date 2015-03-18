@@ -230,19 +230,21 @@ extern void key_handler()
 	int isALetter = (scan2ASCII[(int)in] > 96) && (scan2ASCII[(int)in] < 123);
 	int isPrintable = (((int)in > 1) && ((int)in < 123));
 
-	if(isALetter && ((shift_r_flag || shift_l_flag) ^ caps_lock_flag))
+	if(isPrintable)
 	{
+		if(isALetter && ((shift_r_flag || shift_l_flag) ^ caps_lock_flag))
+		{
 			putc_kb(scan2ASCII[(int)in] - 32);
-	}
-
-	else if((shift_r_flag || shift_l_flag) &&  isPrintable)
-	{
-		putc_kb(shift2ASCII[(int)in]); 
-	}
-	else if(isPrintable)
-	{
-		putc_kb(scan2ASCII[(int)in]); 
-	}
+		}
+		else if(shift_r_flag || shift_l_flag)
+		{
+			putc_kb(shift2ASCII[(int)in]); 
+		}
+		else 
+		{
+			putc_kb(scan2ASCII[(int)in]); 
+		}
+    }
 
 	sti();
 	send_eoi(KEY_LINE);	
