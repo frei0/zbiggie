@@ -256,7 +256,8 @@ extern void key_handler()
 			if ( (scan2ASCII[(int)in] == 'l') && ctrl_flag)
 			{
 				clear();
-				clear_pos(); 
+				clear_pos();
+				update_cursor(0, 0);
 			}else{
 				putc_kb(scan2ASCII[(int)in]); 
 			}
