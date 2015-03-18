@@ -37,7 +37,7 @@ extern int system_calls();
 extern void key_handler();
 
 extern void something_went_wrong();
-extern volatile int rtc_f; 
+extern volatile int rtc_f;
 
 
 
