@@ -209,6 +209,7 @@ putc(uint8_t c)
 void
 putc_kb(uint8_t c)
 {
+    int x, y;
     if(c == 0x0A || c == '\r') {
         screen_y++;
         screen_x=0;
@@ -226,6 +227,26 @@ putc_kb(uint8_t c)
         screen_x++;
         screen_x %= NUM_COLS;
         screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
+    }
+    if(screen_y >= NUM_ROWS)
+    {
+    	for(y = 1; y < NUM_ROWS; ++y)
+    	{
+    		for(x = 0; x < NUM_COLS; x++)
+    		{
+    			*(uint8_t *)(video_mem + ((NUM_COLS*(y-1) + x) << 1)) = *(uint8_t *)(video_mem + ((NUM_COLS*(y) + x) << 1)) ;
+    			*(uint8_t *)(video_mem + ((NUM_COLS*(y-1) + x) << 1)+1) = *(uint8_t *)(video_mem + ((NUM_COLS*(y) + x) << 1)+1) ;
+
+    		}
+    	}
+    	screen_y = NUM_ROWS -1;
+    	for(x = 0; x < NUM_COLS; x++)
+    	{
+    			*(uint8_t *)(video_mem + ((NUM_COLS*(screen_y) + x) << 1)) = 0x00;
+    			*(uint8_t *)(video_mem + ((NUM_COLS*(screen_y) + x) << 1)+1) = ATTRIB;
+
+    	}
+    	
     }
 }
 /*
