@@ -35,6 +35,27 @@ set_pos(void)
 {
     screen_x = 0;
     screen_y = 0;
+    update_cursor(0, 0);
+}
+
+void 
+move_right(void)
+{
+	if (screen_x < NUM_COLS-1)
+	{
+		screen_x ++; 
+	}
+	update_cursor(screen_y, screen_x); 
+}
+
+void
+move_left(void)
+{
+	if (screen_x > 0) 
+	{
+		screen_x --; 
+	}
+	update_cursor(screen_y, screen_x);  
 }
 
 /* Standard printf().
@@ -242,7 +263,7 @@ putc_kb(uint8_t c)
         }
     	
     } else {
-    	if(screen_x > SCREEN_W - CHAR_W){
+    	if(screen_x >= NUM_COLS){
     		screen_y++;
     		screen_x = 0;
     	}
