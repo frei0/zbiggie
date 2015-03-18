@@ -33,7 +33,7 @@ char shift2ASCII[256] =
 	};
 
 
-int shift_l_flag = 0, shift_r_flag = 0, caps_lock_flag = 0; 
+int shift_l_flag = 0, shift_r_flag = 0, caps_lock_flag = 0, ctrl_flag = 0;
 
 volatile int rtc_f = 0;
 
@@ -201,6 +201,11 @@ extern void key_handler()
 	in = (char)inb(KEY_PORT);
 
 	//printf("%x", in);
+	if (in == 0x1D)
+	{
+		ctrl_flag = 1; 
+		return;
+	}
 	if (in == 0x2A)
 	{
 		shift_l_flag = 1; 
@@ -215,6 +220,11 @@ extern void key_handler()
 	{
 		caps_lock_flag = !caps_lock_flag; 
 		return; 
+	}
+	if ((0x000000FF & in) == 0x9D)
+	{
+		ctrl_flag = 0; 
+		return;
 	}
 	if ((0x000000FF & in) == 0xAA)
 	{
@@ -242,7 +252,12 @@ extern void key_handler()
 		}
 		else 
 		{
-			putc_kb(scan2ASCII[(int)in]); 
+			if ( (scan2ASCII[(int)in] == 'l') && ctrl_flag)
+			{
+				clear(); 
+			}else{
+				putc_kb(scan2ASCII[(int)in]); 
+			}
 		}
     }
 
