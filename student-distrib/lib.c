@@ -31,7 +31,7 @@ clear(void)
 }
 
 void
-clear_pos(void)
+set_pos(void)
 {
     screen_x = 0;
     screen_y = 0;
