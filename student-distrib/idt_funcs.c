@@ -249,19 +249,20 @@ extern void key_handler()
 		else if(shift_r_flag || shift_l_flag)
 		{
 			putc_kb(shift2ASCII[(int)in]); 
+			//puts("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
 		}
 		else 
 		{
 			if ( (scan2ASCII[(int)in] == 'l') && ctrl_flag)
 			{
-				clear(); 
+				clear();
+				clear_pos(); 
 			}else{
 				putc_kb(scan2ASCII[(int)in]); 
 			}
 		}
     }
 
-    printf("");
 	sti();
 	send_eoi(KEY_LINE);	
 	//while(1);

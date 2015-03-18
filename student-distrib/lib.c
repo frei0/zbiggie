@@ -202,9 +202,17 @@ putc(uint8_t c)
         *(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1)) = c;
         *(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1) + 1) = ATTRIB;
         screen_x++;
-        screen_x %= NUM_COLS;
-        screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
+        //screen_x %= NUM_COLS;
+        //screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
     }
+    if(screen_x >= NUM_COLS)
+	{
+		screen_y++;
+		screen_x = 0;
+	}
+	if(screen_y >= NUM_ROWS)
+		scroll();
+
 }
 void
 putc_kb(uint8_t c)
@@ -214,7 +222,8 @@ putc_kb(uint8_t c)
         screen_y++;
         screen_x=0;
     }else if( c == 0x08){
-    	screen_x--; 
+    	if(screen_x > 0)
+    		screen_x--; 
     	putc(0);
     	screen_x --;  
     } else {
@@ -225,29 +234,40 @@ putc_kb(uint8_t c)
         *(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1)) = c;
         *(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1) + 1) = ATTRIB;
         screen_x++;
-        screen_x %= NUM_COLS;
-        screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
+        //screen_x %= NUM_COLS;
+        //screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
     }
-    if(screen_y >= NUM_ROWS)
-    {
-    	for(y = 1; y < NUM_ROWS; ++y)
-    	{
-    		for(x = 0; x < NUM_COLS; x++)
-    		{
-    			*(uint8_t *)(video_mem + ((NUM_COLS*(y-1) + x) << 1)) = *(uint8_t *)(video_mem + ((NUM_COLS*(y) + x) << 1)) ;
-    			*(uint8_t *)(video_mem + ((NUM_COLS*(y-1) + x) << 1)+1) = *(uint8_t *)(video_mem + ((NUM_COLS*(y) + x) << 1)+1) ;
+    if(screen_x >= NUM_COLS)
+	{
+		screen_y++;
+		screen_x = 0;
+	}
+	if(screen_y >= NUM_ROWS)
+		scroll();
+    
+}
 
-    		}
-    	}
-    	screen_y = NUM_ROWS -1;
-    	for(x = 0; x < NUM_COLS; x++)
-    	{
-    			*(uint8_t *)(video_mem + ((NUM_COLS*(screen_y) + x) << 1)) = 0x00;
-    			*(uint8_t *)(video_mem + ((NUM_COLS*(screen_y) + x) << 1)+1) = ATTRIB;
+void 
+scroll()
+{
+	int x, y;
+	for(y = 1; y < NUM_ROWS; ++y)
+	{
+		for(x = 0; x < NUM_COLS; x++)
+		{
+			*(uint8_t *)(video_mem + ((NUM_COLS*(y-1) + x) << 1)) = *(uint8_t *)(video_mem + ((NUM_COLS*(y) + x) << 1)) ;
+			*(uint8_t *)(video_mem + ((NUM_COLS*(y-1) + x) << 1)+1) = *(uint8_t *)(video_mem + ((NUM_COLS*(y) + x) << 1)+1) ;
 
-    	}
-    	
-    }
+		}
+	}
+	screen_y = NUM_ROWS -1;
+	for(x = 0; x < NUM_COLS; x++)
+	{
+			*(uint8_t *)(video_mem + ((NUM_COLS*(screen_y) + x) << 1)) = 0x00;
+			*(uint8_t *)(video_mem + ((NUM_COLS*(screen_y) + x) << 1)+1) = ATTRIB;
+
+	}
+	screen_x = 0;
 }
 /*
 * int8_t* itoa(uint32_t value, int8_t* buf, int32_t radix);
