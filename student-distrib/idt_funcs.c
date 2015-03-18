@@ -19,8 +19,7 @@ char scan2ASCII[256] =
 	};
 int shift_l_flag = 0, shift_r_flag = 0; 
 
-volatile int rtc_f = 0; 
-
+volatile int rtc_f = 0;
 
 extern uint8_t
 INB (uint16_t port)
@@ -202,7 +201,7 @@ extern void key_handler()
 		shift_l_flag = 0; 
 		return;
 	}
-	if (in == 0xB6)
+	if (in == (char)0xB6)
 	{
 		shift_r_flag = 0; 
 		return;
