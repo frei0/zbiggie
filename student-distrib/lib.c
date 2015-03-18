@@ -222,10 +222,25 @@ putc_kb(uint8_t c)
         screen_y++;
         screen_x=0;
     }else if( c == 0x08){
-    	if(screen_x > 0)
-    		screen_x--; 
-    	putc(0);
-    	screen_x --;  
+    		if((screen_y == 0 && screen_x == 0))
+	   		{
+	   			*(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1)) = 0;
+            	*(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1) + 1) = ATTRIB;
+	   		}
+	   		else
+	   		{
+		   		screen_x--; 
+		   		if(screen_x < 0)
+		   		{
+		   			screen_x = NUM_COLS -1;
+		   			screen_y--;
+		   			if(screen_y < 0)
+		   				screen_y = 0;
+		   		}
+		    	*(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1)) = 0;
+	            *(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1) + 1) = ATTRIB;
+        }
+    	
     } else {
     	if(screen_x > SCREEN_W - CHAR_W){
     		screen_y++;
