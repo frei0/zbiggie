@@ -17,6 +17,12 @@
 #define RTC_LINE	   8
 #define RTC_ENABLE	   0x40
 
+//Rate defines
+#define MIN_RATE	   2
+#define MAX_RATE	   15
+#define RATE_MASK	   0xF0
+
 
 void rtc_init(void);
+int change_rtc_freq(int rate);
 #endif
