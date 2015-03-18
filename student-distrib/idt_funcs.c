@@ -17,7 +17,9 @@ char scan2ASCII[256] =
 		0x62, 0x6E, 0x6D, 0x2C, 0x2E, 0x2F,
 		0xFF, 0x2A, 0xFF, 0x20, 0xFF
 	};
-int shift_l_flag = 0; shift_r_flag = 0; 
+int shift_l_flag = 0, shift_r_flag = 0; 
+
+volatile int rtc_f = 0; 
 
 
 extern uint8_t
@@ -177,22 +179,40 @@ extern void SIMD_floating_point_exception()
 //0x21 - keyboard
 extern void key_handler()
 {
-	//shift_flag
+	
 	//clear()
 	char in;
 	cli();
 	in = (char)inb(KEY_PORT);
 
-	if (in == 0x2B)
+	//printf("%x", in);
+	if (in == 0x2A)
 	{
-		
+		shift_l_flag = 1; 
+		return;
+	}
+	if (in == 0x36)
+	{
+		shift_r_flag = 1;
+		return;
+	}
+
+	if ((0x000000FF && in) == 0xAA)
+	{
+		shift_l_flag = 0; 
+		return;
+	}
+	if (in == 0xB6)
+	{
+		shift_r_flag = 0; 
+		return;
 	}
 
 	if(in <= PRESSED_RANGE && in > 0)
 	{
-		if (shift_flag && ( (scan2ASCII[(int)in] > 96) && (scan2ASCII[(int)in] < 123))
+		if ( (shift_l_flag || shift_r_flag) && ( (scan2ASCII[(int)in] > 96) && (scan2ASCII[(int)in] < 123)) )
 		{
-			putc_kb(scan2ASCII[(int)in - 32]);
+			putc_kb(scan2ASCII[(int)in] - 32);
 		}else{
 			putc_kb(scan2ASCII[(int)in]);
 		}
@@ -208,6 +228,7 @@ extern void rtc_handler()
 	cli();
 	outb(NO_NMI_C, RTC_INDEX_PORT); //Turn of NMI and select C port
 	inb(RTC_RW_PORT ); //Read data and throw it out to clear buffer
+	rtc_f = 0; 
     outb( inb(RTC_INDEX_PORT) & NMI_ON, RTC_INDEX_PORT); //enable NMI again
 	sti();
 	send_eoi(RTC_LINE);

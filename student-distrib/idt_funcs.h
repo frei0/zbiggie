@@ -5,6 +5,8 @@
 #define KEY_LINE	1
 #define PRESSED_RANGE	0x59
 
+
+
 extern void common_interrupt();
 extern void divide_by_zero();
 extern void reserved_1();
