@@ -261,7 +261,7 @@ extern void key_handler()
 		}
     }
 
-    
+    printf("");
 	sti();
 	send_eoi(KEY_LINE);	
 	//while(1);
