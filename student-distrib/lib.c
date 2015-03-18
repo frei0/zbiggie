@@ -217,8 +217,7 @@ putc(uint8_t c)
 void
 putc_kb(uint8_t c)
 {
-    int x, y;
-    if(c == 0x0A || c == '\r') {
+    if(c == '\n' || c == '\r') {
         screen_y++;
         screen_x=0;
     }else if( c == 0x08){

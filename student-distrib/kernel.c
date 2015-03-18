@@ -229,6 +229,13 @@ entry (unsigned long magic, unsigned long addr)
 	//*p =1;
 
 	//change_rtc_freq(8);
+	/*int i;
+	int j = 0;
+	for(i = 0;i<100000;i++)
+	{
+		j++;
+	}*/
+	//rtc_open();
 
 	//clear();
 	//clear_pos();

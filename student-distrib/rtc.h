@@ -26,6 +26,8 @@
 void rtc_init(void);
 int change_rtc_freq(int rate);
 int rtc_read(void);
-int rtc_open(unsigned int frequency);
+int rtc_write(unsigned int frequency);
+int rtc_open(void);
+int rtc_close(void);
 
 #endif

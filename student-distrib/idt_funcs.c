@@ -273,8 +273,9 @@ extern void rtc_handler()
 	cli();
 	outb(NO_NMI_C, RTC_INDEX_PORT); //Turn of NMI and select C port
 	inb(RTC_RW_PORT ); //Read data and throw it out to clear buffer
-	rtc_f = 0; 
+	rtc_f = 0;
     outb( inb(RTC_INDEX_PORT) & NMI_ON, RTC_INDEX_PORT); //enable NMI again
+    //test_interrupts();
 	sti();
 	send_eoi(RTC_LINE);
 }

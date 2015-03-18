@@ -48,46 +48,54 @@ int rtc_read(void)
 	return 0;
 }
 
-int rtc_open(unsigned int frequency)
+int rtc_write(unsigned int frequency)
 {
 	int new_rate;
 	switch(frequency)
 	{
-		case 1:
+		case 2:
 			new_rate = 15;
 			break;
-		case 2:
+		case 4:
 			new_rate = 14;
 			break;
-		case 4:
+		case 8:
 			new_rate = 13;
 			break;
-		case 8:
+		case 16:
 			new_rate = 12;
 			break;
-		case 16:
+		case 32:
 			new_rate = 11;
 			break;
-		case 32:
+		case 64:
 			new_rate = 10;
 			break;
-		case 64:
+		case 128:
 			new_rate = 9;
 			break;
-		case 128:
+		case 256:
 			new_rate = 8;
 			break;
-		case 256:
+		case 512:
 			new_rate = 7;
 			break;
-		case 512:
-			new_rate = 6;
-			break;
 		case 1024:
-			new_rate = 5;
+			new_rate = 6;
 			break;
 		default:
 			return -1;
 	}
 	return change_rtc_freq(new_rate);
+}
+
+int rtc_open(void)
+{
+	int default_rate = 15;
+	return change_rtc_freq(default_rate);
+}
+
+int rtc_close(void)
+{
+	return 0;
 }
