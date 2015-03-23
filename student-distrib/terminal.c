@@ -1,13 +1,14 @@
 #include "lib.h"
 
 #define START_POS 10
-#define NUM_BUFS 128
+#define NUM_BUFS 10
 #define BUF_SIZE 128
 #define CHAR_W 8
 
 int buffers[NUM_BUFS][BUF_SIZE];
 int cur_buf = 0;
 int cur_pos = 0; 
+int cur_size = 0;
 
 void term_init()
 {
@@ -18,8 +19,9 @@ void term_init()
             buffers[i][j] = 0;
     }
     puts("zbiggie: ");
-    cur_pos = START_POS;
+    cur_pos = 0;
     cur_buf = 0;
+    cur_size = 0;
 }
 
 
@@ -29,25 +31,30 @@ void term_putc(char c)
     //new line, new buf
     if(c == '\n' || c == '\r') 
     {
-        buffers[cur_buf][cur_pos] = c;
+        if(cur_pos < BUF_SIZE)
+            buffers[cur_buf][cur_pos] = c;
+
         cur_buf ++;
         cur_buf %=BUF_SIZE;
-        cur_pos = START_POS;
+        cur_pos = 0;
+        set_x(START_POS);
         for(i = 0; i < BUF_SIZE; i++) 
             buffers[cur_buf][i];
         putc_kb(c);
         puts("zbiggie: ");
+        cur_size = 0;
     }
     //backspace
     else if(c == 0x08)
     {
        buffers[cur_buf][cur_pos] = 0;
        
-       if(cur_pos > START_POS)
+       if(cur_pos > 0)
        {
            putc_kb(c); 
            buffers[cur_buf][cur_pos] = 0;
            cur_pos--;
+           cur_size --;
        }
        else
        {
@@ -62,6 +69,7 @@ void term_putc(char c)
         putc_kb(c);
         buffers[cur_buf][cur_pos] = c;
         cur_pos ++;
+        cur_size++;
     }
 
 }
@@ -84,5 +92,23 @@ void term_clear()
     clear();
     set_pos(0, 0);
     term_init();
+}
+
+void term_move_left()
+{
+    if(cur_pos > 0)
+    {
+        move_left();
+        cur_pos--;
+    }
+}
+
+void term_move_right()
+{
+    if(cur_pos < cur_size)
+    {
+        move_right();
+        cur_pos++;
+    }
 }
 

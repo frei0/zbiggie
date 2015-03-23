@@ -37,6 +37,13 @@ set_pos(int x, int y)
     screen_y = x;
     update_cursor(y, x);
 }
+void
+set_x(int x)
+{
+    screen_x = x;
+    update_cursor(screen_y, x);
+}
+
 
 void 
 move_right(void)
@@ -44,6 +51,11 @@ move_right(void)
 	if (screen_x < NUM_COLS-1)
 	{
 		screen_x ++; 
+	}
+	else if(screen_y < NUM_ROWS-1)
+	{
+		screen_x = 0;
+		screen_y++;
 	}
 	update_cursor(screen_y, screen_x); 
 }
@@ -57,7 +69,7 @@ move_left(void)
 	}
 	else if(screen_y > 0)
 	{
-		screen_x = NUM_COLS;
+		screen_x = NUM_COLS-1;
 		screen_y--;
 	}
 	update_cursor(screen_y, screen_x);  

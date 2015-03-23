@@ -207,12 +207,12 @@ extern void key_handler()
 	}
 	if (in == 0x4B)
 	{
-		move_left(); 
+		term_move_left(); 
 		return;
 	}
 	if (in == 0x4D)
 	{
-		move_right(); 
+		term_move_right(); 
 		return;
 	}
 	if (in == 0x1D)
@@ -258,14 +258,11 @@ extern void key_handler()
 	{
 		if(isALetter && ((shift_r_flag || shift_l_flag) ^ caps_lock_flag))
 		{
-			//putc_kb(scan2ASCII[(int)in] - 32);
 			term_putc(scan2ASCII[(int)in] - 32);
 		}
 		else if(shift_r_flag || shift_l_flag)
 		{
-			//putc_kb(shift2ASCII[(int)in]); 
 			term_putc(shift2ASCII[(int)in]); 
-			//puts("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
 		}
 		else 
 		{
@@ -274,9 +271,10 @@ extern void key_handler()
 				term_clear();
 				
 			}
+            //else if(scan2ASCII[(int)in] == 'j')
+             //   term_puts("you hit j!");
             else
             {
-				//putc_kb(scan2ASCII[(int)in]); 
 				term_putc(scan2ASCII[(int)in]); 
 			}
 		}
@@ -284,7 +282,6 @@ extern void key_handler()
 
 	sti();
 	send_eoi(KEY_LINE);	
-	//while(1);
 }
 
 extern void rtc_handler()

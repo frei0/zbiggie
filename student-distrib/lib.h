@@ -20,6 +20,7 @@ int8_t *strrev(int8_t* s);
 uint32_t strlen(const int8_t* s);
 void clear(void);
 void set_pos(int x, int y);
+void set_x(int x);
 void move_right(void);
 void move_left(void); 
 void test_interrupts(void);
