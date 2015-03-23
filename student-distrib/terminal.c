@@ -32,10 +32,10 @@ void term_putc(char c)
     if(c == '\n' || c == '\r') 
     {
         if(cur_pos < BUF_SIZE)
-            buffers[cur_buf][cur_pos] = c;
+            //buffers[cur_buf][cur_pos] = c;
 
         cur_buf ++;
-        cur_buf %=BUF_SIZE;
+        cur_buf %=NUM_BUFS;
         cur_pos = 0;
         set_x(START_POS);
         for(i = 0; i < BUF_SIZE; i++) 
@@ -52,14 +52,12 @@ void term_putc(char c)
        if(cur_pos > 0)
        {
            putc_kb(c); 
-           buffers[cur_buf][cur_pos] = 0;
            cur_pos--;
            cur_size --;
        }
        else
        {
            putc(0);
-           buffers[cur_buf][cur_pos] = 0;
            move_left();
        }
     }
@@ -79,12 +77,27 @@ void term_puts(char * str)
    int i;
    if(str == NULL)
        return;
-   for(i = 0; i < BUF_SIZE - cur_pos; i++)
+   for(i = 0; i < BUF_SIZE; i++)
    {
        if(str[i] == NULL)
            break;
        term_putc(str[i]);
    }
+   
+}
+//dumb history, just puts last buffer in. real history needs a
+//history file
+void term_put_last()
+{
+    /*TODO: history file*/
+   int i;
+   for(i = 0; i < BUF_SIZE; i++)
+   {
+       if(buffers[(cur_buf-1)%NUM_BUFS][i] == NULL)
+           break;
+       term_putc(buffers[(cur_buf-1)%NUM_BUFS][i]);
+   }
+
 }
 
 void term_clear()
