@@ -273,7 +273,9 @@ extern void key_handler()
 			{
 				term_clear();
 				
-			}else{
+			}
+            else
+            {
 				//putc_kb(scan2ASCII[(int)in]); 
 				term_putc(scan2ASCII[(int)in]); 
 			}
