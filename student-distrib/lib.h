@@ -7,6 +7,9 @@
 
 #include "types.h"
 
+static int screen_x;
+static int screen_y;
+
 int32_t printf(int8_t *format, ...);
 void putc(uint8_t c);
 void putc_kb(uint8_t c);
@@ -16,7 +19,7 @@ int8_t *itoa(uint32_t value, int8_t* buf, int32_t radix);
 int8_t *strrev(int8_t* s);
 uint32_t strlen(const int8_t* s);
 void clear(void);
-void set_pos(void);
+void set_pos(int x, int y);
 void move_right(void);
 void move_left(void); 
 void test_interrupts(void);

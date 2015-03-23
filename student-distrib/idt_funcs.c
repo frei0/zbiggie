@@ -258,22 +258,24 @@ extern void key_handler()
 	{
 		if(isALetter && ((shift_r_flag || shift_l_flag) ^ caps_lock_flag))
 		{
-			putc_kb(scan2ASCII[(int)in] - 32);
+			//putc_kb(scan2ASCII[(int)in] - 32);
+			term_putc(scan2ASCII[(int)in] - 32);
 		}
 		else if(shift_r_flag || shift_l_flag)
 		{
-			putc_kb(shift2ASCII[(int)in]); 
+			//putc_kb(shift2ASCII[(int)in]); 
+			term_putc(shift2ASCII[(int)in]); 
 			//puts("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
 		}
 		else 
 		{
 			if ( (scan2ASCII[(int)in] == 'l') && ctrl_flag)
 			{
-				clear();
-				set_pos();
+				term_clear();
 				
 			}else{
-				putc_kb(scan2ASCII[(int)in]); 
+				//putc_kb(scan2ASCII[(int)in]); 
+				term_putc(scan2ASCII[(int)in]); 
 			}
 		}
     }

@@ -9,8 +9,8 @@
 #define ATTRIB 0x7
 #define SCREEN_W 320
 #define CHAR_W 8
-static int screen_x;
-static int screen_y;
+//static int screen_x;
+//static int screen_y;
 static char* video_mem = (char *)VIDEO;
 
 /*
@@ -31,11 +31,11 @@ clear(void)
 }
 
 void
-set_pos(void)
+set_pos(int x, int y)
 {
-    screen_x = 0;
-    screen_y = 0;
-    update_cursor(0, 0);
+    screen_x = x;
+    screen_y = x;
+    update_cursor(y, x);
 }
 
 void 
@@ -54,6 +54,11 @@ move_left(void)
 	if (screen_x > 0) 
 	{
 		screen_x --; 
+	}
+	else if(screen_y > 0)
+	{
+		screen_x = NUM_COLS;
+		screen_y--;
 	}
 	update_cursor(screen_y, screen_x);  
 }
