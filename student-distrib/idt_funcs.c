@@ -199,62 +199,78 @@ extern void key_handler()
 	cli();
 	in = (char)inb(KEY_PORT);
 
-	//printf("%x", in);
-	if ((in == 0x48) || (in == 0x50))
-	{
-		//do nothing
-		return;
-	}
-	if (in == 0x4B)
-	{
-		term_move_left(); 
-		return;
-	}
-	if (in == 0x4D)
-	{
-		term_move_right(); 
-		return;
-	}
-	if (in == 0x1D)
-	{
-		ctrl_flag = 1; 
-		return;
-	}
-	if (in == 0x2A)
-	{
-		shift_l_flag = 1; 
-		return;
-	}
-	if (in == 0x36)
-	{
-		shift_r_flag = 1;
-		return;
-	}
-	if (in == 0x3A)
-	{
-		caps_lock_flag = !caps_lock_flag; 
-		return; 
-	}
-	if ((0x000000FF & in) == 0x9D)
-	{
-		ctrl_flag = 0; 
-		return;
-	}
-	if ((0x000000FF & in) == 0xAA)
-	{
-		shift_l_flag = 0; 
-		return;
-	}
-	if ((0x000000FF & in) == 0xB6)
-	{
-		shift_r_flag = 0; 
-		return;
-	}
-
 	int isALetter = (scan2ASCII[(int)in] > 96) && (scan2ASCII[(int)in] < 123);
 	int isPrintable = (((int)in > 1) && ((int)in < 123));
 
-	if(isPrintable)
+	//printf("%x", in);
+    //down arrow
+	if ((in == 0x50))
+	{
+		//do nothing
+		//return;
+	}
+    //up arrow
+    else if(in == 0x48)
+    {
+        term_put_last();
+    }
+    //left arrow
+    else if (in == 0x4B)
+	{
+		term_move_left(); 
+		//return;
+	}
+    //right arrow
+    else if (in == 0x4D)
+	{
+		term_move_right(); 
+		//return;
+	}
+    //control down
+    else if (in == 0x1D)
+	{
+		ctrl_flag = 1; 
+		//return;
+	}
+    //left shift down
+    else if (in == 0x2A)
+	{
+		shift_l_flag = 1; 
+		//return;
+	}
+    //right shift down
+    else if (in == 0x36)
+	{
+		shift_r_flag = 1;
+		//return;
+	}
+    //capslock
+    else if (in == 0x3A)
+	{
+		caps_lock_flag = !caps_lock_flag; 
+		//return; 
+	}
+    //control up
+    else if ((0x000000FF & in) == 0x9D)
+	{
+		ctrl_flag = 0; 
+		//return;
+	}
+    //left shift up
+    else if ((0x000000FF & in) == 0xAA)
+	{
+		shift_l_flag = 0; 
+		//return;
+	}
+    //right shift up
+    else if ((0x000000FF & in) == 0xB6)
+	{
+		shift_r_flag = 0; 
+		//return;
+	}
+
+
+    else if(isPrintable)
 	{
 		if(isALetter && ((shift_r_flag || shift_l_flag) ^ caps_lock_flag))
 		{
