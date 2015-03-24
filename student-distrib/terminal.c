@@ -70,7 +70,7 @@ void term_putc(char c)
        }
     }
 
-    else if(cur_pos < BUF_SIZE - 1)
+    else if(cur_pos < BUF_SIZE)
     {
         putc_kb(c);
         buffers[cur_buf][cur_pos] = c;
