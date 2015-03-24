@@ -9,8 +9,9 @@
 #define ATTRIB 0x7
 #define SCREEN_W 320
 #define CHAR_W 8
-//static int screen_x;
-//static int screen_y;
+static int screen_x;
+static int screen_y;
+static int biggest_y;
 static char* video_mem = (char *)VIDEO;
 
 /*
@@ -28,6 +29,7 @@ clear(void)
         *(uint8_t *)(video_mem + (i << 1)) = ' ';
         *(uint8_t *)(video_mem + (i << 1) + 1) = ATTRIB;
     }
+	screen_x = screen_y = biggest_y = 0;
 }
 
 void
@@ -235,6 +237,7 @@ putc(uint8_t c)
 {
     if(c == '\n' || c == '\r') {
         screen_y++;
+		biggest_y++;
         screen_x=0;
     } else {
         *(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1)) = c;
@@ -246,6 +249,7 @@ putc(uint8_t c)
     if(screen_x >= NUM_COLS)
 	{
 		screen_y++;
+		biggest_y++;
 		screen_x = 0;
 	}
 	if(screen_y >= NUM_ROWS)
@@ -256,13 +260,55 @@ putc(uint8_t c)
 void
 putc_kb(uint8_t c)
 {
+	char line_empty;
+	int i;
     if(c == '\n' || c == '\r') {
-        screen_y++;
-        screen_x=0;
-    }else if( c == 0x08){
+		//cases for if two lines have been printed and enter is hit while
+		//the cursor is on the top line
+		if(screen_y < NUM_ROWS - 1)
+		{
+			line_empty = 1;
+			//check line below for text
+		    for(i = 0; i < NUM_COLS; i++)
+			{
+				if(*(uint8_t *)(video_mem + ((NUM_COLS*(screen_y+1) + i) << 1)) != ' ')
+					line_empty = 0;
+			}
+			if(!line_empty)
+			{
+				//if we're at the 2nd to last line, we'll need to scroll
+				//scroll puts the cursor at the bottom left so we don't 
+				//need to double scroll
+				if(screen_y == NUM_ROWS-2)
+					scroll();	
+				//if in the middle, move y down 2 and x to the front
+				else
+				{
+					screen_y+=2;
+					screen_x = 0;
+				}
+			}
+			//if the line below is empty, just move down 1 line
+			else
+			{
+				screen_y++;
+				screen_x = 0;
+			}
+		}
+		//if the cursor is on the bottom line, there can't be more than one line
+		//printed, so just move y down one and the case at the end of this function
+		//will scroll the screen
+		else
+		{
+			screen_y++;
+			screen_x = 0;
+		}
+    }
+	else if( c == 0x08)
+	{
     		if((screen_y == 0 && screen_x == 0))
 	   		{
-	   			*(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1)) = 0;
+	   			*(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1)) = ' ';
             	*(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1) + 1) = ATTRIB;
 	   		}
 	   		else
@@ -272,16 +318,24 @@ putc_kb(uint8_t c)
 		   		{
 		   			screen_x = NUM_COLS -1;
 		   			screen_y--;
+					biggest_y--;
 		   			if(screen_y < 0)
+					{
 		   				screen_y = 0;
+						biggest_y=0;
+					}
 		   		}
-		    	*(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1)) = 0;
+		    	*(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1)) = ' ';
 	            *(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1) + 1) = ATTRIB;
         }
     	
-    } else {
-    	if(screen_x >= NUM_COLS){
+    } 
+	else
+	{
+    	if(screen_x >= NUM_COLS)
+		{
     		screen_y++;
+			biggest_y++;
     		screen_x = 0;
     	}
         *(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1)) = c;
@@ -293,6 +347,7 @@ putc_kb(uint8_t c)
     if(screen_x >= NUM_COLS)
 	{
 		screen_y++;
+		biggest_y++;
 		screen_x = 0;
 	}
 	if(screen_y >= NUM_ROWS)
@@ -314,7 +369,7 @@ scroll()
 
 		}
 	}
-	screen_y = NUM_ROWS -1;
+	screen_y = biggest_y = NUM_ROWS -1;
 	for(x = 0; x < NUM_COLS; x++)
 	{
 			*(uint8_t *)(video_mem + ((NUM_COLS*(screen_y) + x) << 1)) = 0x00;

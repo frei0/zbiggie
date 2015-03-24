@@ -5,7 +5,8 @@
 #define BUF_SIZE 128
 #define CHAR_W 8
 
-int buffers[NUM_BUFS][BUF_SIZE];
+char buffers[NUM_BUFS][BUF_SIZE];
+static char read_ret_buf[BUF_SIZE];
 int cur_buf = 0;
 int cur_pos = 0; 
 int cur_size = 0;
@@ -32,8 +33,8 @@ void term_putc(char c)
     //new line, new buf
     if(c == '\n' || c == '\r') 
     {
-        if(cur_pos < BUF_SIZE)
-            //buffers[cur_buf][cur_pos] = c;
+        if(cur_size < BUF_SIZE)
+            buffers[cur_buf][cur_size] = '\n';
 
         cur_buf ++;
         cur_buf %=NUM_BUFS;
@@ -70,7 +71,7 @@ void term_putc(char c)
        }
     }
 
-    else if(cur_pos < BUF_SIZE)
+    else if(cur_pos < BUF_SIZE-1)
     {
         putc_kb(c);
         buffers[cur_buf][cur_pos] = c;
@@ -80,19 +81,43 @@ void term_putc(char c)
 
 }
 
-void term_puts(char * str)
+int term_puts(char * str)
 {
    int i;
    if(str == NULL)
-       return;
+       return 0;
    for(i = 0; i < BUF_SIZE; i++)
    {
        if(str[i] == NULL)
            break;
        term_putc(str[i]);
    }
-   
+   return i; 
 }
+
+int term_write(char * str)
+{
+    return term_puts(str);
+}
+
+char * term_read()
+{
+   int i;
+   int prev_buf;
+
+   prev_buf = cur_buf - 1;
+   if(prev_buf < 0)
+       prev_buf = NUM_BUFS -1;
+   for(i = 0; i < BUF_SIZE; i++)
+   {
+       //if end of line or NULL
+       if(buffers[prev_buf][i] == '\n' || buffers[prev_buf][i] == NULL)
+           break;
+       read_ret_buf[i] = buffers[prev_buf][i];
+   }
+   return read_ret_buf;
+}
+
 //dumb history, just puts last buffer in. real history needs a
 //history file
 void term_put_last()
@@ -106,7 +131,8 @@ void term_put_last()
        prev_buf = NUM_BUFS -1;
    for(i = 0; i < BUF_SIZE; i++)
    {
-       if(buffers[prev_buf][i] == NULL)
+       //if end of line or NULL
+       if(buffers[prev_buf][i] == '\n' || buffers[prev_buf][i] == NULL)
            break;
        term_putc(buffers[prev_buf][i]);
    }

@@ -7,8 +7,6 @@
 
 #include "types.h"
 
-static int screen_x;
-static int screen_y;
 
 int32_t printf(int8_t *format, ...);
 void putc(uint8_t c);
