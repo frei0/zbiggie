@@ -28,6 +28,7 @@ void term_init()
 void term_putc(char c)
 {
     int i;
+    char bs_char;
     //new line, new buf
     if(c == '\n' || c == '\r') 
     {
@@ -39,7 +40,7 @@ void term_putc(char c)
         cur_pos = 0;
         set_x(START_POS);
         for(i = 0; i < BUF_SIZE; i++) 
-            buffers[cur_buf][i];
+            buffers[cur_buf][i] = 0;
         putc_kb(c);
         puts("zbiggie: ");
         cur_size = 0;
@@ -47,17 +48,24 @@ void term_putc(char c)
     //backspace
     else if(c == 0x08)
     {
-       buffers[cur_buf][cur_pos] = 0;
-       
+       bs_char = ' ';
+       if(cur_pos >= cur_size -1)
+       {
+           bs_char = 0;
+           cur_size --;
+       }       
        if(cur_pos > 0)
        {
-           putc_kb(c); 
+           move_left();
+           putc_kb(bs_char); 
+           move_left();
            cur_pos--;
-           cur_size --;
+           buffers[cur_buf][cur_pos] = bs_char;
        }
        else
        {
-           putc(0);
+           buffers[cur_buf][cur_pos] = bs_char;
+           putc(bs_char);
            move_left();
        }
     }
@@ -91,11 +99,16 @@ void term_put_last()
 {
     /*TODO: history file*/
    int i;
+   int prev_buf;
+
+   prev_buf = cur_buf - 1;
+   if(prev_buf < 0)
+       prev_buf = NUM_BUFS -1;
    for(i = 0; i < BUF_SIZE; i++)
    {
-       if(buffers[(cur_buf-1)%NUM_BUFS][i] == NULL)
+       if(buffers[prev_buf][i] == NULL)
            break;
-       term_putc(buffers[(cur_buf-1)%NUM_BUFS][i]);
+       term_putc(buffers[prev_buf][i]);
    }
 
 }
