@@ -8,5 +8,7 @@ void term_put_last();
 void term_clear();
 void term_move_left();
 void term_move_right();
+int term_write(char * str);
+char * term_read();
 
 #endif
