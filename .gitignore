@@ -1,6 +1,9 @@
 student-distrib/*.o
 student-distrib/Makefile.dep
+student-distrib/billsMakefile.dep
 student-distrib/bootimg
 student-distrib/mp3.img
+student-distrib/new_mp3.img
 */tags
 */.DS_Store
+*.swp
