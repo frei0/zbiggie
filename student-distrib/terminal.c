@@ -11,6 +11,17 @@ int cur_buf = 0;
 int cur_pos = 0; 
 int cur_size = 0;
 
+void term_open()
+{
+    disable_irq(1);
+    term_init();
+}
+
+void term_close()
+{
+    enable_irq(1);
+}
+
 void term_init()
 {
     int i,j;

@@ -224,8 +224,10 @@ entry (unsigned long magic, unsigned long addr)
 	printf("Enabling Interrupts\n");
 	sti();
 
-	term_init();
 	init_paging();
+	term_open();
+	//term_close();
+	
 	/* Execute the first program (`shell') ... */
 	//int * p = NULL;
 	//*p =1;
