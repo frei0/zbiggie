@@ -1,4 +1,5 @@
 #include "idt_funcs.h"
+#include "terminal.h"
 #include "lib.h"
 #include "x86_desc.h"
 #include "i8259.h"
