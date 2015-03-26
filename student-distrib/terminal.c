@@ -33,6 +33,7 @@ void term_open()
 void term_close()
 {
     enable_irq(KB_IRQ);
+    term_clear();
 }
 
 /* void term_init()
@@ -199,7 +200,7 @@ void term_clear()
 {
     clear();
     set_pos(0, 0);
-    term_init();
+    //term_init();
 }
 
 /* void term_move_left()
