@@ -1,9 +1,12 @@
 #include "lib.h"
-
+#include "i8259.h"
+#include "terminal.h"
 #define START_POS 10
 #define NUM_BUFS 10
 #define BUF_SIZE 128
 #define CHAR_W 8
+#define KB_IRQ 1
+#define BACKSPACE 0x08
 
 char buffers[NUM_BUFS][BUF_SIZE];
 static char read_ret_buf[BUF_SIZE];
@@ -11,17 +14,31 @@ int cur_buf = 0;
 int cur_pos = 0; 
 int cur_size = 0;
 
+/* void term_open()
+ * Inputs: none
+ * return: none
+ * function: unmasks interrupts on keyboard's irq and
+ * initializes the terminal*/
 void term_open()
 {
-    disable_irq(1);
+    disable_irq(KB_IRQ);
     term_init();
 }
 
+/* void term_close()
+ * Inputs: none
+ * return: none
+ * function: masks interrupts on keyboard's irq and
+ * closes the terminal*/
 void term_close()
 {
-    enable_irq(1);
+    enable_irq(KB_IRQ);
 }
 
+/* void term_init()
+ * Inputs: none
+ * return: none
+ * function: initializes the terminal*/
 void term_init()
 {
     int i,j;
@@ -36,7 +53,10 @@ void term_init()
     cur_size = 0;
 }
 
-
+/*void term_putc(char c)
+ * Inputs: a character to be displayed on the terminal
+ * Returns: nothing
+ * Function: prints a single character to the terminal*/
 void term_putc(char c)
 {
     int i;
@@ -58,14 +78,17 @@ void term_putc(char c)
         cur_size = 0;
     }
     //backspace
-    else if(c == 0x08)
+    else if(c == BACKSPACE)
     {
        bs_char = ' ';
+       //if we're backspacing from the end of the line, BS with a null
+       //otherwise bs with a space
        if(cur_pos >= cur_size -1)
        {
            bs_char = 0;
            cur_size --;
        }       
+       //if not the first character, delete the char then move left
        if(cur_pos > 0)
        {
            move_left();
@@ -74,6 +97,7 @@ void term_putc(char c)
            cur_pos--;
            buffers[cur_buf][cur_pos] = bs_char;
        }
+       //if first character, just delete, don't move left
        else
        {
            buffers[cur_buf][cur_pos] = bs_char;
@@ -81,7 +105,8 @@ void term_putc(char c)
            move_left();
        }
     }
-
+    //if just a regular character and buffer isn't full, 
+    //print it and put it in the buffer
     else if(cur_pos < BUF_SIZE-1)
     {
         putc_kb(c);
@@ -92,6 +117,10 @@ void term_putc(char c)
 
 }
 
+/* int term_puts(char * c)
+ * Inputs: a null terminated string to be displayed on the terminal
+ * Returns: number of bytes successfully written  
+ * Function: prints a string to the terminal*/
 int term_puts(char * str)
 {
    int i;
@@ -106,11 +135,19 @@ int term_puts(char * str)
    return i; 
 }
 
+/* int term_write(char * c)
+ * Inputs: a null terminated string to be displayed on the terminal
+ * Returns: number of bytes successfully written  
+ * Function: prints a string to the terminal*/
 int term_write(char * str)
 {
     return term_puts(str);
 }
 
+/* char * term_read()
+ * Inputs: none
+ * Returns: the last full terminal buffer terminated in a new line
+ * Function: get the last terminal buffer*/
 char * term_read()
 {
    int i;
@@ -125,6 +162,10 @@ char * term_read()
        if(buffers[prev_buf][i] == '\n' || buffers[prev_buf][i] == NULL)
            break;
        read_ret_buf[i] = buffers[prev_buf][i];
+   }
+   if(read_ret_buf[i] != '\n')
+   {
+       read_ret_buf[i] = '\n';
    }
    return read_ret_buf;
 }
@@ -150,6 +191,10 @@ void term_put_last()
 
 }
 
+/* void term_clear()
+ * inputs: none
+ * return: none
+ * function: clear the terminal*/
 void term_clear()
 {
     clear();
@@ -157,6 +202,10 @@ void term_clear()
     term_init();
 }
 
+/* void term_move_left()
+ * inputs: none
+ * return: none
+ * function: move the cursor left*/
 void term_move_left()
 {
     if(cur_pos > 0)
@@ -166,6 +215,10 @@ void term_move_left()
     }
 }
 
+/* void term_move_right()
+ * inputs: none
+ * return: none
+ * function: move the cursor right*/
 void term_move_right()
 {
     if(cur_pos < cur_size)
