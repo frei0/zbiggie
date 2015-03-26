@@ -12,6 +12,7 @@
 #include "rtc.h"
 #include "page.h"
 #include "terminal.h"
+#include "zbigfs.h"
 /* Macros. */
 /* Check if the bit BIT in FLAGS is set. */
 #define CHECK_FLAG(flags,bit)   ((flags) & (1 << (bit)))
@@ -223,6 +224,29 @@ entry (unsigned long magic, unsigned long addr)
 	 * without showing you any output */
 	printf("Enabling Interrupts\n");
 	sti();
+
+	if (CHECK_FLAG (mbi->flags, 3) && (mbi->mods_count)) {
+		printf("Mounting module 0 as read-only zbigfs filesystem\n");
+		module_t* zbigfsmod = (module_t*)mbi->mods_addr;
+		zbigfs_mount((void *) zbigfsmod->mod_start);
+
+		printf("listing files:\n");
+		FILE f;
+		kopen(&f, ".");
+		char dbuf[32];
+		while (kread(&f, dbuf, 32))
+			printf("%s\n", dbuf);
+
+		kopen(&f, "frame1.txt");
+		char buf[200];
+		kread(&f, &buf, 200);
+		printf("First few bytes of frame1.txt:\n");
+		int i;
+		for(i = 0; i < 16; i++) {
+			printf("0x%x ", *(buf+i));
+		}
+		puts(buf);
+	}
 
 	term_init();
 	init_paging();
