@@ -246,9 +246,9 @@ entry (unsigned long magic, unsigned long addr)
 			printf("0x%x ", *(buf+i));
 		}
 		puts(buf);
+		putc('\n');
 	}
 
-	term_init();
 	init_paging();
 	term_open();
 	//term_close();
