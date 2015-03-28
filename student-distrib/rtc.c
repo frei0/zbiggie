@@ -26,7 +26,7 @@ rtc_init(void)
 
 int change_rtc_freq(int rate)
 {
-	if(rate<3 || rate >15)
+	if(rate<= MAX_RATE || rate > MIN_RATE)
 	{
 		return -1;
 	}
@@ -53,35 +53,35 @@ int rtc_write(unsigned int frequency)
 	int new_rate;
 	switch(frequency)
 	{
-		case 2:
-			new_rate = 15;
+		case HZ_2:
+			new_rate = rate_HZ_2;
 			break;
-		case 4:
-			new_rate = 14;
+		case HZ_4:
+			new_rate = rate_HZ_4;
 			break;
-		case 8:
-			new_rate = 13;
+		case HZ_8:
+			new_rate = rate_HZ_8;
 			break;
-		case 16:
-			new_rate = 12;
+		case HZ_16:
+			new_rate = rate_HZ_16;
 			break;
-		case 32:
-			new_rate = 11;
+		case HZ_32:
+			new_rate = rate_HZ_32;
 			break;
-		case 64:
-			new_rate = 10;
+		case HZ_64:
+			new_rate = rate_HZ_64;
 			break;
-		case 128:
-			new_rate = 9;
+		case HZ_128:
+			new_rate = rate_HZ_128;
 			break;
-		case 256:
-			new_rate = 8;
+		case HZ_256:
+			new_rate = rate_HZ_256;
 			break;
-		case 512:
-			new_rate = 7;
+		case HZ_512:
+			new_rate = rate_HZ_512;
 			break;
-		case 1024:
-			new_rate = 6;
+		case HZ_1024:
+			new_rate = rate_HZ_1024;
 			break;
 		default:
 			return -1;
@@ -91,7 +91,7 @@ int rtc_write(unsigned int frequency)
 
 int rtc_open(void)
 {
-	int default_rate = 15;
+	int default_rate = MIN_RATE;
 	return change_rtc_freq(default_rate);
 }
 
