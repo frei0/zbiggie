@@ -22,25 +22,28 @@
 #define MIN_RATE	   15
 #define RATE_MASK	   0xF0
 
+//HZ defines
 #define HZ_2		   2
-#define rate_HZ_2	   15
 #define HZ_4		   4
-#define rate_HZ_4	   14
 #define HZ_8		   8
-#define rate_HZ_8	   13
 #define HZ_16		   16
-#define rate_HZ_16	   12
 #define HZ_32		   32
-#define rate_HZ_32	   11
 #define HZ_64		   64
-#define rate_HZ_64	   10
 #define HZ_128		   128
-#define rate_HZ_128	   9
 #define HZ_256		   256
-#define rate_HZ_256	   8
 #define HZ_512		   512
-#define rate_HZ_512	   7
 #define HZ_1024		   1024
+
+//rate_HZ defines
+#define rate_HZ_2	   15
+#define rate_HZ_4	   14
+#define rate_HZ_8	   13
+#define rate_HZ_16	   12
+#define rate_HZ_32	   11
+#define rate_HZ_64	   10
+#define rate_HZ_128	   9
+#define rate_HZ_256	   8
+#define rate_HZ_512	   7
 #define rate_HZ_1024   6
 
 
