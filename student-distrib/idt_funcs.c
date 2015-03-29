@@ -203,74 +203,51 @@ extern void key_handler()
 	int isALetter = (scan2ASCII[(int)in] > 96) && (scan2ASCII[(int)in] < 123);
 	int isPrintable = (((int)in > 1) && ((int)in < 123));
 
-	//printf("%x", in);
-    //down arrow
-	if ((in == 0x50))
+
+	if (in == DOWN_ARROW)
 	{
 		//do nothing
-		//return;
 	}
-    //up arrow
-    else if(in == 0x48)
+    else if(in == UP_ARROW)
     {
         term_put_last();
     }
-    //left arrow
-    else if (in == 0x4B)
+    else if (in == LEFT_ARROW)
 	{
 		term_move_left(); 
-		//return;
 	}
-    //right arrow
-    else if (in == 0x4D)
+    else if (in == RIGHT_ARROW)
 	{
 		term_move_right(); 
-		//return;
 	}
-    //control down
-    else if (in == 0x1D)
+    else if (in == CONTROL_DOWN)
 	{
 		ctrl_flag = 1; 
-		//return;
 	}
-    //left shift down
-    else if (in == 0x2A)
+    else if (in == LEFT_SHIFT)
 	{
 		shift_l_flag = 1; 
-		//return;
 	}
-    //right shift down
-    else if (in == 0x36)
+    else if (in == RIGHT_SHIFT)
 	{
 		shift_r_flag = 1;
-		//return;
 	}
-    //capslock
-    else if (in == 0x3A)
+    else if (in == CAPS_LOCK)
 	{
 		caps_lock_flag = !caps_lock_flag; 
-		//return; 
 	}
-    //control up
-    else if ((0x000000FF & in) == 0x9D)
+    else if ((0x000000FF & in) == CONTROL_UP)
 	{
 		ctrl_flag = 0; 
-		//return;
 	}
-    //left shift up
-    else if ((0x000000FF & in) == 0xAA)
+    else if ((0x000000FF & in) == LEFT_SHIFT_UP)
 	{
 		shift_l_flag = 0; 
-		//return;
 	}
-    //right shift up
-    else if ((0x000000FF & in) == 0xB6)
+    else if ((0x000000FF & in) == RIGHT_SHIFT_UP)
 	{
 		shift_r_flag = 0; 
-		//return;
 	}
-
-
     else if(isPrintable)
 	{
 		if(isALetter && ((shift_r_flag || shift_l_flag) ^ caps_lock_flag))

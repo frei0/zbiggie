@@ -37,7 +37,6 @@ set_pos(int x, int y)
 {
     screen_x = x;
     screen_y = x;
-    //update_cursor(y, x);
     cursor_loc(screen_x, screen_y); 
 }
 void
@@ -45,7 +44,6 @@ set_x(int x)
 {
     screen_x = x;
     cursor_loc(screen_x, screen_y); 
-    //update_cursor(screen_y, x);
 }
 
 
@@ -62,7 +60,6 @@ move_right(void)
 		screen_y++;
 	}
 	cursor_loc(screen_x, screen_y); 
-	//update_cursor(screen_y, screen_x); 
 }
 
 void
@@ -78,7 +75,6 @@ move_left(void)
 		screen_y--;
 	}
 	cursor_loc(screen_x, screen_y); 
-	//update_cursor(screen_y, screen_x);  
 }
 
 /* Standard printf().
@@ -259,8 +255,6 @@ putc(uint8_t c)
 	if(screen_y >= NUM_ROWS)
 		scroll();
 	cursor_loc(screen_x, screen_y); 
-	//update_cursor(screen_y, screen_x);
-
 }
 void
 putc_kb(uint8_t c)
@@ -358,8 +352,6 @@ putc_kb(uint8_t c)
 	if(screen_y >= NUM_ROWS)
 		scroll();
 	cursor_loc(screen_x, screen_y); 
-	//update_cursor(screen_y, screen_x);
-    
 }
 
 void 
@@ -752,27 +744,11 @@ test_interrupts(void)
 	}
 }
 
-
- /* void update_cursor(int row, int col)
-  * by Dark Fiber
-  */
- void update_cursor(int row, int col)
- {
-    unsigned short position=(row*80) + col;
- 
-    // cursor LOW port to vga INDEX register
-    outb(0x0F, 0x3D4);
-    outb((unsigned char)(position&0xFF), 0x3D5);
-    // cursor HIGH port to vga INDEX register
-    outb(0x0E, 0x3D4);
-    outb((unsigned char )((position>>8)&0xFF), 0x3D5);
- }
-
 void cursor_loc(int x, int y)
 {
 	int coord = x + (y*80); 
 	int coord2 = coord >> 8; 
-	outb(0x0F, 0x3D4);
+	outb(0x0E, 0x3D4);
 	outb((unsigned char) (coord2 & 0xFF), 0x3D5);
 	outb(0x0F, 0x3D4);
 	outb((unsigned char) (coord & 0xFF),  0x3D5);

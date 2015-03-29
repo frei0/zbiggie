@@ -1,9 +1,20 @@
 #ifndef IDT_FUNCS_H
 #define IDT_FUNCS_H
 
-#define KEY_PORT	0x60
-#define KEY_LINE	1
+#define KEY_LINE		1
+#define KEY_PORT		0x60
 #define PRESSED_RANGE	0x59
+#define DOWN_ARROW 		0x50
+#define UP_ARROW		0x48
+#define LEFT_ARROW		0x4B
+#define RIGHT_ARROW		0x4D
+#define CONTROL_DOWN	0x1D
+#define LEFT_SHIFT		0x2A
+#define RIGHT_SHIFT		0x36
+#define CAPS_LOCK		0x3A
+#define CONTROL_UP		0x9D
+#define LEFT_SHIFT_UP	0xAA
+#define RIGHT_SHIFT_UP	0xB6
 
 
 
