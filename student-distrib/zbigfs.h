@@ -1,3 +1,5 @@
+#ifndef _ZBIGFS_H
+#define _ZBIGFS_H
 #include "types.h"
 
 #define FTYPE_SPECIAL   0
@@ -30,3 +32,4 @@ int kclose(FILE * f);
 int32_t read_dentry_by_name (const int8_t * fname, dentry_t * dentry); 
 int32_t read_dentry_by_index (uint32_t index, dentry_t * dentry); 
 int32_t read_data (uint32_t inode, uint32_t offset, uint8_t * buf, uint32_t length);
+#endif
