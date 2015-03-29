@@ -26,10 +26,12 @@ rtc_init(void)
 
 int change_rtc_freq(int rate)
 {
+	//Check to see if it is outside the range of the RTC
 	if(rate<= MAX_RATE || rate > MIN_RATE)
 	{
 		return -1;
 	}
+	//Change RTC frequency
 	cli();
 	outb(NO_NMI_A, RTC_INDEX_PORT); //select port A, keep NMI disabled
 	char previous_rate = inb(RTC_RW_PORT);
@@ -43,6 +45,7 @@ int change_rtc_freq(int rate)
 
 int rtc_read(void)
 {
+	//Set the rtc flag to one then wait for it to be reset
 	rtc_f = 1;
 	while(rtc_f);
 	return 0;
@@ -51,6 +54,7 @@ int rtc_read(void)
 int rtc_write(unsigned int frequency)
 {
 	int new_rate;
+	//Switch statement to check for valid frequency
 	switch(frequency)
 	{
 		case HZ_2:
@@ -86,16 +90,19 @@ int rtc_write(unsigned int frequency)
 		default:
 			return -1;
 	}
+	//Change the rtc with the corresponding rate
 	return change_rtc_freq(new_rate);
 }
 
 int rtc_open(void)
 {
+	//Resets the rtc to the slowest rate
 	int default_rate = MIN_RATE;
 	return change_rtc_freq(default_rate);
 }
 
 int rtc_close(void)
 {
+
 	return 0;
 }
