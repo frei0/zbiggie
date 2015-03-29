@@ -23,7 +23,7 @@ void move_right(void);
 void move_left(void); 
 void test_interrupts(void);
 void update_cursor(int row, int col);
-void cursor_loc(int x, int y)
+void cursor_loc(int x, int y);
 
 void* memset(void* s, int32_t c, uint32_t n);
 void* memset_word(void* s, int32_t c, uint32_t n);

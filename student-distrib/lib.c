@@ -770,7 +770,7 @@ test_interrupts(void)
 
 void cursor_loc(int x, int y)
 {
-	int coord = (x + (y*80); 
+	int coord = x + (y*80); 
 	int coord2 = coord >> 8; 
 	outb(0x0F, 0x3D4);
 	outb((unsigned char) (coord2 & 0xFF), 0x3D5);
