@@ -13,9 +13,9 @@ typedef struct dentry{
 	char reserved[24];
 } dentry_t;
 
-typedef struct FILE FILE;
+struct FILE;
 
-typedef int (*TypedFileOperation) (FILE * f, void* buf, uint32_t count);
+typedef int (*TypedFileOperation) (struct FILE * f, void* buf, uint32_t count);
 
 typedef struct FILE{
 	TypedFileOperation * optable;
