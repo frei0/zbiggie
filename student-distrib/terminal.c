@@ -9,7 +9,6 @@
 #define BACKSPACE 0x08
 
 char buffers[NUM_BUFS][BUF_SIZE];
-static char read_ret_buf[BUF_SIZE];
 int cur_buf = 0;
 int cur_pos = 0; 
 int cur_size = 0;
@@ -31,6 +30,7 @@ int stdout_open(FILE * f){
  * initializes the terminal*/
 void term_open()
 {
+    buffers[NUM_BUFS-1][0] = '\0';
     disable_irq(KB_IRQ);
     term_init();
 }
@@ -58,7 +58,7 @@ void term_init()
         for(j = 0; j < BUF_SIZE; j++)
             buffers[i][j] = 0;
     }
-    puts("zbiggie: ");
+    puts("zbiggie term active!\n");
     cur_pos = 0;
     cur_buf = 0;
     cur_size = 0;
@@ -87,7 +87,7 @@ void term_putc(char c)
         for(i = 0; i < BUF_SIZE; i++) 
             buffers[cur_buf][i] = 0;
         putc_kb(c);
-        puts("zbiggie: ");
+        //puts("zbiggie: ");
         cur_size = 0;
         write_x = -1;
         write_y = -1;
@@ -175,7 +175,7 @@ int term_write(FILE * f, char * buf, int cnt)
  * Inputs: none
  * Returns: the last full terminal buffer terminated in a new line
  * Function: get the last terminal buffer*/
-char * term_read()
+int term_read(FILE * f, char * buf, int numbytes)
 {
    int i;
    int prev_buf;
@@ -183,18 +183,20 @@ char * term_read()
    prev_buf = cur_buf - 1;
    if(prev_buf < 0)
        prev_buf = NUM_BUFS -1;
-   for(i = 0; i < BUF_SIZE; i++)
+   if (buffers[prev_buf][0] == '\0') return 0;
+   for(i = 0; i < numbytes; i++)
    {
        //if end of line or NULL
-       if(buffers[prev_buf][i] == '\n' || buffers[prev_buf][i] == NULL)
-           break;
-       read_ret_buf[i] = buffers[prev_buf][i];
+        buf[i] = buffers[prev_buf][i];
+       if(buf[i] == '\n')
+           break;  //we have a whole line
    }
-   if(read_ret_buf[i] != '\n')
-   {
-       read_ret_buf[i] = '\n';
+   buffers[prev_buf][0] = '\0';
+   if (i+1<numbytes){
+       buf[i+1] = '\0';
+       return i+2;
    }
-   return read_ret_buf;
+   return i+1;
 }
 
 //dumb history, just puts last buffer in. real history needs a
