@@ -208,7 +208,7 @@ extern void key_handler()
 	{
 		//do nothing
         
-        term_write("hello again, world!");
+        term_write(0,"hi!",3);
 	//	term_puts(term_read()); 
 	}
     else if(in == UP_ARROW)
