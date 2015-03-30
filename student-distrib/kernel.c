@@ -251,20 +251,39 @@ entry (unsigned long magic, unsigned long addr)
 
 	init_paging();
 	term_open();
-	//term_close();
+	
 	
 	/* Execute the first program (`shell') ... */
-	//int * p = NULL;
-	//*p =1;
 
-	//change_rtc_freq(8);
-	/*int i;
-	int j = 0;
+	/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - */ 
+	/* RTC TEST CODE */
+	/*
+	int i = 0, j = 0;
 	for(i = 0;i<100000;i++)
 	{
 		j++;
-	}*/
+	}
+	*/
 	//rtc_open();
+	//rtc_write(4);
+	//rtc_read(); 
+	//rtc_close(); 
+	/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - */ 
+	/* FILE SYS TEST CODE */
+
+
+	/* . . . . . . . . . . */ 
+
+
+
+	/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - */ 
+	/* TERMINAL TEST CODE */
+	/* write and read in idt_funcs, to the down arrow key */ 
+	//term_close();
+	/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - */ 
+
+
+
 
 	//clear();
 	//clear_pos();
