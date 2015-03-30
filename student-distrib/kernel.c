@@ -112,6 +112,7 @@ entry (unsigned long magic, unsigned long addr)
 	if (CHECK_FLAG (mbi->flags, 2))
 		printf ("cmdline = %s\n", (char *) mbi->cmdline);
 
+	void * zbigfs_location = NULL;
 	if (CHECK_FLAG (mbi->flags, 3)) {
 		int mod_count = 0;
 		int i;
@@ -126,6 +127,12 @@ entry (unsigned long magic, unsigned long addr)
 			printf("\n");
 			mod_count++;
 			mod++;
+		}
+		if (mod_count){
+			module_t* zbigfsmod = (module_t*)mbi->mods_addr;
+			zbigfs_location = (void *) zbigfsmod->mod_start;
+		} else {
+			printf("No module 0, zbigfs will FAIL!");
 		}
 	}
 	/* Bits 4 and 5 are mutually exclusive! */
@@ -226,16 +233,15 @@ entry (unsigned long magic, unsigned long addr)
 	sti();
 
 
+	init_paging();
 	printf("Mounting module 0 as read-only zbigfs filesystem\n");
-	module_t* zbigfsmod = (module_t*)mbi->mods_addr;
-	zbigfs_mount((void *) zbigfsmod->mod_start);
+	zbigfs_mount(zbigfs_location);
 
 	FILE f;
 	//term_close();
 	//term_write("hello again, world!");
 	
 	/* Execute the first program (`shell') ... */
-	init_paging();
 
 	/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - */ 
 	/* RTC TEST CODE */
