@@ -51,11 +51,12 @@ int rtc_read(void)
 	return 0;
 }
 
-int rtc_write(unsigned int frequency)
+int rtc_write(FILE *f, unsigned int * frequency, int numbytes)
 {
+	if (numbytes!=4) return -1;
 	int new_rate;
 	//Switch statement to check for valid frequency
-	switch(frequency)
+	switch(*frequency)
 	{
 		case HZ_2:
 			new_rate = rate_HZ_2;
@@ -94,7 +95,7 @@ int rtc_write(unsigned int frequency)
 	return change_rtc_freq(new_rate);
 }
 
-int rtc_open(void)
+int rtc_open()
 {
 	//Resets the rtc to the slowest rate
 	int default_rate = MIN_RATE;
@@ -103,6 +104,5 @@ int rtc_open(void)
 
 int rtc_close(void)
 {
-
 	return 0;
 }

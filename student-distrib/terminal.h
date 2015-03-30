@@ -1,6 +1,8 @@
 #ifndef _TERMINAL_H
 #define _TERMINAL_H
 
+#include "zbigfs.h"
+
 void term_open();
 void term_close();
 void term_init();
@@ -10,8 +12,8 @@ void term_put_last();
 void term_clear();
 void term_move_left();
 void term_move_right();
-int term_write(char * str);
+int term_write(FILE * f, char * str, int n);
 char * term_read();
-void zbigify(); 
+int stdout_open(FILE *f);
 
 #endif

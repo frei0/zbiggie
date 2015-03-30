@@ -16,6 +16,14 @@ int cur_size = 0;
 int write_x = -1;
 int write_y = -1;
 
+
+int noread(){ return -1;} //cant read from stdout!
+TypedFileOperation ops_stdout[3] = {(TypedFileOperation) stdout_open, (TypedFileOperation) noread, (TypedFileOperation) term_write};
+int stdout_open(FILE * f){
+    f->optable = ops_stdout;
+    return 0;
+}
+
 /* void term_open()
  * Inputs: none
  * return: none
@@ -154,7 +162,7 @@ int term_puts(char * str)
  * Inputs: a null terminated string to be displayed on the terminal
  * Returns: number of bytes successfully written  
  * Function: prints a string to the terminal*/
-int term_write(char * str)
+int term_write(FILE * f, char * buf, int cnt)
 {
    int i;
    if(str == NULL)
