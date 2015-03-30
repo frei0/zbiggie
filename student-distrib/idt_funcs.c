@@ -207,6 +207,7 @@ extern void key_handler()
 	if (in == DOWN_ARROW)
 	{
 		//do nothing
+		term_write(term_read()); 
 	}
     else if(in == UP_ARROW)
     {
