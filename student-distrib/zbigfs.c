@@ -67,7 +67,7 @@ int kclose(FILE * f){return 0;}
 int32_t read_dentry_by_name (const int8_t * fname, dentry_t * dentry){
 	int i;
 	for (i = 0; i < zbigfs_start->num_dentry; ++i){
-		if (0==strncmp(fname, zbigfs_start->dentries[i].fname, 32)){
+		if (0==strncmp(fname, zbigfs_start->dentries[i].fname, FNAME_MAX_LEN)){
 			return read_dentry_by_index(i,dentry);
 		}
 	}
@@ -101,7 +101,6 @@ int32_t read_data (uint32_t inode, uint32_t offset, uint8_t * buf, uint32_t leng
             offset%ZBIGFS_BLOCK_SIZE, last%ZBIGFS_BLOCK_SIZE - (offset%ZBIGFS_BLOCK_SIZE));
 	return last - first;
 }
-
 
 int zbigfs_mount(void* base_addr){
 	zbigfs_start = base_addr;
