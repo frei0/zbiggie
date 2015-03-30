@@ -67,7 +67,7 @@ int kclose(FILE * f){return 0;}
 int32_t read_dentry_by_name (const int8_t * fname, dentry_t * dentry){
 	int i;
 	for (i = 0; i < zbigfs_start->num_dentry; ++i){
-		if (0==strncmp(fname, zbigfs_start->dentries[i].fname, FNAME_MAX_LEN)){
+		if (0==strncmp(fname, zbigfs_start->dentries[i].fname, FNAME_MAX_LEN-1)){
 			return read_dentry_by_index(i,dentry);
 		}
 	}
