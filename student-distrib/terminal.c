@@ -165,17 +165,10 @@ int term_puts(char * str)
 int term_write(FILE * f, char * buf, int cnt)
 {
    int i;
-   if(str == NULL)
-       return 0;
-   for(i = 0; i < BUF_SIZE; i++)
-   {
-       if(str[i] == NULL)
-           break;
-       putc(str[i]);
-   }
+   for (i = 0; i < cnt; ++i) putc(buf[i]);
    write_x = get_screen_x();
    write_y = get_screen_y(); 
-   return i; 
+   return cnt;
 }
 
 /* char * term_read()
