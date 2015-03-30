@@ -1,5 +1,6 @@
 #ifndef _RTC_H 
 #define _RTC_H
+#include "zbigfs.h"
 
 //RTC ports
 #define RTC_INDEX_PORT 0x70
@@ -50,7 +51,7 @@
 void rtc_init(void);
 int change_rtc_freq(int rate);
 int rtc_read(void);
-int rtc_write(unsigned int frequency);
+int rtc_write(FILE * f , unsigned int * frequency, int numbytes);
 int rtc_open(void);
 int rtc_close(void);
 
