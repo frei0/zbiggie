@@ -13,7 +13,7 @@ void term_clear();
 void term_move_left();
 void term_move_right();
 int term_write(FILE * f, char * buf, int n);
-char * term_read();
+int term_read(FILE * f, char * buf, int n);
 int stdout_open(FILE *f);
 
 #endif

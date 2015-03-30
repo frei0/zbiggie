@@ -241,7 +241,7 @@ entry (unsigned long magic, unsigned long addr)
 	//term_close();
 	//term_write("hello again, world!");
 	
-	/* Execute the first program (`shell') ... */
+	/* TODO: Execute the first program (`shell') ... */
 
 	/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - */ 
 	/* RTC TEST CODE */
@@ -294,12 +294,17 @@ entry (unsigned long magic, unsigned long addr)
 	/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - */ 
 	
 	term_open(); //open a kshell
-	/*
+
+	char rbuf[200];
+	
 	while (1){
-	char * termout = term_read(); //shouldn't this block?
-	printf("you just typed \"%s\"\n", termout); 
+		printf("trying to read: ");
+		while(!term_read(&f, rbuf, 200)){}
+		printf("got back \"%s\" from read\n", rbuf); 
+		if(!strncmp(rbuf, "done\n", 6)) break;
 	}
-	*/
+	term_close();
+	
 	/* Spin (nicely, so we don't chew up cycles) */
 	asm volatile(".1: hlt; jmp .1;");
 }
