@@ -237,15 +237,15 @@ extern void key_handler()
 	{
 		caps_lock_flag = !caps_lock_flag; 
 	}
-    else if ((0x000000FF & in) == CONTROL_UP)
+    else if ((BYTE_MASK & in) == CONTROL_UP)
 	{
 		ctrl_flag = 0; 
 	}
-    else if ((0x000000FF & in) == LEFT_SHIFT_UP)
+    else if ((BYTE_MASK & in) == LEFT_SHIFT_UP)
 	{
 		shift_l_flag = 0; 
 	}
-    else if ((0x000000FF & in) == RIGHT_SHIFT_UP)
+    else if ((BYTE_MASK & in) == RIGHT_SHIFT_UP)
 	{
 		shift_r_flag = 0; 
 	}
@@ -253,7 +253,7 @@ extern void key_handler()
 	{
 		if(isALetter && ((shift_r_flag || shift_l_flag) ^ caps_lock_flag))
 		{
-			term_putc(scan2ASCII[(int)in] - 32);
+			term_putc(scan2ASCII[(int)in] - OFFSET);
 		}
 		else if(shift_r_flag || shift_l_flag)
 		{
@@ -287,6 +287,7 @@ extern void rtc_handler()
 	inb(RTC_RW_PORT ); //Read data and throw it out to clear buffer
 	rtc_f = 0; 
     outb( inb(RTC_INDEX_PORT) & NMI_ON, RTC_INDEX_PORT); //enable NMI again
+    //test_interrupts();
 	sti();
 	send_eoi(RTC_LINE);
 }
