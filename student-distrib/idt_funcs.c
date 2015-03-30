@@ -32,7 +32,11 @@ char shift2ASCII[256] =
 		0x62, 0x6E, 0x6D, 0x3C, 0x3E, 0x3F,
 		0xFF, 0x2A, 0xFF, 0x20, 0xFF,
 	};
-
+char notPrintableArray[128] = 
+    {
+        0x3B, 0x3C, 0x3D, 0x3F, 0x40, 0x41, 
+        0x42, 0x43, 0x44, 0x57, 0x58, 0x38,
+    };
 
 int shift_l_flag = 0, shift_r_flag = 0, caps_lock_flag = 0, ctrl_flag = 0;
 
@@ -197,14 +201,23 @@ extern void key_handler()
 {
 	
 	char in;
+    int i;
+    char notPrintable = 0;
 	cli();
 	in = (char)inb(KEY_PORT);
 
 	int isALetter = (scan2ASCII[(int)in] > 96) && (scan2ASCII[(int)in] < 123);
 	int isPrintable = (((int)in > 1) && ((int)in < 123));
 
-
-	if (in == DOWN_ARROW)
+    for(i = 0; i < 128; i ++)
+    {
+       if(in == notPrintableArray[i])
+           notPrintable = 1;
+    }
+    if(notPrintable)
+    {
+    }
+    else if (in == DOWN_ARROW)
 	{
 		//do nothing
         
@@ -253,7 +266,13 @@ extern void key_handler()
 	}
     else if(isPrintable)
 	{
-		if(isALetter && ((shift_r_flag || shift_l_flag) ^ caps_lock_flag))
+        if ( (scan2ASCII[(int)in] == 'l') && ctrl_flag)
+        {
+            term_clear();
+            term_init();
+            
+        }
+        else if(isALetter && ((shift_r_flag || shift_l_flag) ^ caps_lock_flag))
 		{
 			term_putc(scan2ASCII[(int)in] - OFFSET);
 		}
@@ -263,18 +282,9 @@ extern void key_handler()
 		}
 		else 
 		{
-			if ( (scan2ASCII[(int)in] == 'l') && ctrl_flag)
-			{
-				term_clear();
-                term_init();
-				
-			}
-            //else if(scan2ASCII[(int)in] == 'j')
-             //   term_puts("you hit j!");
-            else
-            {
-				term_putc(scan2ASCII[(int)in]); 
-			}
+        //else if(scan2ASCII[(int)in] == 'j')
+         //   term_puts("you hit j!");
+            term_putc(scan2ASCII[(int)in]); 
 		}
     }
 
