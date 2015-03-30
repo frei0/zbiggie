@@ -6,6 +6,8 @@
 #define FTYPE_DIRECTORY 1
 #define FTYPE_REGULAR   2
 
+#define FNAME_MAX_LEN  32
+
 typedef struct dentry{
 	char fname[32];
 	uint32_t ftype;

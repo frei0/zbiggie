@@ -11,13 +11,13 @@ typedef struct boot_block{ //this struct is large, never allocate it!
 	uint32_t num_dentry;
 	uint32_t num_inode;
 	uint32_t num_dblock;
-	char reserved[52];
-dentry_t dentries[63];
+	char reserved[sizeof(dentry_t)-3*sizeof(uint32_t)];
+dentry_t dentries[ZBIGFS_BLOCK_SIZE/sizeof(dentry_t)-1];
 } boot_block_t;
 
 typedef struct inode{ //this struct is large, never allocate it!
 	uint32_t length; //the length of the file
-	uint32_t datablock_num[1023];
+	uint32_t datablock_num[ZBIGFS_BLOCK_SIZE/sizeof(uint32_t)-1];
 } inode_t;
 boot_block_t * zbigfs_start;
 
@@ -75,7 +75,7 @@ int32_t read_dentry_by_name (const int8_t * fname, dentry_t * dentry){
 }
 int32_t read_dentry_by_index (uint32_t i, dentry_t * dentry){
 	if (i >= zbigfs_start->num_dentry) return -1;
-	strncpy(dentry->fname, zbigfs_start->dentries[i].fname, 32);
+	strncpy(dentry->fname, zbigfs_start->dentries[i].fname, FNAME_MAX_LEN);
 	dentry->ftype = zbigfs_start->dentries[i].ftype;
 	if (dentry->ftype == FTYPE_REGULAR){
 		dentry->inode_num = zbigfs_start->dentries[i].inode_num;
