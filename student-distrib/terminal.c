@@ -13,6 +13,8 @@ static char read_ret_buf[BUF_SIZE];
 int cur_buf = 0;
 int cur_pos = 0; 
 int cur_size = 0;
+int write_x = -1;
+int write_y = -1;
 
 /* void term_open()
  * Inputs: none
@@ -52,6 +54,8 @@ void term_init()
     cur_pos = 0;
     cur_buf = 0;
     cur_size = 0;
+    write_x = -1;
+    write_y = -1;
 }
 
 /*void term_putc(char c)
@@ -77,6 +81,8 @@ void term_putc(char c)
         putc_kb(c);
         puts("zbiggie: ");
         cur_size = 0;
+        write_x = -1;
+        write_y = -1;
     }
     //backspace
     else if(c == BACKSPACE)
@@ -92,9 +98,13 @@ void term_putc(char c)
        //if not the first character, delete the char then move left
        if(cur_pos > 0)
        {
+           if(get_screen_y() > write_y || (get_screen_y() == write_y 
+                   && get_screen_x() > write_x))
+           {
            move_left();
            putc_kb(bs_char); 
            move_left();
+           }
            cur_pos--;
            buffers[cur_buf][cur_pos] = bs_char;
        }
@@ -102,8 +112,12 @@ void term_putc(char c)
        else
        {
            buffers[cur_buf][cur_pos] = bs_char;
+           if(get_screen_y() > write_y ||( get_screen_y() == write_y 
+                   && get_screen_x() > write_x))
+           {
            putc(bs_char);
            move_left();
+           }
        }
     }
     //if just a regular character and buffer isn't full, 
@@ -142,7 +156,18 @@ int term_puts(char * str)
  * Function: prints a string to the terminal*/
 int term_write(char * str)
 {
-    return term_puts(str);
+   int i;
+   if(str == NULL)
+       return 0;
+   for(i = 0; i < BUF_SIZE; i++)
+   {
+       if(str[i] == NULL)
+           break;
+       putc(str[i]);
+   }
+   write_x = get_screen_x();
+   write_y = get_screen_y(); 
+   return i; 
 }
 
 /* char * term_read()

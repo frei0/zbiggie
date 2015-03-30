@@ -32,6 +32,16 @@ clear(void)
 	screen_x = screen_y = biggest_y = 0;
 }
 
+int get_screen_x()
+{
+	return screen_x;
+}
+
+int get_screen_y()
+{
+	return screen_y;
+}
+
 void
 set_pos(int x, int y)
 {
