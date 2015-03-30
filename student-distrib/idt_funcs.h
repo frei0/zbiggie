@@ -15,6 +15,8 @@
 #define CONTROL_UP		0x9D
 #define LEFT_SHIFT_UP	0xAA
 #define RIGHT_SHIFT_UP	0xB6
+#define BYTE_MASK		0x000000FF
+#define OFFSET			32
 
 
 

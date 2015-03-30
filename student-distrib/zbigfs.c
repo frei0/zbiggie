@@ -105,6 +105,6 @@ int32_t read_data (uint32_t inode, uint32_t offset, uint8_t * buf, uint32_t leng
 
 int zbigfs_mount(void* base_addr){
 	zbigfs_start = base_addr;
-    printf("%d %d %d \n", zbigfs_start->num_dentry, zbigfs_start->num_inode, zbigfs_start->num_dblock);
+    //printf("%d %d %d \n", zbigfs_start->num_dentry, zbigfs_start->num_inode, zbigfs_start->num_dblock);
     return 0;
 }

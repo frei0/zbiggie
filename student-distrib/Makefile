@@ -24,7 +24,7 @@ OBJS += $(patsubst %.c,%.o,$(filter %.c,$(SRC)))
 
 bootimg: Makefile $(OBJS) orig.img dep
 	$(CC) $(LDFLAGS) $(OBJS) -Ttext=0x400000 -o bootimg
-	sudo ./debug.sh
+	sudo sh debug.sh
 
 dep: Makefile.dep
 

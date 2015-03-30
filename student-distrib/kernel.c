@@ -225,50 +225,75 @@ entry (unsigned long magic, unsigned long addr)
 	printf("Enabling Interrupts\n");
 	sti();
 
-	if (CHECK_FLAG (mbi->flags, 3) && (mbi->mods_count)) {
-		printf("Mounting module 0 as read-only zbigfs filesystem\n");
-		module_t* zbigfsmod = (module_t*)mbi->mods_addr;
-		zbigfs_mount((void *) zbigfsmod->mod_start);
 
-		printf("listing files:\n");
-		FILE f;
-		kopen(&f, ".");
-		char dbuf[32];
-		while (kread(&f, dbuf, 32))
-			printf("%s\n", dbuf);
+	printf("Mounting module 0 as read-only zbigfs filesystem\n");
+	module_t* zbigfsmod = (module_t*)mbi->mods_addr;
+	zbigfs_mount((void *) zbigfsmod->mod_start);
 
-		kopen(&f, "frame1.txt");
-		char buf[200];
-		kread(&f, &buf, 200);
-		printf("First few bytes of frame1.txt:\n");
-		int i;
-		for(i = 0; i < 16; i++) {
-			printf("0x%x ", *(buf+i));
-		}
-		puts(buf);
-		putc('\n');
-	}
-
-	init_paging();
-	term_open();
+	FILE f;
 	//term_close();
 	//term_write("hello again, world!");
 	
 	/* Execute the first program (`shell') ... */
-	//int * p = NULL;
-	//*p =1;
+	init_paging();
 
-	//change_rtc_freq(8);
-	/*int i;
-	int j = 0;
-	for(i = 0;i<100000;i++)
-	{
-		j++;
-	}*/
-	//rtc_open();
+	/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - */ 
+	/* RTC TEST CODE */
 
-	//clear();
-	//clear_pos();
+	//int retval = 
+	kopen(&f, "rtc");
+	//printf("kopen on rtc returned %d\n", retval);
+	int i;
+	for (i = 0; i < 10; ++i){
+		kread(&f, 0, 0); puts("rtc ");
+	}
+	
+	puts("\nSetting rtc to 4HZ: ");
+	int rate = 4;
+	kwrite(&f, &rate, 4);
+	for (i = 0; i < 10; ++i){
+		kread(&f, 0, 0); puts("rtc ");
+	}
+	putc('\n');
+
+	/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - */ 
+	/* FILE SYS TEST CODE */
+
+	/*
+	char dbuf[32];
+	printf("listing files:\n");
+	kopen(&f, ".");
+	while (kread(&f, dbuf, 32))
+		printf("%s\n", dbuf);
+	*/
+
+	FILE outf;
+	stdout_open(&outf);
+	
+	char buf[200];
+	kopen(&f, "frame1.txt");
+	kread(&f, &buf, 200);
+	printf("Contents of frame1.txt:\n");
+	term_write(&outf, buf, 200); putc('\n');
+
+	kopen(&f, "ls");
+	kread(&f, &buf, 200);
+	printf("200B of ls:\n");
+	term_write(&outf, buf, 200); putc('\n');
+	
+
+	/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - */ 
+	/* TERMINAL TEST CODE */
+	/* write and read in idt_funcs, to the down arrow key */ 
+	/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - */ 
+	
+	term_open(); //open a kshell
+	/*
+	while (1){
+	char * termout = term_read(); //shouldn't this block?
+	printf("you just typed \"%s\"\n", termout); 
+	}
+	*/
 	/* Spin (nicely, so we don't chew up cycles) */
 	asm volatile(".1: hlt; jmp .1;");
 }
