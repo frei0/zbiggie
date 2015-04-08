@@ -1,7 +1,8 @@
 #define ASM 1
 #include "syscall.h" 
 
-
+.globl syscall
+.align 4
 
 
 
@@ -21,6 +22,13 @@ syscall_fail:
 
 
 halt:
+    pushal
+    pushl $52
+    call putc 
+    addl $4, %esp
+    popal
+    iret
+
 
 execute: 
 
