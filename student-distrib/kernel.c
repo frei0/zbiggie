@@ -13,6 +13,8 @@
 #include "page.h"
 #include "terminal.h"
 #include "zbigfs.h"
+#include "syscall.h"
+#include "syscall_funcs.h"
 /* Macros. */
 /* Check if the bit BIT in FLAGS is set. */
 #define CHECK_FLAG(flags,bit)   ((flags) & (1 << (bit)))
@@ -71,7 +73,7 @@ void populate_idt()
 	/*setting more specific interrupts*/ 
 	SET_IDT_ENTRY(idt[RTC_INDEX],&asm_rtc);
 	SET_IDT_ENTRY(idt[KEYBOARD_INDEX],&asm_keyboard);
-	SET_IDT_ENTRY(idt[SYS_CALLS_INDEX],&system_calls);
+	SET_IDT_ENTRY(idt[SYS_CALLS_INDEX],&syscall);
 
 	/*loading IDTR*/ 
 	lidt(idt_desc_ptr);
@@ -245,7 +247,7 @@ entry (unsigned long magic, unsigned long addr)
 
 	/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - */ 
 	/* RTC TEST CODE */
-
+/*
 	//int retval = 
 	kopen(&f, "rtc");
 	//printf("kopen on rtc returned %d\n", retval);
@@ -261,7 +263,7 @@ entry (unsigned long magic, unsigned long addr)
 		kread(&f, 0, 0); puts("rtc ");
 	}
 	putc('\n');
-
+*/
 	/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - */ 
 	/* FILE SYS TEST CODE */
 
@@ -296,7 +298,7 @@ entry (unsigned long magic, unsigned long addr)
 	term_open(); //open a kshell
 
 	char rbuf[200];
-	
+/*	
 	while (1){
 		printf("trying to read: ");
 		while(!term_read(&f, rbuf, 200)){}
@@ -305,8 +307,10 @@ entry (unsigned long magic, unsigned long addr)
 	}
 	term_close();
 	
+	*/
+	halt_call();	
 	/* Spin (nicely, so we don't chew up cycles) */
-	asm volatile(".1: hlt; jmp .1;");
+	//asm volatile(".1: hlt; jmp .1;");
 }
 
 
