@@ -31,19 +31,46 @@ halt:
 
 
 execute: 
+    pushal
+    popal
+    iret
 
 read: 
+    pushal
+    popal
+    iret
 
 write: 
+    pushal
+    popal
+    iret
 
 open: 
+    pushal
+    popal
+    iret
 
 close:
+    pushal
+    popal
+    iret
 
 getargs: 
+    pushal
+    popal
+    iret
 
 vidmap:
+    pushal
+    popal
+    iret
  
 set_handler:
+    pushal
+    popal
+    iret
 
 sigreturn: 
+    pushal
+    popal
+    iret
