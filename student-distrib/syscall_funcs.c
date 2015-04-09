@@ -1,4 +1,5 @@
 #include "syscall_funcs.h"
+#include "zbigfs.h"
 
 int halt_call(){
     asm volatile(
@@ -18,14 +19,18 @@ int execute_call(){
     buffer_parser(term1, term2, term3, test_buff);
 
     if (term1[0] != 0)
-        printf( "%s\n" , term1); 
+        //printf( "%s\n" , term1); 
         
     if (term2[0] != 0)
-        printf( "%s\n" , term2); 
+        //printf( "%s\n" , term2); 
 
     if (term3[0] != 0)
-        printf( "%s\n" , term3);
+        //printf( "%s\n" , term3);
 
+    asm volatile(
+            "movl $2, %eax;"
+            "int $0x80;"
+            );
 
     return 0; 
 }
@@ -72,9 +77,25 @@ int sigreturn_call(){
 
 
 
+
 /* - - - - - - - - - - - - - - - - - - - - - - 
     Helper Functions
  - - - - - - - - - - - - - - - - - - - - - - */ 
+
+void * load_exec_to_mem()
+{
+	FILE f;
+    int i;
+    char * mem = 0x08048000;
+    /*char buf[10000];
+    for(i = 0; i<10000;i++)
+        buf[i] = 0;
+        */
+	kopen(&f, "ls");
+	kread(&f, mem, 1000);
+    return mem;
+}
+
 int buffer_parser(char * arg1, char * arg2, char * arg3, char * s)
 {
     int i, j; 
