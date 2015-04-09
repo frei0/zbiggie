@@ -297,7 +297,7 @@ entry (unsigned long magic, unsigned long addr)
 	
 	term_open(); //open a kshell
 
-	char rbuf[200];
+	//char rbuf[200];
 /*	
 	while (1){
 		printf("trying to read: ");
@@ -308,7 +308,27 @@ entry (unsigned long magic, unsigned long addr)
 	term_close();
 	
 	*/
+	/*
 	halt_call();	
+	init_pd(1);
+	init_pd(2);
+	init_pd(3);
+	init_pd(4);
+	init_pd(5);
+	init_pd(6);
+	set_cr3(1);
+	set_cr3(2);
+	set_cr3(3);
+	set_cr3(4);
+	set_cr3(5);
+	set_cr3(6);
+	char x;
+	x = 'H';
+	putc(x);
+	char * ptr = 0x00600001;
+	*ptr = 'I';
+	putc(*ptr);
+	*/
 	/* Spin (nicely, so we don't chew up cycles) */
 	//asm volatile(".1: hlt; jmp .1;");
 }
