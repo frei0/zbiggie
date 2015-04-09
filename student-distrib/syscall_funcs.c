@@ -94,15 +94,16 @@ void * load_exec_to_mem()
         */
 	kopen(&f, "ls");
 	kread(&f, mem, 7000);
-    printf("\n %x \n", *((int*)mem));
+    //printf("\n %x \n", *((int*)(mem+24)));
     if(!exec_check((int*)mem))
         return 0;
-
+/*
 	FILE outf;
 	stdout_open(&outf);
 	term_write(&outf, mem, 200); putc('\n');
-
-    return mem;
+*/
+    void * entry = (void *)(*((int*)(mem+24)));
+    return entry;
 }
 
 int exec_check(int * ptr)

@@ -22,6 +22,7 @@ syscall_fail:
 
 
 halt:
+    #jmp halt
     pushal
     popal
     iret
@@ -45,7 +46,11 @@ read:
 
 write: 
     pushal
+    pushl $0x41
+    call putc 
+    addl $4, %esp
     popal
+    #jmp halt
     iret
 
 open: 
