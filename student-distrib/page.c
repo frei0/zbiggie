@@ -51,3 +51,24 @@ void init_paging(void){
     : "ax", "cc","memory" 
     );
 }
+
+void init_pd(int pd_num)
+{
+	int i;
+	for (i = 0; i < PD_NUM_ENTRIES; ++i)
+		page_directories[pd_num][i]=0x0; //fill page directory with non present entries
+    page_directories[pd_num][0] = (((unsigned int)low_memory_table) & PDE_ADDRESS_MASK)| PDE_PRESENT;
+    page_directories[pd_num][1] = OFFSET_4M | PDE_SIZE | PDE_PRESENT;
+    page_directories[pd_num][2] = (pd_num+1)*OFFSET_4M | PDE_SIZE | PDE_PRESENT;
+}
+
+void set_cr3(int pd_num)
+{
+    asm volatile(
+         "mov %0, %%cr3;      \
+          "
+    : 
+    : "r" (page_directories[pd_num])
+    : "ax", "cc","memory" 
+    );
+}
