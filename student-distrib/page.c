@@ -59,7 +59,7 @@ void init_pd(int pd_num)
 		page_directories[pd_num][i]=0x0; //fill page directory with non present entries
     page_directories[pd_num][0] = (((unsigned int)low_memory_table) & PDE_ADDRESS_MASK)| PDE_PRESENT;
     page_directories[pd_num][1] = OFFSET_4M | PDE_SIZE | PDE_PRESENT;
-    page_directories[pd_num][2] = (pd_num+1)*OFFSET_4M | PDE_SIZE | PDE_PRESENT;
+    page_directories[pd_num][32] = (pd_num+1)*OFFSET_4M | PDE_SIZE | PDE_PRESENT; //for program image
 }
 
 void set_cr3(int pd_num)
