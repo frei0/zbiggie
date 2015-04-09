@@ -23,15 +23,18 @@ syscall_fail:
 
 halt:
     pushal
-    pushl $52
-    call putc 
-    addl $4, %esp
     popal
     iret
 
 
 execute: 
     pushal
+    pushl $52
+    call putc 
+    addl $4, %esp
+    CALL load_exec_to_mem
+    pushl halt
+    jmp %eax
     popal
     iret
 

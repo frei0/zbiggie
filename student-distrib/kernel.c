@@ -308,8 +308,13 @@ entry (unsigned long magic, unsigned long addr)
 	term_close();
 	
 	*/
+	init_pd(1);
+	set_cr3(1);
+	char * ptr = 0x08048000;
+	*ptr = 'I';
+	putc(*ptr);
+	execute_call();
 	/*
-	halt_call();	
 	init_pd(1);
 	init_pd(2);
 	init_pd(3);

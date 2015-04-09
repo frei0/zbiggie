@@ -1,5 +1,6 @@
 #include "syscall_funcs.h"
 #include "zbigfs.h"
+#define MAGIC_NUM 0x464c457f
 
 int halt_call(){
     asm volatile(
@@ -92,8 +93,23 @@ void * load_exec_to_mem()
         buf[i] = 0;
         */
 	kopen(&f, "ls");
-	kread(&f, mem, 1000);
+	kread(&f, mem, 7000);
+    printf("\n %x \n", *((int*)mem));
+    if(!exec_check((int*)mem))
+        return 0;
+
+	FILE outf;
+	stdout_open(&outf);
+	term_write(&outf, mem, 200); putc('\n');
+
     return mem;
+}
+
+int exec_check(int * ptr)
+{
+    if(*ptr == MAGIC_NUM)
+        return 1;
+    else return 0;
 }
 
 int buffer_parser(char * arg1, char * arg2, char * arg3, char * s)
