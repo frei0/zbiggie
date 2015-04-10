@@ -74,6 +74,7 @@ void populate_idt()
 	SET_IDT_ENTRY(idt[RTC_INDEX],&asm_rtc);
 	SET_IDT_ENTRY(idt[KEYBOARD_INDEX],&asm_keyboard);
 	SET_IDT_ENTRY(idt[SYS_CALLS_INDEX],&syscall);
+	idt[SYS_CALLS_INDEX].dpl = 3;
 
 	/*loading IDTR*/ 
 	lidt(idt_desc_ptr);
