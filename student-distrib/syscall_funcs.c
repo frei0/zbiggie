@@ -1,6 +1,8 @@
 #include "syscall_funcs.h"
 #include "zbigfs.h"
+#include "page.h"
 #define MAGIC_NUM 0x464c457f
+#define EXE_LOAD_SZ ( 33 * OFFSET_4M - LOAD_ADDR)
 
 int halt_call(){
     asm volatile(
@@ -13,24 +15,27 @@ int halt_call(){
 
 int execute_call(){
 
-    char test_buff[] = "execute shell case"; 
+    char test_buff[] = "hello"; 
     char term1[128]; 
     char term2[128];
     char term3[128];
     buffer_parser(term1, term2, term3, test_buff);
 
-    if (term1[0] != 0)
+    if (term1[0] != 0) {}
         //printf( "%s\n" , term1); 
         
-    if (term2[0] != 0)
+    if (term2[0] != 0) {}
         //printf( "%s\n" , term2); 
 
-    if (term3[0] != 0)
+    if (term3[0] != 0) {}
         //printf( "%s\n" , term3);
 
+    register char * b asm ("ebx") = test_buff;
+    register int a asm ("eax") = 2;
     asm volatile(
-            "movl $2, %eax;"
             "int $0x80;"
+            : 
+            : "r" (b), "r" (a)
             );
 
     return 0; 
@@ -83,13 +88,13 @@ int sigreturn_call(){
     Helper Functions
  - - - - - - - - - - - - - - - - - - - - - - */ 
 
-void * load_exec_to_mem()
+void * load_exec_to_mem( const char * fname)
 {
 	FILE f;
     int i;
-    char * mem = 0x08048000;
-	kopen(&f, "hello");
-	kread(&f, mem, 7000);
+    char * mem = LOAD_ADDR;
+	if (kopen(&f, fname)) { return 0; }
+	kread(&f, mem, EXE_LOAD_SZ);
     //printf("\n %x \n", *((int*)(mem+24)));
     if(!exec_check((int*)mem))
         return 0;

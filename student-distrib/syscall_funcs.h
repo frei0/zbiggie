@@ -2,6 +2,7 @@
 #include "lib.h"
 
 #define SYSCALL_FUNCS_H
+#define LOAD_ADDR 0x08048000
 
 int halt_call();
 int execute_call(); 
@@ -16,7 +17,7 @@ int sigreturn_call();
 
 //Helper Functions
 int exec_check(int * ptr);
-void * load_exec_to_mem();
+void * load_exec_to_mem(const char * fname);
 int buffer_parser(char * arg1, char * arg2, char * arg3, char * s);
 
 #endif
