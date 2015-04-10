@@ -22,35 +22,38 @@ syscall_fail:
 
 
 halt:
-    #jmp halt
     pushal
+    pushl $0x48
+    call putc 
+    addl $4, %esp
     popal
     iret
 
-
 execute: 
     pushal
-    pushl $52
+    pushl $0x45
     call putc 
     addl $4, %esp
     CALL load_exec_to_mem
-    pushl halt
+    #pushl halt
     jmp %eax
     popal
     iret
 
 read: 
     pushal
+    pushl $0x52
+    call putc 
+    addl $4, %esp
     popal
     iret
 
 write: 
     pushal
-    pushl $0x41
+    pushl $0x57
     call putc 
     addl $4, %esp
     popal
-    #jmp halt
     iret
 
 open: 

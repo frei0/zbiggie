@@ -88,11 +88,7 @@ void * load_exec_to_mem()
 	FILE f;
     int i;
     char * mem = 0x08048000;
-    /*char buf[10000];
-    for(i = 0; i<10000;i++)
-        buf[i] = 0;
-        */
-	kopen(&f, "ls");
+	kopen(&f, "hello");
 	kread(&f, mem, 7000);
     //printf("\n %x \n", *((int*)(mem+24)));
     if(!exec_check((int*)mem))
