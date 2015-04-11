@@ -3,6 +3,7 @@
 #define LOAD_ADDR 0x08048000
 #ifndef ASM
 #include "lib.h"
+#include "tasking.h"
 //Helper Functions
 int exec_check(int * ptr);
 void * load_exec_to_mem(const char * fname);

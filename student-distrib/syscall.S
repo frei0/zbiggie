@@ -44,6 +44,7 @@ halt:
 
     CALL get_current_pcb
     pushl 4(%eax)
+    CALL switch_context 
     CALL get_pcb
     movl (%eax), %esp
     ret
@@ -52,11 +53,13 @@ execute:
     CALL get_current_pcb
     movl %esp, (%eax)
 
-    CALL setup_new_process
+    #CALL setup_new_process
 
     pushl %ebx
     CALL load_exec_to_mem
     addl $4, %esp
+    cmpl $-1, %eax
+    je syscall_fail
 
     /*pushl halt*/
     /* jmp %eax asdf */

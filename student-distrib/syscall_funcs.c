@@ -19,16 +19,22 @@ void * load_exec_to_mem( const char * fname)
 
 	buffer_parser((char *)&arg1, (char *)&arg2, (char *)&arg3, fname); 
     char * mem = (char *) LOAD_ADDR;
-	if (kopen(&f, arg1)) { return 0; }
+    char buf[40];
+	if (kopen(&f, arg1)) { return -1; }
+	kread(&f, buf, 30);
+    if(!exec_check((int*)buf))
+    {
+        return -1;
+    }
+    setup_new_process();
+    kopen(&f, arg1);
 	kread(&f, mem, EXE_LOAD_SZ);
-    //printf("\n %x \n", *((int*)(mem+24)));
-    if(!exec_check((int*)mem))
-        return 0;
 /*
 	FILE outf;
 	stdout_open(&outf);
 	term_write(&outf, mem, 200); putc('\n');
 */
+    printf("\n %x \n", *((int*)(mem+24)));
     void * entry = (void *)(*((int*)(mem+24)));
     return entry;
 }
