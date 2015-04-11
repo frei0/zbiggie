@@ -10,19 +10,16 @@ syscall:
     pushl %ebx
     pushl %ecx
     pushl %edx
-    pushl %ebp
     pushl %esi
     pushl %edi
 
 	decl	%eax	
 	cmpl 	$9, %eax
 	ja		syscall_fail
-    sti
 	call *jump_table(,%eax,4)
 
     popl %edi
     popl %esi
-    popl %ebp
     popl %edx
     popl %ecx
     popl %ebx
@@ -43,15 +40,18 @@ halt:
     addl $4, %esp
 
     CALL get_current_pcb
-    pushl 4(%eax)
+    pushl 8(%eax)
     CALL switch_context 
     CALL get_pcb
     movl (%eax), %esp
+    movl 4(%eax), %ebp
+    movl $0, %eax
     ret
 
 execute: 
     CALL get_current_pcb
     movl %esp, (%eax)
+    movl %ebp, 4(%eax)
 
     #CALL setup_new_process
 
@@ -63,17 +63,18 @@ execute:
 
     /*pushl halt*/
     /* jmp %eax asdf */
-    pushl $USER_DS
+    pushl $KERNEL_DS
     movl  $LOAD_ADDR,%ebx
     subl  $4,%ebx
     pushl %ebx
     pushf
     orl   $0x200,(%esp)
-    pushl $USER_CS
+    pushl $KERNEL_CS
     pushl %eax
     iret
 
 read: 
+
     pushl %edx
     pushl %ecx
 
@@ -83,6 +84,7 @@ read:
     addl $4, %esp
 
     pushl %eax
+    sti
     call kread
 
     addl $12, %esp
