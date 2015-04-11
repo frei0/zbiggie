@@ -229,7 +229,7 @@ extern void key_handler()
 	}
     else if(in == UP_ARROW)
     {
-        term_put_last();
+        //do nothing!;
     }
     else if (in == LEFT_ARROW)
 	{

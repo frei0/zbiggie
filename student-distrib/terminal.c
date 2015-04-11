@@ -8,18 +8,25 @@
 #define KB_IRQ 1
 #define BACKSPACE 0x08
 
-char buffers[NUM_BUFS][BUF_SIZE];
-int cur_buf = 0;
+char buffer[BUF_SIZE];
 int cur_pos = 0; 
 int cur_size = 0;
+int prev_size;
 int write_x = -1;
 int write_y = -1;
+volatile int wait_for_nl;
 
 
 int noread(){ return -1;} //cant read from stdout!
+int nowrite(){ return -1;} //cant write to stdin!
 TypedFileOperation ops_stdout[3] = {(TypedFileOperation) stdout_open, (TypedFileOperation) noread, (TypedFileOperation) term_write};
+TypedFileOperation ops_stdin[3] = {(TypedFileOperation) stdin_open, (TypedFileOperation) term_read, (TypedFileOperation) nowrite};
 int stdout_open(FILE * f){
     f->optable = ops_stdout;
+    return 0;
+}
+int stdin_open(FILE * f){
+    f->optable = ops_stdin;
     return 0;
 }
 
@@ -30,7 +37,7 @@ int stdout_open(FILE * f){
  * initializes the terminal*/
 void term_open()
 {
-    buffers[NUM_BUFS-1][0] = '\0';
+    buffer[0] = '\0';
     disable_irq(KB_IRQ);
     term_init();
 }
@@ -52,15 +59,11 @@ void term_close()
  * function: initializes the terminal*/
 void term_init()
 {
-    int i,j;
-    for(i = 0; i < NUM_BUFS; i++)
-    {
+    int j;
         for(j = 0; j < BUF_SIZE; j++)
-            buffers[i][j] = 0;
-    }
+            buffer[j] = 0;
     puts("zbiggie term active!\n");
     cur_pos = 0;
-    cur_buf = 0;
     cur_size = 0;
     write_x = -1;
     write_y = -1;
@@ -78,19 +81,17 @@ void term_putc(char c)
     if(c == '\n' || c == '\r') 
     {
         if(cur_size < BUF_SIZE)
-            buffers[cur_buf][cur_size] = '\n';
+            buffer[cur_size] = '\n';
 
-        cur_buf ++;
-        cur_buf %=NUM_BUFS;
         cur_pos = 0;
         set_x(START_POS);
-        for(i = 0; i < BUF_SIZE; i++) 
-            buffers[cur_buf][i] = 0;
         putc_kb(c);
         //puts("zbiggie: ");
+        prev_size = cur_size;
         cur_size = 0;
         write_x = -1;
         write_y = -1;
+        wait_for_nl = 0;
     }
     //backspace
     else if(c == BACKSPACE)
@@ -114,12 +115,12 @@ void term_putc(char c)
            move_left();
            }
            cur_pos--;
-           buffers[cur_buf][cur_pos] = bs_char;
+           buffer[cur_pos] = bs_char;
        }
        //if first character, just delete, don't move left
        else
        {
-           buffers[cur_buf][cur_pos] = bs_char;
+           buffer[cur_pos] = bs_char;
            if(get_screen_y() > write_y ||( get_screen_y() == write_y 
                    && get_screen_x() > write_x))
            {
@@ -133,7 +134,7 @@ void term_putc(char c)
     else if(cur_pos < BUF_SIZE-1)
     {
         putc_kb(c);
-        buffers[cur_buf][cur_pos] = c;
+        buffer[cur_pos] = c;
         cur_pos ++;
         cur_size++;
     }
@@ -178,47 +179,27 @@ int term_write(FILE * f, char * buf, int cnt)
 int term_read(FILE * f, char * buf, int numbytes)
 {
    int i;
-   int prev_buf;
-
-   prev_buf = cur_buf - 1;
-   if(prev_buf < 0)
-       prev_buf = NUM_BUFS -1;
-   if (buffers[prev_buf][0] == '\0') return 0;
+   wait_for_nl = 1;
+   while (wait_for_nl) {}
    for(i = 0; i < numbytes; i++)
    {
        //if end of line or NULL
-        buf[i] = buffers[prev_buf][i];
-       if(buf[i] == '\n')
+        buf[i] = buffer[i];
+       if(buf[i] == '\n'){
+           i++;
            break;  //we have a whole line
+       }
    }
-   buffers[prev_buf][0] = '\0';
-   if (i+1<numbytes){
-       buf[i+1] = '\0';
-       return i+2;
+   buffer[0] = '\0';
+   if (i<numbytes){
+       buf[i] = '\0';
+       return i+1;
    }
-   return i+1;
+   return i;
 }
 
 //dumb history, just puts last buffer in. real history needs a
 //history file
-void term_put_last()
-{
-    /*TODO: history file*/
-   int i;
-   int prev_buf;
-
-   prev_buf = cur_buf - 1;
-   if(prev_buf < 0)
-       prev_buf = NUM_BUFS -1;
-   for(i = 0; i < BUF_SIZE; i++)
-   {
-       //if end of line or NULL
-       if(buffers[prev_buf][i] == '\n' || buffers[prev_buf][i] == NULL)
-           break;
-       term_putc(buffers[prev_buf][i]);
-   }
-
-}
 
 /* void term_clear()
  * inputs: none
