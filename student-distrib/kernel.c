@@ -285,12 +285,12 @@ entry (unsigned long magic, unsigned long addr)
 	kopen(&f, "frame1.txt");
 	kread(&f, &buf, 200);
 	printf("Contents of frame1.txt:\n");
-	term_write(&outf, buf, 200); putc('\n');
+	kwrite(&outf, buf, 200); putc('\n');
 
 	kopen(&f, "ls");
 	kread(&f, &buf, 200);
 	printf("200B of ls:\n");
-	term_write(&outf, buf, 200); putc('\n');
+	kwrite(&outf, buf, 200); putc('\n');
 	
 
 	/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - */ 
@@ -311,11 +311,6 @@ entry (unsigned long magic, unsigned long addr)
 	term_close();
 	
 	*/
-	init_pd(1);
-	set_cr3(1);
-	char * ptr = 0x08048000;
-	*ptr = 'I';
-	putc(*ptr);
 	ece391_execute("hello");
 	/*
 	init_pd(1);
