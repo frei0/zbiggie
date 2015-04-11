@@ -157,7 +157,14 @@ extern void stack_segment_fault()
 //13
 extern void general_protection()
 {
-	printf("general_protection\n");
+    int x; 
+    asm volatile("popl %%ecx\n \
+             movl %%ecx, %0"
+             :"=r" (x)
+             :
+             :"%ecx"
+            );
+	printf("general_protection: %x\n",x);
 	while(1);
 }
 //14

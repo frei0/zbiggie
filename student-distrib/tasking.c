@@ -12,7 +12,7 @@ int find_free_pcb(){
 }
 
 pcb_t * get_pcb(int i){
-    return  (pcb_t *) (OFFSET_4M*2 - (i+1)* OFFSET_4K * 2) ;
+    return  (pcb_t *) (OFFSET_4M*2 - (i+3)* OFFSET_4K * 2) ;
 }
 
 pcb_t * get_current_pcb(){
@@ -43,3 +43,4 @@ void switch_context(int pid){
     current_process = pid;
     set_cr3(pid);    
 }
+

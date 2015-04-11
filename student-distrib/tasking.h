@@ -4,6 +4,7 @@
 #include "types.h"
 typedef struct pcb{
     uint32_t esp;
+    uint32_t ebp;
     int parent;
     FILE f[8];
     char present; //boolean
