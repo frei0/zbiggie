@@ -7,6 +7,7 @@
 #include "tasking.h"
 
 extern void syscall();
+extern void halt();
 
 #endif
 #endif
