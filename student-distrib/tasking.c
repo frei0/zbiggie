@@ -1,6 +1,8 @@
 #include "tasking.h"
 #include "terminal.h"
 #include "page.h"
+
+
 int current_process = 0; //0 is not the shell, but the entry point
 
 int find_free_pcb(){
@@ -10,7 +12,7 @@ int find_free_pcb(){
 }
 
 pcb_t * get_pcb(int i){
-    return OFFSET_4M*2 - (i+1)* OFFSET_4K * 2 ;
+    return  (pcb_t *) (OFFSET_4M*2 - (i+1)* OFFSET_4K * 2) ;
 }
 
 pcb_t * get_current_pcb(){return get_pcb(current_process);}
