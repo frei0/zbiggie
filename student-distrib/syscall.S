@@ -15,11 +15,11 @@ syscall:
     popal
     iret
 
-jump_table: 	#jump table of syscalls
+jump_table: 	/*jump table of syscalls*/
 	.long halt, execute, read, write, open, close, getargs, vidmap, set_handler, sigreturn
 
 syscall_fail:
-	movl $-1, %eax				#FAILURE
+	movl $-1, %eax				/*FAILURE*/
 	ret
 
 
@@ -27,16 +27,23 @@ halt:
     pushl $0x48
     call putc 
     addl $4, %esp
-    jmp halt_ret_label
+
+    CALL get_current_pcb
+    pushl 4(%eax)
+    CALL get_pcb
+    movl (%eax), %esp
+    ret
 
 execute: 
-    pushl $0x45
-    call putc 
-    addl $4, %esp
+    CALL get_current_pcb
+    movl %esp, (%eax)
+
+    CALL setup_new_process
 
     pushl %ebx
     CALL load_exec_to_mem
     addl $4, %esp
+
     /*pushl halt*/
     /* jmp %eax asdf */
     pushl $USER_DS
@@ -48,9 +55,6 @@ execute:
     pushl $USER_CS
     pushl %eax
     iret
-
-halt_ret_label:
-    ret
 
 read: 
     pushl $0x52
