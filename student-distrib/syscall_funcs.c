@@ -12,8 +12,14 @@ void * load_exec_to_mem( const char * fname)
 {
 	FILE f;
     int i;
+
+	char arg1[128]; 
+	char arg2[128];
+	char arg3[128]; 
+
+	buffer_parser(&arg1, &arg2, &arg3, fname); 
     char * mem = LOAD_ADDR;
-	if (kopen(&f, fname)) { return 0; }
+	if (kopen(&f, arg1)) { return 0; }
 	kread(&f, mem, EXE_LOAD_SZ);
     //printf("\n %x \n", *((int*)(mem+24)));
     if(!exec_check((int*)mem))
