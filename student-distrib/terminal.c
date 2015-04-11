@@ -75,7 +75,7 @@ void term_init()
  * Function: prints a single character to the terminal*/
 void term_putc(char c)
 {
-    int i;
+    //int i;
     char bs_char;
     //new line, new buf
     if(c == '\n' || c == '\r') 
