@@ -33,18 +33,19 @@ execute:
     pushl $0x45
     call putc 
     addl $4, %esp
+
     pushl %ebx
     CALL load_exec_to_mem
     addl $4, %esp
-    #pushl halt
-    #jmp %eax /* asdf */
-    pushl $0x002B #USER_DS
-    movl  $0x08048000,%ebx #LOAD_ADDR
+    /*pushl halt*/
+    /* jmp %eax asdf */
+    pushl $USER_DS
+    movl  $LOAD_ADDR,%ebx
     subl  $4,%ebx
     pushl %ebx
     pushf
     orl   $0x200,(%esp)
-    pushl $0x0023 #USER_CS
+    pushl $USER_CS
     pushl %eax
     iret
 
