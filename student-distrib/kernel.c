@@ -300,23 +300,19 @@ entry (unsigned long magic, unsigned long addr)
 	
 	term_open(); //open a kshell
 
-	//char rbuf[200];
+	char rbuf[200];
 /*	
 	while (1){
-		printf("trying to read: ");
-		while(!term_read(&f, rbuf, 200)){}
-		printf("got back \"%s\" from read\n", rbuf); 
 		if(!strncmp(rbuf, "done\n", 6)) break;
+		printf("trying to read: ");
+		retval = term_read(&f, rbuf, i--);
+		printf("got back \"%s\" from read (%d chars) \n", rbuf, retval); 
 	}
 	term_close();
 	
 	*/
-	ece391_execute("testprint");
 	ece391_execute("hello");
-	ece391_execute("hello");
-	ece391_execute("hello");
-	ece391_execute("hello");
-	ece391_execute("hello");
+	ece391_execute("shell");
 	/*
 	init_pd(1);
 	init_pd(2);

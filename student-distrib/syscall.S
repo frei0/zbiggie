@@ -7,12 +7,26 @@
 
 
 syscall: 
-    pushal
+    pushl %ebx
+    pushl %ecx
+    pushl %edx
+    pushl %ebp
+    pushl %esi
+    pushl %edi
+
 	decl	%eax	
 	cmpl 	$9, %eax
 	ja		syscall_fail
+    sti
 	call *jump_table(,%eax,4)
-    popal
+
+    popl %edi
+    popl %esi
+    popl %ebp
+    popl %edx
+    popl %ecx
+    popl %ebx
+
     iret
 
 jump_table: 	/*jump table of syscalls*/
@@ -57,15 +71,33 @@ execute:
     iret
 
 read: 
-    pushl $0x52
-    call putc 
+    pushl %edx
+    pushl %ecx
+
+    
+    pushl %ebx
+    call get_file
     addl $4, %esp
+
+    pushl %eax
+    call kread
+
+    addl $12, %esp
     ret
 
 write: 
-    pushl $0x57
-    call putc 
+    pushl %edx
+    pushl %ecx
+
+    
+    pushl %ebx
+    call get_file
     addl $4, %esp
+
+    pushl %eax
+    call kwrite
+
+    addl $12, %esp
     ret
 
 open: 
