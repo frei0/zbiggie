@@ -15,7 +15,11 @@ pcb_t * get_pcb(int i){
     return  (pcb_t *) (OFFSET_4M*2 - (i+1)* OFFSET_4K * 2) ;
 }
 
-pcb_t * get_current_pcb(){return get_pcb(current_process);}
+pcb_t * get_current_pcb(){
+    pcb_t * my_pcb =  get_pcb(current_process);
+    //printf("geting pcb: %x", my_pcb);
+    return my_pcb; 
+}
 
 FILE * get_file(int fd){
     pcb_t * pcb_ptr = get_pcb(current_process);
@@ -29,11 +33,13 @@ void setup_new_process(){
     stdout_open(& (pcb_ptr->f[1]) );
     stdin_open(& (pcb_ptr->f[0]) );
     pcb_ptr->parent = current_process;
+    pcb_ptr->present = 1;
     init_pd(pid);
     switch_context(pid);
 }
 
 void switch_context(int pid){
+    printf("switching context to %d\n",pid);
     current_process = pid;
     set_cr3(pid);    
 }
