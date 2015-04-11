@@ -15,6 +15,8 @@
 #include "zbigfs.h"
 #include "syscall.h"
 #include "syscall_funcs.h"
+#include "ece391syscall.h"
+
 /* Macros. */
 /* Check if the bit BIT in FLAGS is set. */
 #define CHECK_FLAG(flags,bit)   ((flags) & (1 << (bit)))
@@ -314,7 +316,7 @@ entry (unsigned long magic, unsigned long addr)
 	char * ptr = 0x08048000;
 	*ptr = 'I';
 	putc(*ptr);
-	execute_call();
+	ece391_execute("hello");
 	/*
 	init_pd(1);
 	init_pd(2);
