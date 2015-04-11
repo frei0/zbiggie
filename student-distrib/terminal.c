@@ -186,14 +186,8 @@ int term_read(FILE * f, char * buf, int numbytes)
        //if end of line or NULL
         buf[i] = buffer[i];
        if(buf[i] == '\n'){
-           i++;
-           break;  //we have a whole line
+           return i+1;  //we have a whole line
        }
-   }
-   buffer[0] = '\0';
-   if (i<numbytes){
-       buf[i] = '\0';
-       return i+1;
    }
    return i;
 }
