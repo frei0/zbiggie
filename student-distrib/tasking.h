@@ -4,8 +4,19 @@
 #include "types.h"
 typedef struct pcb{
     uint32_t esp;
-    uint32_t ebp;
     int parent;
+    int a;
+    int b;
+    int c;
+    int d;
+    int e;
+    int z;
+    int g;
+    int h;
+    int i;
+    int j;
+    int k;
+    int l;
     FILE f[8];
     char present; //boolean
 } pcb_t;

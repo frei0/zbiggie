@@ -1,5 +1,6 @@
 #include "syscall_funcs.h"
 #include "zbigfs.h"
+#include "x86_desc.h"
 #include "page.h"
 #define MAGIC_NUM 0x464c457f
 #define EXE_LOAD_SZ ( 33 * OFFSET_4M - LOAD_ADDR)
@@ -10,6 +11,14 @@
 
 void * load_exec_to_mem( const char * fname)
 {
+ /*   asm volatile(
+            "mov $0x002B, %%ax \n \
+             mov %%ax, %%ds"
+             :
+             :
+             :
+            );
+            */
 	FILE f;
     //int i;
 
@@ -27,8 +36,10 @@ void * load_exec_to_mem( const char * fname)
         return -1;
     }
     setup_new_process();
+   
     kopen(&f, arg1);
 	kread(&f, mem, EXE_LOAD_SZ);
+    
 /*
 	FILE outf;
 	stdout_open(&outf);

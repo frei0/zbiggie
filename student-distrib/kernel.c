@@ -77,6 +77,7 @@ void populate_idt()
 	SET_IDT_ENTRY(idt[KEYBOARD_INDEX],&asm_keyboard);
 	SET_IDT_ENTRY(idt[SYS_CALLS_INDEX],&syscall);
 	idt[SYS_CALLS_INDEX].dpl = 3;
+	idt[SYS_CALLS_INDEX].reserved3 = 1;
 
 	/*loading IDTR*/ 
 	lidt(idt_desc_ptr);
@@ -338,7 +339,7 @@ entry (unsigned long magic, unsigned long addr)
 	*ptr = '6';
 	putc(*ptr);
 */
-	ece391_execute((const uint8_t*)"hello");
+//	ece391_execute((const uint8_t*)"hello");
 	ece391_execute((const uint8_t*)"shell");
 	printf("back to the kernel \n");
 	/*
