@@ -79,6 +79,8 @@ read:
     pushl %ebx
     call get_file
     addl $4, %esp
+    cmpl $-1, %eax #fail if bad fd
+    je syscall_fail
 
     pushl %eax
     call kread
@@ -94,6 +96,8 @@ write:
     pushl %ebx
     call get_file
     addl $4, %esp
+    cmpl $-1, %eax #fail if bad fd
+    je syscall_fail
 
     pushl %eax
     call kwrite
@@ -102,9 +106,15 @@ write:
     ret
 
 open: 
+    pushl %ebx
+    call syscall_open
+    addl $4, %esp
     ret
 
 close:
+    pushl %ebx
+    call syscall_close
+    addl $4, %esp
     ret
 
 getargs:

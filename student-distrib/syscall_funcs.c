@@ -17,6 +17,21 @@
     Helper Functions
  - - - - - - - - - - - - - - - - - - - - - - */ 
 
+int syscall_open(const char * name){
+    int fd = get_new_fd();
+    if (fd == -1) return -1;
+    int ret = kopen(get_file(fd), name);
+    if (ret) return ret;
+    return fd;
+}
+
+int syscall_close(int fd){
+    FILE * f = get_file(fd);
+    if ((int)(f)==-1) return -1;
+    kclose(f);
+    return free_fd(fd);
+}
+
 void * load_exec_to_mem( const char * fname)
 {
  	FILE f;
