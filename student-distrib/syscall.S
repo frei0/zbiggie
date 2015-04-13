@@ -16,7 +16,7 @@ syscall:
     pushl %edi
 
 	decl	%eax	
-	cmpl 	$9, %eax
+	cmpl 	$SYSCALL_MAX_INDEX, %eax
 	ja		syscall_fail
 	call *jump_table(,%eax,4)
 
@@ -65,7 +65,7 @@ execute:
     subl  $4,%ebx
     pushl %ebx
     pushf
-    orl   $0x200,(%esp) //change eflags to enable interrupts after jump to user
+    orl   $EFLAG_INT_ENABLE,(%esp) //change eflags to enable interrupts after jump to user
     pushl $USER_CS
     pushl %eax
     iret
