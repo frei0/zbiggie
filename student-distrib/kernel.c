@@ -277,7 +277,6 @@ entry (unsigned long magic, unsigned long addr)
 	kopen(&f, ".");
 	while (kread(&f, dbuf, 32))
 		printf("%s\n", dbuf);
-	*/
 
 	FILE outf;
 	stdout_open(&outf);
@@ -292,17 +291,17 @@ entry (unsigned long magic, unsigned long addr)
 	kread(&f, &buf, 200);
 	printf("200B of ls:\n");
 	kwrite(&outf, buf, 200); putc('\n');
+*/
 	
 
 	/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - */ 
 	/* TERMINAL TEST CODE */
 	/* write and read in idt_funcs, to the down arrow key */ 
 	/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - */ 
-	
-	term_open(); //open a kshell
 
-	//char rbuf[200];
 /*	
+	term_open(); //open a kshell
+	char rbuf[200];
 	while (1){
 		if(!strncmp(rbuf, "done\n", 6)) break;
 		printf("trying to read: ");
@@ -312,18 +311,9 @@ entry (unsigned long magic, unsigned long addr)
 	term_close();
 	
 	*/
- /*    asm volatile(
-           "movl $11, %%eax \n \ 
-			 int $0x80" 
-             :
-             :
-             :
-            );
-			*/
-	ece391_execute((const uint8_t*)"shell");
-	printf("back to the kernel \n");
+	while (1) ece391_execute((const uint8_t*)"shell");
 	/* Spin (nicely, so we don't chew up cycles) */
-	asm volatile(".1: hlt; jmp .1;");
+	//asm volatile(".1: hlt; jmp .1;");
 }
 
 
