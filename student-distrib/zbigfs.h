@@ -7,6 +7,7 @@
 #define FTYPE_REGULAR   2
 
 #define FNAME_MAX_LEN  32
+#define FILE_FLAG_IN_USE 1
 
 typedef struct dentry{
 	char fname[32];

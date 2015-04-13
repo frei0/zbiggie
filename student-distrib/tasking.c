@@ -31,8 +31,27 @@ pcb_t * get_current_pcb(){
 }
 
 FILE * get_file(int fd){
+    if (fd >= MAX_FILES || fd < 0) return (void *) -1;
     pcb_t * pcb_ptr = get_pcb(current_process);
     return &(pcb_ptr->f[fd]);
+}
+
+int get_new_fd(){
+    FILE * f = get_pcb(current_process)->f;
+    int i = 0;
+    for (;i<MAX_FILES;++i){
+        if (0 == (f[i].flags & FILE_FLAG_IN_USE)){
+            f[i].flags|=FILE_FLAG_IN_USE;
+            return i;
+        }
+    }
+    return -1;
+}
+int free_fd(int fd){
+    if (fd >= MAX_FILES || fd < 0) return -1;
+    FILE * f = get_pcb(current_process)->f;
+    f[fd].flags|=(~FILE_FLAG_IN_USE);
+    return 0;
 }
 
 int get_current_pid()
@@ -50,12 +69,13 @@ int setup_new_process(){
     int pid = find_free_pcb();
     if (pid==-1) return -1;
     pcb_t * pcb_ptr = get_pcb(pid);
-    stdout_open(& (pcb_ptr->f[1]) );
-    stdin_open(& (pcb_ptr->f[0]) );
-    pcb_ptr->parent = current_process;
-    pcb_ptr->present = 1;
+    pcb_t newpcb = {.present = 1, .parent = current_process, .f = {{0}}};
+    *pcb_ptr = newpcb;
+
     init_pd(pid);
     switch_context(pid);
+    stdin_open(& (pcb_ptr->f[get_new_fd()]) );
+    stdout_open(& (pcb_ptr->f[get_new_fd()]) );
     return 0;
 }
 
