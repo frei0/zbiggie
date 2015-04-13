@@ -54,7 +54,7 @@ execute:
 
     pushl %ebx #push string from user to load executable to memory
     CALL load_exec_to_mem
-    addl $4, %esp
+    addl $4, %esp #pop c-args
     cmpl $-1, %eax #fail if unable to load
     je syscall_fail
     cmpl $1, %eax #fail if unable to load
@@ -78,14 +78,14 @@ read:
     
     pushl %ebx
     call get_file
-    addl $4, %esp
+    addl $4, %esp #pop c-args
     cmpl $-1, %eax #fail if bad fd
     je syscall_fail
 
     pushl %eax
     call kread
 
-    addl $12, %esp
+    addl $12, %esp #pop c-args
     ret
 
 write: 
@@ -95,26 +95,26 @@ write:
     
     pushl %ebx
     call get_file
-    addl $4, %esp
+    addl $4, %esp #pop c-args
     cmpl $-1, %eax #fail if bad fd
     je syscall_fail
 
     pushl %eax
     call kwrite
 
-    addl $12, %esp
+    addl $12, %esp #pop c-args
     ret
 
 open: 
     pushl %ebx
     call syscall_open
-    addl $4, %esp
+    addl $4, %esp #pop c-args
     ret
 
 close:
     pushl %ebx
     call syscall_close
-    addl $4, %esp
+    addl $4, %esp #pop c-args
     ret
 
 getargs:
