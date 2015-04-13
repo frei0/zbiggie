@@ -5,6 +5,7 @@
 #include "i8259.h"
 #include "rtc.h"
 #include "ece391syscall.h"
+#define USER_EXCEPT_CODE 256
 
 char scan2ASCII[256] = 
 	{
@@ -81,7 +82,7 @@ extern void divide_by_zero()
 {
 	//clear();
 	printf("divide_by_zero\n");
-    ece391_halt(256);
+    ece391_halt(USER_EXCEPT_CODE);
 	while(1);
 }
 //1
@@ -94,56 +95,56 @@ extern void reserved_1()
 extern void non_maskable_interrupt()
 {
 	printf("non_maskable_interrupt\n");
-    ece391_halt(256);
+    ece391_halt(USER_EXCEPT_CODE);
 	while(1);
 }
 //3
 extern void breakpoint()
 {
 	printf("breakpoint\n");
-    ece391_halt(256);
+    ece391_halt(USER_EXCEPT_CODE);
 	while(1);
 }
 //4
 extern void overflow()
 {
 	printf("overflow\n");
-    ece391_halt(256);
+    ece391_halt(USER_EXCEPT_CODE);
 	while(1);
 }
 //5
 extern void BOUND_range_exceeded()
 {
 	printf("BOUND_range_exceeded\n");
-    ece391_halt(256);
+    ece391_halt(USER_EXCEPT_CODE);
 	while(1);
 }
 //6
 extern void invalid_opcode()
 {
 	printf("invalid_opcode\n");
-    ece391_halt(256);
+    ece391_halt(USER_EXCEPT_CODE);
 	while(1);
 }
 //7
 extern void device_not_available()
 {
 	printf("device_not_available\n");
-    ece391_halt(256);
+    ece391_halt(USER_EXCEPT_CODE);
 	while(1);
 }
 //8
 extern void double_fault()
 {
 	printf("double_fault\n");
-    ece391_halt(256);
+    ece391_halt(USER_EXCEPT_CODE);
 	while(1);
 }
 //9
 extern void coprocessor_segment_overrun()
 {
 	printf("coprocessor_segment_overrun\n");
-    ece391_halt(256);
+    ece391_halt(USER_EXCEPT_CODE);
 	while(1);
 }
 //10
@@ -156,14 +157,14 @@ extern void invalid_TSS()
 extern void segment_not_present()
 {
 	printf("segment_not_present\n");
-    ece391_halt(256);
+    ece391_halt(USER_EXCEPT_CODE);
 	while(1);
 }
 //12
 extern void stack_segment_fault()
 {
 	printf("stack_segment_fault\n");
-    ece391_halt(256);
+    ece391_halt(USER_EXCEPT_CODE);
 	while(1);
 }
 //13
@@ -177,14 +178,14 @@ extern void general_protection()
              :"%ecx"
             );
 	printf("general_protection: %x\n",x);
-    ece391_halt(256);
+    ece391_halt(USER_EXCEPT_CODE);
 	while(1);
 }
 //14
 extern void page_fault()
 {
 	printf("page_fault\n");
-    ece391_halt(256);
+    ece391_halt(USER_EXCEPT_CODE);
 	while(1);
 }
 
@@ -194,28 +195,28 @@ extern void page_fault()
 extern void floating_point_error()
 {
 	printf("floating_point_error\n");
-    ece391_halt(256);
+    ece391_halt(USER_EXCEPT_CODE);
 	while(1);
 }
 //17
 extern void alignment_check()
 {
 	printf("alignment_check\n");
-    ece391_halt(256);
+    ece391_halt(USER_EXCEPT_CODE);
 	while(1);
 }
 //18
 extern void machine_check()
 {
 	printf("machine_check\n");
-    ece391_halt(256);
+    ece391_halt(USER_EXCEPT_CODE);
 	while(1);
 }
 //19
 extern void SIMD_floating_point_exception()
 {
 	printf("SIMD_floating_point_exception\n");
-    ece391_halt(256);
+    ece391_halt(USER_EXCEPT_CODE);
 	while(1);
 }
 
