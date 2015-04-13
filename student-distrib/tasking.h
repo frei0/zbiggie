@@ -5,17 +5,7 @@
 typedef struct pcb{
     uint32_t esp;
     int parent;
-    int edi;
-    int esi;
-    int edx;
-    int ecx;
-    int ebx;
-    int ebp;
-    int iret;
-    int cs;
     int flags;
-    int iesp;
-    int ds;
     FILE f[8];
     char present; //boolean
 } pcb_t;

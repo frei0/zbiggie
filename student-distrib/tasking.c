@@ -1,6 +1,7 @@
 #include "tasking.h"
 #include "terminal.h"
 #include "page.h"
+#include "x86_desc.h"
 
 
 #define OFFSET_8M (OFFSET_4M*2)
@@ -54,5 +55,6 @@ void setup_new_process(){
 void switch_context(int pid){
     current_process = pid;
     set_cr3(pid);    
+    tss.esp0 = (OFFSET_8M - pid*OFFSET_8K);
 }
 

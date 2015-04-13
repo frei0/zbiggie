@@ -217,7 +217,7 @@ entry (unsigned long magic, unsigned long addr)
 
 		tss.ldt_segment_selector = KERNEL_LDT;
 		tss.ss0 = KERNEL_DS;
-		tss.esp0 = 0x800000;
+		tss.esp0 = 0x800000; //8MB
 		ltr(KERNEL_TSS);
 	}
 	//printf("Enabling Interrupts\n");
@@ -311,7 +311,10 @@ entry (unsigned long magic, unsigned long addr)
 	term_close();
 	
 	*/
-	while (1) ece391_execute((const uint8_t*)"shell");
+	while (1) {
+		printf("Welcome to zbigfs. Sending you to a shell...\n");
+		ece391_execute((const uint8_t*)"shell");
+	}
 	/* Spin (nicely, so we don't chew up cycles) */
 	//asm volatile(".1: hlt; jmp .1;");
 }
