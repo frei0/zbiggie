@@ -2,6 +2,7 @@
 #define _TASKING_H_
 #include "zbigfs.h"
 #include "types.h"
+#define MAX_PID 7
 typedef struct pcb{
     uint32_t esp;
     int parent;
@@ -10,7 +11,7 @@ typedef struct pcb{
     char present; //boolean
 } pcb_t;
 
-void setup_new_process();
+int setup_new_process();
 void switch_context(int pid);
 FILE * get_file(int fd);
 int get_current_pid();

@@ -2,6 +2,7 @@
 #include "terminal.h"
 #include "page.h"
 #include "x86_desc.h"
+#include "lib.h"
 
 
 #define OFFSET_8M (OFFSET_4M*2)
@@ -12,6 +13,10 @@ int current_process = 0; //0 is not the shell, but the entry point
 int find_free_pcb(){
     int i = 1;
     while (get_pcb(i)->present) i++;
+    if (i > MAX_PID){ 
+        printf("E: process limit reached\n");
+        return -1;
+    }
     return i;
 }
 
@@ -41,8 +46,9 @@ void free_current_pcb()
     pcb_ptr->present = 0;
 }
 
-void setup_new_process(){
+int setup_new_process(){
     int pid = find_free_pcb();
+    if (pid==-1) return -1;
     pcb_t * pcb_ptr = get_pcb(pid);
     stdout_open(& (pcb_ptr->f[1]) );
     stdin_open(& (pcb_ptr->f[0]) );
@@ -50,6 +56,7 @@ void setup_new_process(){
     pcb_ptr->present = 1;
     init_pd(pid);
     switch_context(pid);
+    return 0;
 }
 
 void switch_context(int pid){

@@ -7,6 +7,7 @@
 #define CHAR_NUM    32
 #define LAST_INDEX	127 
 #define OFFSET 24
+#define EXE_HEADER_SZ (OFFSET + sizeof(int))
 #define ZERO 0 
 #define ONE 1
 #define FAIL -1 
@@ -25,34 +26,23 @@ void * load_exec_to_mem( const char * fname)
 	char arg3[BUFF_SIZE]; 
 
 	buffer_parser((char *)&arg1, (char *)&arg2, (char *)&arg3, fname); 
-    char * mem = (char *) LOAD_ADDR;
-    setup_new_process();
-   
-    kopen(&f, arg1);
-	kread(&f, mem, EXE_LOAD_SZ);
-   
-    void * entry = (void *)(*((int*)(mem+OFFSET)));
-    return entry;
-}
-
-
-int exec_check(const char * fname)
-{
-    FILE f;
-
-	char arg1[BUFF_SIZE]; 
-	char arg2[BUFF_SIZE];
-	char arg3[BUFF_SIZE]; 
-
-	buffer_parser((char *)&arg1, (char *)&arg2, (char *)&arg3, fname); 
-    char buf[40];
+    char buf[EXE_HEADER_SZ];
 	if (kopen(&f, arg1)) { return ZERO;}
-	kread(&f, buf, 30);
-    if(*(int*)buf != MAGIC_NUM)
-    {
+    char * mem = (char *) LOAD_ADDR;
+	kread(&f, buf, EXE_HEADER_SZ);
+
+    if(*(int*)buf != MAGIC_NUM) {
         return ZERO;
     }
-    return ONE;
+
+    if (setup_new_process()){
+        return ONE;
+    }
+    memcpy(mem, buf, EXE_HEADER_SZ);
+	kread(&f, mem+EXE_HEADER_SZ, EXE_LOAD_SZ);
+   
+    void * entry = *((void **)(mem+OFFSET));
+    return entry;
 }
 
 int buffer_parser(char * arg1, char * arg2, char * arg3, const char * s)
