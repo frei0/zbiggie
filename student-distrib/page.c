@@ -7,6 +7,7 @@
 #define PD_NUM_ENTRIES   1024
 #define NUM_PDS 7
 #define KERNEL_PD 0
+#define USER_PAGE_DIR     32
 
 #define PTE_PRESENT        0x1
 #define PTE_WRITE          0x2
@@ -57,7 +58,7 @@ void init_pd(int pd_num)
 		page_directories[pd_num][i]=0x0; //fill page directory with non present entries
     page_directories[pd_num][0] = (((unsigned int)low_memory_table) & PDE_ADDRESS_MASK)| PDE_PRESENT;
     page_directories[pd_num][1] = OFFSET_4M | PDE_SIZE | PDE_PRESENT;
-    page_directories[pd_num][32] = (pd_num+1)*OFFSET_4M | PDE_SIZE | PDE_PRESENT | PDE_USER | PDE_WRITE; //for program image
+    page_directories[pd_num][USER_PAGE_DIR] = (pd_num+1)*OFFSET_4M | PDE_SIZE | PDE_PRESENT | PDE_USER | PDE_WRITE; //for program image
 }
 
 void set_cr3(int pd_num)
