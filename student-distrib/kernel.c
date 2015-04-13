@@ -243,7 +243,6 @@ entry (unsigned long magic, unsigned long addr)
 	printf("Mounting module 0 as read-only zbigfs filesystem\n");
 	zbigfs_mount(zbigfs_location);
 
-	FILE f;
 	//term_close();
 	//term_write("hello again, world!");
 	
@@ -252,6 +251,7 @@ entry (unsigned long magic, unsigned long addr)
 	/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - */ 
 	/* RTC TEST CODE */
 /*
+	FILE f;
 	//int retval = 
 	kopen(&f, "rtc");
 	//printf("kopen on rtc returned %d\n", retval);
