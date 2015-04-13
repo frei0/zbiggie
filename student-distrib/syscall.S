@@ -55,7 +55,7 @@ execute:
     pushl %ebx #push string from user to load executable to memory
     CALL load_exec_to_mem
     addl $4, %esp
-    cmpl $0, %eax #fail if unable to load
+    cmpl $-1, %eax #fail if unable to load
     je syscall_fail
     cmpl $1, %eax #fail if unable to load
     je syscall_fail
