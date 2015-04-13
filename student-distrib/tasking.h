@@ -24,6 +24,7 @@ void setup_new_process();
 void switch_context(int pid);
 FILE * get_file(int fd);
 int get_current_pid();
+void free_current_pcb();
 pcb_t * get_pcb(int);
 pcb_t * get_current_pcb();
 

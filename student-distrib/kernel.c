@@ -312,34 +312,6 @@ entry (unsigned long magic, unsigned long addr)
 	term_close();
 	
 	*/
-	/*
-	char * ptr = 0x08000001;
-	init_pd(1);
-	init_pd(2);
-	init_pd(3);
-	init_pd(4);
-	init_pd(5);
-	init_pd(6);
-	set_cr3(1);
-	*ptr = '1';
-	putc(*ptr);
-	set_cr3(2);
-	*ptr = '2';
-	putc(*ptr);
-	set_cr3(3);
-	*ptr = '3';
-	putc(*ptr);
-	set_cr3(4);
-	*ptr = '4';
-	putc(*ptr);
-	set_cr3(5);
-	*ptr = '5';
-	putc(*ptr);
-	set_cr3(6);
-	*ptr = '6';
-	putc(*ptr);
-*/
-//	ece391_execute((const uint8_t*)"hello");
  /*    asm volatile(
            "movl $11, %%eax \n \ 
 			 int $0x80" 
@@ -348,31 +320,8 @@ entry (unsigned long magic, unsigned long addr)
              :
             );
 			*/
-	while(1)
-	{
 	ece391_execute((const uint8_t*)"shell");
 	printf("back to the kernel \n");
-	}
-	/*
-	init_pd(1);
-	init_pd(2);
-	init_pd(3);
-	init_pd(4);
-	init_pd(5);
-	init_pd(6);
-	set_cr3(1);
-	set_cr3(2);
-	set_cr3(3);
-	set_cr3(4);
-	set_cr3(5);
-	set_cr3(6);
-	char x;
-	x = 'H';
-	putc(x);
-	char * ptr = 0x00600001;
-	*ptr = 'I';
-	putc(*ptr);
-	*/
 	/* Spin (nicely, so we don't chew up cycles) */
 	asm volatile(".1: hlt; jmp .1;");
 }
