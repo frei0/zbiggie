@@ -44,27 +44,9 @@ halt:
     CALL get_pcb
     movl (%eax), %esp #restore old stack
 
-    pushl 48(%eax) #restore stored registers and iret context from pcb
-    pushl 44(%eax)
-    pushl 40(%eax)
-    pushl 36(%eax)
-    pushl 32(%eax)
-    pushl 28(%eax)
-    pushl 24(%eax)
-    pushl 20(%eax)
-    pushl 16(%eax)
-    pushl 12(%eax)
-    pushl 8(%eax)
+    movl %ebx, %eax #return value for halt syscall
 
-    movl $0, %eax #return value for halt syscall
-
-    popl %edi #restore registers (these came from the pcb)
-    popl %esi
-    popl %edx
-    popl %ecx
-    popl %ebx
-    popl %ebp
-    iret
+    ret
 
 execute: 
     pushl %ebx
@@ -74,19 +56,7 @@ execute:
     je syscall_fail 
 
     CALL get_current_pcb
-    addl $4, %esp #nuke ret addr
-    popl 8(%eax) #move stored registers and iret context to pcb
-    popl 12(%eax)
-    popl 16(%eax)
-    popl 20(%eax)
-    popl 24(%eax)
-    popl 28(%eax)
-    popl 32(%eax)
-    popl 36(%eax)
-    popl 40(%eax)
-    popl 44(%eax)
-    popl 48(%eax)
-    
+
     movl %esp, (%eax)
 
     pushl %ebx #push string from user to load executable to memory
