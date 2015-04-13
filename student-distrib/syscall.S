@@ -1,4 +1,5 @@
 #define ASM 1
+#define PARENT 4
 #include "syscall.h" 
 
 .globl syscall
@@ -15,7 +16,7 @@ syscall:
     pushl %edi
 
 	decl	%eax	
-	cmpl 	$10, %eax
+	cmpl 	$9, %eax
 	ja		syscall_fail
 	call *jump_table(,%eax,4)
 
@@ -29,20 +30,16 @@ syscall:
     iret
 
 jump_table: 	/*jump table of syscalls*/
-	.long halt, execute, read, write, open, close, getargs, vidmap, set_handler, sigreturn, set_pcb
-
+	.long halt, execute, read, write, open, close, getargs, vidmap, set_handler, sigreturn
 syscall_fail:
 	movl $-1, %eax				/*FAILURE*/
 	ret
 
 
 halt:
-    pushl $0x48
-    call putc 
-    addl $4, %esp
     CALL free_current_pcb
     CALL get_current_pcb
-    pushl 4(%eax)
+    pushl PARENT(%eax)
     CALL switch_context #switch memory map
     CALL get_pcb
     movl (%eax), %esp #restore old stack
@@ -157,32 +154,4 @@ set_handler:
     ret
 
 sigreturn: 
-    ret
-set_pcb:
-    pop %edx
-    movl   (%esp), %ebx
-    movl %ebx, 8(%eax)
-    movl 4(%esp), %ebx
-    movl %ebx, 12(%eax)
-    movl 8(%esp), %ebx
-    movl %ebx, 16(%eax)
-    movl 12(%esp), %ebx
-    movl %ebx, 20(%eax)
-    movl 16(%esp), %ebx
-    movl %ebx, 24(%eax)
-    movl 20(%esp), %ebx
-    movl %ebx, 28(%eax)
-    movl 24(%esp), %ebx
-    movl %ebx, 32(%eax)
-    movl 28(%esp), %ebx
-    movl %ebx, 36(%eax)
-    movl 32(%esp), %ebx
-    movl %ebx, 40(%eax)
-    movl 36(%esp), %ebx
-    movl %ebx, 44(%eax)
-    movl 40(%esp), %ebx
-    movl %ebx, 48(%eax)
-    movl %esp, (%eax)
-    movl $0, 4(%eax)
-    push %edx
     ret
