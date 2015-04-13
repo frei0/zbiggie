@@ -11,16 +11,7 @@
 
 void * load_exec_to_mem( const char * fname)
 {
- /*   asm volatile(
-            "mov $0x002B, %%ax \n \
-             mov %%ax, %%ds"
-             :
-             :
-             :
-            );
-            */
-	FILE f;
-    //int i;
+ 	FILE f;
 
 	char arg1[128]; 
 	char arg2[128];
@@ -28,13 +19,6 @@ void * load_exec_to_mem( const char * fname)
 
 	buffer_parser((char *)&arg1, (char *)&arg2, (char *)&arg3, fname); 
     char * mem = (char *) LOAD_ADDR;
-    char buf[40];
-	if (kopen(&f, arg1)) { return -1; }
-	kread(&f, buf, 30);
-    if(!exec_check((int*)buf))
-    {
-        return -1;
-    }
     setup_new_process();
    
     kopen(&f, arg1);
@@ -45,16 +29,28 @@ void * load_exec_to_mem( const char * fname)
 	stdout_open(&outf);
 	term_write(&outf, mem, 200); putc('\n');
 */
-    printf("\n %x \n", *((int*)(mem+24)));
     void * entry = (void *)(*((int*)(mem+24)));
     return entry;
 }
 
-int exec_check(int * ptr)
+
+int exec_check(const char * fname)
 {
-    if(*ptr == MAGIC_NUM)
-        return 1;
-    else return 0;
+    FILE f;
+
+	char arg1[128]; 
+	char arg2[128];
+	char arg3[128]; 
+
+	buffer_parser((char *)&arg1, (char *)&arg2, (char *)&arg3, fname); 
+    char buf[40];
+	if (kopen(&f, arg1)) { return 0; }
+	kread(&f, buf, 30);
+    if(*(int*)buf != MAGIC_NUM)
+    {
+        return 0;
+    }
+    return 1;
 }
 
 int buffer_parser(char * arg1, char * arg2, char * arg3, const char * s)

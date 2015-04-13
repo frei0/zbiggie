@@ -12,7 +12,7 @@ int find_free_pcb(){
 }
 
 pcb_t * get_pcb(int i){
-    return  (pcb_t *) (OFFSET_4M*2 - (i+3)* OFFSET_4K * 2) ;
+    return  (pcb_t *) (OFFSET_4M*2 - (i+1)* OFFSET_4K * 2) ;
 }
 
 pcb_t * get_current_pcb(){
@@ -31,6 +31,12 @@ int get_current_pid()
     return current_process;
 }
 
+void free_current_pcb()
+{
+    pcb_t* pcb_ptr = get_current_pcb();
+    pcb_ptr->present = 0;
+}
+
 void setup_new_process(){
     int pid = find_free_pcb();
     pcb_t * pcb_ptr = get_pcb(pid);
@@ -43,7 +49,7 @@ void setup_new_process(){
 }
 
 void switch_context(int pid){
-    printf("switching context to %d\n",pid);
+    printf("\nswitching context to %d\n",pid);
     current_process = pid;
     set_cr3(pid);    
 }
