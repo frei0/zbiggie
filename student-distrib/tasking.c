@@ -3,6 +3,9 @@
 #include "page.h"
 
 
+#define OFFSET_8M (OFFSET_4M*2)
+#define OFFSET_8K (OFFSET_4K*2)
+
 int current_process = 0; //0 is not the shell, but the entry point
 
 int find_free_pcb(){
@@ -12,7 +15,7 @@ int find_free_pcb(){
 }
 
 pcb_t * get_pcb(int i){
-    return  (pcb_t *) (OFFSET_4M*2 - (i+1)* OFFSET_4K * 2) ;
+    return  (pcb_t *) (OFFSET_8M - (i+1)* OFFSET_8K) ;
 }
 
 pcb_t * get_current_pcb(){
