@@ -340,8 +340,19 @@ entry (unsigned long magic, unsigned long addr)
 	putc(*ptr);
 */
 //	ece391_execute((const uint8_t*)"hello");
+ /*    asm volatile(
+           "movl $11, %%eax \n \ 
+			 int $0x80" 
+             :
+             :
+             :
+            );
+			*/
+	while(1)
+	{
 	ece391_execute((const uint8_t*)"shell");
 	printf("back to the kernel \n");
+	}
 	/*
 	init_pd(1);
 	init_pd(2);
