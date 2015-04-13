@@ -40,7 +40,7 @@ halt:
     pushl $0x48
     call putc 
     addl $4, %esp
-
+    CALL free_current_pcb
     CALL get_current_pcb
     pushl 4(%eax)
     CALL switch_context #switch memory map
