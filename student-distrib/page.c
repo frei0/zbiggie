@@ -5,7 +5,7 @@
 #define PDE_SIZE           0x80
 #define PDE_ADDRESS_MASK 0xFFFFF000
 #define PD_NUM_ENTRIES   1024
-#define NUM_PDS 7
+#define NUM_PDS 8
 #define KERNEL_PD 0
 #define USER_PAGE_DIR     32
 

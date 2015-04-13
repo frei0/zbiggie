@@ -32,7 +32,6 @@ syscall:
 jump_table: 	/*jump table of syscalls*/
 	.long halt, execute, read, write, open, close, getargs, vidmap, set_handler, sigreturn
 syscall_fail:
-	movl $-1, %eax				/*FAILURE*/
 	ret
 
 
@@ -49,12 +48,6 @@ halt:
     ret
 
 execute: 
-    pushl %ebx
-    CALL exec_check
-    addl $4, %esp
-    cmpl $0, %eax
-    je syscall_fail 
-
     CALL get_current_pcb
 
     movl %esp, (%eax)
@@ -62,7 +55,9 @@ execute:
     pushl %ebx #push string from user to load executable to memory
     CALL load_exec_to_mem
     addl $4, %esp
-    cmpl $-1, %eax #fail if unable to load
+    cmpl $0, %eax #fail if unable to load
+    je syscall_fail
+    cmpl $1, %eax #fail if unable to load
     je syscall_fail
 
     pushl $USER_DS #push iret context to jump to user executable
@@ -70,7 +65,7 @@ execute:
     subl  $4,%ebx
     pushl %ebx
     pushf
-    orl   $0x200,(%esp)
+    orl   $0x200,(%esp) //change eflags to enable interrupts after jump to user
     pushl $USER_CS
     pushl %eax
     iret
@@ -86,7 +81,6 @@ read:
     addl $4, %esp
 
     pushl %eax
-    #sti
     call kread
 
     addl $12, %esp
