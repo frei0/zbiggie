@@ -312,7 +312,7 @@ entry (unsigned long magic, unsigned long addr)
 	
 	*/
 	while (1) {
-		printf("Welcome to zbigfs. Sending you to a shell...\n");
+		printf("Welcome to zbigos. Sending you to a shell...\n");
 		ece391_execute((const uint8_t*)"shell");
 	}
 	/* Spin (nicely, so we don't chew up cycles) */

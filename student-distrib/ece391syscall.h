@@ -11,7 +11,7 @@
  * task.  Negative returns from execute indicate that the desired program
  * could not be found.
  */ 
-extern int32_t ece391_halt (uint8_t status);
+extern int32_t ece391_halt (int32_t status);
 extern int32_t ece391_execute (const uint8_t* command);
 extern int32_t ece391_read (int32_t fd, void* buf, int32_t nbytes);
 extern int32_t ece391_write (int32_t fd, const void* buf, int32_t nbytes);

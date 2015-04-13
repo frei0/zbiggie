@@ -27,16 +27,16 @@ void * load_exec_to_mem( const char * fname)
 
 	buffer_parser((char *)&arg1, (char *)&arg2, (char *)&arg3, fname); 
     char buf[EXE_HEADER_SZ];
-	if (kopen(&f, arg1)) { return ZERO;}
+	if (kopen(&f, arg1)) { return (void*)FAIL;}
     char * mem = (char *) LOAD_ADDR;
 	kread(&f, buf, EXE_HEADER_SZ);
 
     if(*(int*)buf != MAGIC_NUM) {
-        return ZERO;
+        return (void*)FAIL;
     }
 
     if (setup_new_process()){
-        return ONE;
+        return (void*)ONE;
     }
     memcpy(mem, buf, EXE_HEADER_SZ);
 	kread(&f, mem+EXE_HEADER_SZ, EXE_LOAD_SZ);
