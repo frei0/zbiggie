@@ -70,6 +70,13 @@ halt:
     iret
 
 execute: 
+    pushl %ebx #push string from user to load executable to memory
+    CALL load_exec_to_mem
+    movl %eax, %ecx #save ret value for later
+    addl $4, %esp
+    cmpl $-1, %eax #fail if unable to load
+    je syscall_fail
+    
     CALL get_current_pcb
     addl $4, %esp #nuke ret addr
     popl 8(%eax) #move stored registers and iret context to pcb
@@ -86,12 +93,6 @@ execute:
     
     movl %esp, (%eax)
 
-    pushl %ebx #push string from user to load executable to memory
-    CALL load_exec_to_mem
-    addl $4, %esp
-    cmpl $-1, %eax #fail if unable to load
-    je syscall_fail
-
     pushl $USER_DS #push iret context to jump to user executable
     movl  $LOAD_ADDR,%ebx
     subl  $4,%ebx
@@ -99,7 +100,7 @@ execute:
     pushf
     orl   $0x200,(%esp)
     pushl $USER_CS
-    pushl %eax
+    pushl %ecx
     iret
 
 read: 
