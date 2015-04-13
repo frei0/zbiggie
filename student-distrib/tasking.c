@@ -52,7 +52,6 @@ void setup_new_process(){
 }
 
 void switch_context(int pid){
-    printf("\nswitching context to %d\n",pid);
     current_process = pid;
     set_cr3(pid);    
 }
