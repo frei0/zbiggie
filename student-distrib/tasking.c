@@ -26,6 +26,10 @@ FILE * get_file(int fd){
     return &(pcb_ptr->f[fd]);
 }
 
+int get_current_pid()
+{
+    return current_process;
+}
 
 void setup_new_process(){
     int pid = find_free_pcb();
