@@ -69,7 +69,6 @@ execute:
     pushl $USER_CS
     pushl %eax
     iret
-
 read: 
 
     pushl %edx
@@ -118,9 +117,11 @@ close:
     ret
 
 getargs:
-	 
+    pushl %ebx
+    call syscall_getargs
+    addl $4, %esp #pop c-args
     ret
-
+	 
 vidmap:
     ret
  

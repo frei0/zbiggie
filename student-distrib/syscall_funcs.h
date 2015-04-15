@@ -7,8 +7,9 @@
 //Helper Functions
 int exec_check(const char * fname);
 void * load_exec_to_mem(const char * fname);
-int buffer_parser(char * arg1, char * arg2, char * arg3, const char * s);
+void parse_input(const char * in, char * exec_buf, char * args_buf, int size);
 int syscall_open(const char * name);
 int syscall_close(int fd);
+int syscall_getargs(char * buf, int nbytes);
 #endif /*ASM*/
 #endif /*_SYSCALL_FUNCS_H*/

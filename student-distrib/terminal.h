@@ -1,6 +1,6 @@
 #ifndef _TERMINAL_H
 #define _TERMINAL_H
-
+#define BUF_SIZE 128
 #include "zbigfs.h"
 
 void term_open();

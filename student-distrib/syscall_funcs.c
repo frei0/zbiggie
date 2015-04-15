@@ -3,7 +3,6 @@
 #include "x86_desc.h"
 #include "page.h"
 #define MAGIC_NUM 0x464c457f
-#define BUFF_SIZE 128
 #define CHAR_NUM    32
 #define LAST_INDEX	127 
 #define OFFSET 24
@@ -25,6 +24,14 @@ int syscall_open(const char * name){
     return fd;
 }
 
+int min(int a, int b){ return a<b?a:b;}
+int syscall_getargs(char * buf, int nbytes){
+    int bytes_copied = strncpy(buf, get_current_pcb()->cmdstring, min(nbytes, BUF_SIZE));
+    if(bytes_copied < nbytes)
+        return -1;
+    return 0;
+}
+
 int syscall_close(int fd){
     FILE * f = get_file(fd);
     if ((int)(f)==-1) return -1;
@@ -36,13 +43,12 @@ void * load_exec_to_mem( const char * fname)
 {
  	FILE f;
 
-	char arg1[BUFF_SIZE]; 
-	char arg2[BUFF_SIZE];
-	char arg3[BUFF_SIZE]; 
+	char exec[BUF_SIZE]; 
+	char args[BUF_SIZE];
 
-	buffer_parser((char *)&arg1, (char *)&arg2, (char *)&arg3, fname); 
+    parse_input(fname, exec, args, BUF_SIZE);
     char buf[EXE_HEADER_SZ];
-	if (kopen(&f, arg1)) { return (void*)FAIL;}
+	if (kopen(&f, exec)) { return (void*)FAIL;}
     char * mem = (char *) LOAD_ADDR;
 	kread(&f, buf, EXE_HEADER_SZ);
 
@@ -57,164 +63,41 @@ void * load_exec_to_mem( const char * fname)
 	kread(&f, mem+EXE_HEADER_SZ, EXE_LOAD_SZ);
    
     void * entry = *((void **)(mem+OFFSET));
+    strncpy(get_current_pcb()->cmdstring, args, BUF_SIZE);
     return entry;
 }
 
-int buffer_parser(char * arg1, char * arg2, char * arg3, const char * s)
+void parse_input(const char * in, char * exec_buf, char * args_buf, int size)
 {
-    int i, j; 
-    int arg1_first = FAIL, arg1_last = FAIL; 
-    int arg2_first = FAIL, arg2_last = FAIL; 
-    int arg3_first = FAIL, arg3_last = FAIL;
-    int flag1 = ZERO, flag2 = ZERO, flag3 = ZERO; 
-    int end = FAIL; 
+    int i = 0;
+    int j = 0;
 
-    /* - - - - - - - - - - - - - - - - - - - - - - 
-        TEXT Buffer = empty condition 
-     - - - - - - - - - - - - - - - - - - - - - - */ 
-    for (i = ZERO; i < BUFF_SIZE; i++)
+    args_buf[0] = 0;
+
+    if(in == 0)
+        return;
+
+    while(in[i] == ' ')
+        i++;
+
+    for(; i < size && in[i] != 0 && in[i] != '\n'; i++)
     {
-        if ( (s[i] == '\n') || (s[i] == ZERO) ) 
-        {
-            end = i; 
+        if(in[i] == ' ')
             break;
-        }
+        exec_buf[i] = in[i];
     }
-    if (end == ZERO)
-        return FAIL;
+    exec_buf[i] = '\0';
 
+    while(in[i] == ' ')
+        i++;
 
-
-    /* - - - - - - - - - - - - - - - - - - - - - - 
-        Finding the first term 
-     - - - - - - - - - - - - - - - - - - - - - - */ 
-    for (i = ZERO; i < end; i++)
-    {   
-        if ( (CHAR_NUM < s[i]) && (s[i] < LAST_INDEX) )
-        {
-            arg1_first = i; 
-            flag1 = ONE; 
-            break; 
-        }
-    }
-
-    if (arg1_first == FAIL)
-        return FAIL; 
-
-    for (i = arg1_first+ONE; i <= end; i++)
+    for(; i < size && in[i] != 0 && in[i] != '\n'; i++, j++)
     {
-        if (!((CHAR_NUM < s[i]) && (s[i] < LAST_INDEX))) 
-        {
-            arg1_last = i; 
-            break;
-        }
+        args_buf[j] = in[i];
     }
 
-    if (arg1_last == FAIL)
-        return FAIL; 
+    args_buf[j] = '\0';
 
-    j = ZERO; 
-    for (i = arg1_first; i < arg1_last; i++)
-    {
-        arg1[j] = s[i]; 
-        j++; 
-    }
-    arg1[j] = ZERO; 
-
-    if (flag1){
-			//Do nothing
-    }else{
-        arg1[ZERO] = ZERO;  
-    }
-    
-
-
-    /* - - - - - - - - - - - - - - - - - - - - - - 
-        Finding the second term 
-     - - - - - - - - - - - - - - - - - - - - - - */
-    for (i = arg1_last; i < end; i++)
-    {   
-        if ( (CHAR_NUM < s[i]) && (s[i] < LAST_INDEX) )
-        {
-            arg2_first = i; 
-            flag2 = ONE; 
-            break; 
-        }
-    }
-
-    for (i = arg2_first+ONE; i <= end; i++)
-    {
-        if (!((CHAR_NUM < s[i]) && (s[i] < LAST_INDEX))) 
-        {
-            arg2_last = i; 
-            break;
-        }
-    }
-
-    if (arg2_last == FAIL)
-        return FAIL; 
-
-    j = ZERO; 
-    for (i = arg2_first; i < arg2_last; i++)
-    {
-        arg2[j] = s[i]; 
-        j++; 
-    }
-    arg2[j] = ZERO;
-
-    if (flag2 && flag1){
-        //printf("Term 2: %s\n", arg2);
-    }else{
-        arg2[ZERO] = ZERO;  
-    }
- 
-
-
-
-    /* - - - - - - - - - - - - - - - - - - - - - - 
-        Finding the third term 
-     - - - - - - - - - - - - - - - - - - - - - - */
-    for (i = arg2_last; i < end; i++)
-    {   
-        if ( (CHAR_NUM < s[i]) && (s[i] < LAST_INDEX) )
-        {
-            arg3_first = i; 
-            flag3 = ONE; 
-            break; 
-        }
-    }
-
-    for (i = arg3_first+ONE; i <= end; i++)
-    {
-        if (!((CHAR_NUM < s[i]) && (s[i] < LAST_INDEX))) 
-        {
-            arg3_last = i; 
-            break;
-        }
-    }
-
-    if (arg3_last == FAIL)
-        return FAIL; 
-
-    j = ZERO; 
-    for (i = arg3_first; i < arg3_last; i++)
-    {
-        arg3[j] = s[i]; 
-        j++; 
-    }
-    arg3[j] = ZERO;
-
-    if (flag3 && flag2 && flag1){
-        //printf("Term 3: %s\n", arg3);
-    }else{
-        arg3[ZERO] = ZERO;  
-    }
- 
-
-    /* - - - - - - - - - - - - - - - - - - - - - - 
-       If All goes smoothly, return ZERO. 
-     - - - - - - - - - - - - - - - - - - - - - - */
-    return ZERO;
 }
 
 
