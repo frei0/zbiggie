@@ -2,11 +2,13 @@
 #define _TASKING_H_
 #include "zbigfs.h"
 #include "types.h"
+#include "terminal.h"
 #define MAX_PID 7
 #define MAX_FILES 8
 typedef struct pcb{
     uint32_t esp;
     int parent;
+    char cmdstring[BUF_SIZE];
     FILE f[MAX_FILES];
     char present; //boolean
 } pcb_t;

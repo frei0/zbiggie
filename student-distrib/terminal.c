@@ -3,7 +3,6 @@
 #include "terminal.h"
 #define START_POS 10
 #define NUM_BUFS 10
-#define BUF_SIZE 128
 #define CHAR_W 8
 #define KB_IRQ 1
 #define BACKSPACE 0x08
@@ -192,8 +191,6 @@ int term_read(FILE * f, char * buf, int numbytes)
    return i;
 }
 
-//dumb history, just puts last buffer in. real history needs a
-//history file
 
 /* void term_clear()
  * inputs: none
