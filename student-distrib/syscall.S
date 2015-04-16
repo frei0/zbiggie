@@ -123,6 +123,9 @@ getargs:
     ret
 	 
 vidmap:
+    pushl %ebx
+    call syscall_vidmap
+    addl $4, %esp #pop c-args
     ret
  
 set_handler:

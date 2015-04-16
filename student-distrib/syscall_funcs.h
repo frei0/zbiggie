@@ -11,5 +11,6 @@ void parse_input(const char * in, char * exec_buf, char * args_buf, int size);
 int syscall_open(const char * name);
 int syscall_close(int fd);
 int syscall_getargs(char * buf, int nbytes);
+int syscall_vidmap(int ** vid_ptr);
 #endif /*ASM*/
 #endif /*_SYSCALL_FUNCS_H*/

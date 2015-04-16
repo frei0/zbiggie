@@ -14,7 +14,6 @@
 #define PTE_USER           0x4
 #define PT_NUM_ENTRIES   1024
 
-#define OFFSET_VIDEO   0xB8000
 
 #define PAGING_PSE    0x10
 #define PAGING_ENABLE 0x80000000

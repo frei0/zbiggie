@@ -11,6 +11,8 @@
 #define ONE 1
 #define FAIL -1 
 #define EXE_LOAD_SZ ( 33 * OFFSET_4M - LOAD_ADDR)
+#define MB_136 (OFFSET_4M*34)
+#define MB_132 (OFFSET_4M*33)
 
 /* - - - - - - - - - - - - - - - - - - - - - - 
     Helper Functions
@@ -26,7 +28,7 @@ int syscall_open(const char * name){
 
 int min(int a, int b){ return a<b?a:b;}
 int syscall_getargs(char * buf, int nbytes){
-    int bytes_copied = strncpy(buf, get_current_pcb()->cmdstring, min(nbytes, BUF_SIZE));
+    int bytes_copied = (int)strncpy(buf, get_current_pcb()->cmdstring, min(nbytes, BUF_SIZE));
     if(bytes_copied < nbytes)
         return -1;
     return 0;
@@ -100,4 +102,11 @@ void parse_input(const char * in, char * exec_buf, char * args_buf, int size)
 
 }
 
+int syscall_vidmap(int ** vid_ptr)
+{
+    if((int)(*vid_ptr)>(MB_136-sizeof(int)) || (int)(*vid_ptr)<MB_132)
+        return -1;
+    *(vid_ptr) = (int *)MB_136+OFFSET_VIDEO;
+    return 0;
+}
 
