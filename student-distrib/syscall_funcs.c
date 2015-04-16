@@ -71,34 +71,33 @@ void * load_exec_to_mem( const char * fname)
 
 void parse_input(const char * in, char * exec_buf, char * args_buf, int size)
 {
-    int i = 0;
-    int ei = 0;
-    int ai = 0;
+    int in_i = 0;
+    int out_i;
 
     args_buf[0] = 0;
 
     if(in == 0)
         return;
 
-    while(in[i] == ' ')
-        i++;
+    while(in[in_i] == ' ')
+        in_i++;
 
-    for(; i < size && in[i] != 0 && in[i] != '\n'; i++, ei++)
+    for(out_i = 0; in_i < size && in[in_i] != 0 && in[in_i] != '\n'; in_i++, out_i++)
     {
-        if(in[i] == ' ')
+        if(in[in_i] == ' ')
             break;
-        exec_buf[ei] = in[i];
+        exec_buf[out_i] = in[in_i];
     }
-    exec_buf[ei] = '\0';
+    exec_buf[out_i] = '\0';
 
-    while(in[i] == ' ')
-        i++;
+    while(in[in_i] == ' ')
+        in_i++;
 
-    for(; i < size && in[i] != 0 && in[i] != '\n'; i++, ai++)
+    for(out_i = 0; in_i < size && in[in_i] != 0 && in[in_i] != '\n'; in_i++, out_i++)
     {
-        args_buf[ai] = in[i];
+        args_buf[out_i] = in[in_i];
     }
-    args_buf[ai] = '\0';
+    args_buf[out_i] = '\0';
 
 }
 
