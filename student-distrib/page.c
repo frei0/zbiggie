@@ -32,7 +32,7 @@ void init_paging(void){
 		low_memory_table[i] = (i * OFFSET_4K); 
 
     page_directories[KERNEL_PD][0] = (((unsigned int)low_memory_table) & PDE_ADDRESS_MASK)| PDE_PRESENT;
-    low_memory_table[OFFSET_VIDEO/OFFSET_4K] = OFFSET_VIDEO | PDE_PRESENT;
+    low_memory_table[OFFSET_VIDEO/OFFSET_4K] = OFFSET_VIDEO | PTE_PRESENT |  PTE_WRITE | PTE_USER;
     page_directories[KERNEL_PD][1] = OFFSET_4M | PDE_SIZE | PDE_PRESENT;
     asm volatile(
          "mov %0, %%cr3;      \
@@ -59,6 +59,7 @@ void init_pd(int pd_num)
     page_directories[pd_num][0] = (((unsigned int)low_memory_table) & PDE_ADDRESS_MASK)| PDE_PRESENT;
     page_directories[pd_num][1] = OFFSET_4M | PDE_SIZE | PDE_PRESENT;
     page_directories[pd_num][USER_PAGE_DIR] = (pd_num+1)*OFFSET_4M | PDE_SIZE | PDE_PRESENT | PDE_USER | PDE_WRITE; //for program image
+    page_directories[pd_num][USER_PAGE_DIR+1] = (((unsigned int) low_memory_table) & PDE_ADDRESS_MASK) | PDE_PRESENT | PDE_USER | PDE_WRITE;
 }
 
 void set_cr3(int pd_num)
