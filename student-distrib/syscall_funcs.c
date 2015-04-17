@@ -22,7 +22,10 @@ int syscall_open(const char * name){
     int fd = get_new_fd();
     if (fd == -1) return -1;
     int ret = kopen(get_file(fd), name);
-    if (ret) return ret;
+    if (ret){
+        free_fd(fd);
+        return ret;
+    }
     return fd;
 }
 

@@ -57,7 +57,7 @@ int free_fd(int fd){
     if (fd >= MAX_FILES || fd < 2) return -1;
     FILE * f = get_pcb(current_process)->f;
     if (0 == (f[fd].flags & FILE_FLAG_IN_USE)) return -1;
-    f[fd].flags|=(~FILE_FLAG_IN_USE);
+    f[fd].flags&=(~FILE_FLAG_IN_USE);
     return 0;
 }
 
