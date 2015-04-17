@@ -17,6 +17,7 @@ int setup_new_process();
 void switch_context(int pid);
 FILE * get_file(int fd);
 int get_current_pid();
+void init_pcbs();
 void free_current_pcb();
 
 int free_fd(int fd);

@@ -311,6 +311,7 @@ entry (unsigned long magic, unsigned long addr)
 	term_close();
 	
 	*/
+	init_pcbs();
 	while (1) {
 		printf("Welcome to zbigos. Sending you to a shell...\n");
 		ece391_execute((const uint8_t*)"shell");
