@@ -17,7 +17,10 @@ syscall:
 
 	decl	%eax	
 	cmpl 	$SYSCALL_MAX_INDEX, %eax
-	ja		syscall_fail
+	ja	    invalid_syscall	
+    cmpl    $0, %eax
+    jb      invalid_syscall 
+    
 	call *jump_table(,%eax,4)
 unsave:
     popl %edi
@@ -31,11 +34,12 @@ unsave:
 
 jump_table: 	/*jump table of syscalls*/
 	.long halt, execute, read, write, open, close, getargs, vidmap, set_handler, sigreturn
-
-syscall_fail:
+invalid_syscall:
     movl $-1,%eax
     jmp unsave
-
+syscall_fail:
+    movl $-1,%eax
+    ret
 
 halt:
     CALL free_current_pcb
@@ -52,7 +56,7 @@ halt:
 execute: 
     CALL get_current_pcb
 
-    movl %esp, (%eax)
+    movl %eax, %edi
 
     pushl %ebx #push string from user to load executable to memory
     CALL load_exec_to_mem
@@ -61,6 +65,8 @@ execute:
     je syscall_fail
     cmpl $1, %eax #fail if unable to load
     je syscall_fail
+
+    movl %esp, (%edi)
 
     pushl $USER_DS #push iret context to jump to user executable
     movl  $LOAD_ADDR,%ebx
