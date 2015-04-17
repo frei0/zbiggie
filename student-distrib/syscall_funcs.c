@@ -11,7 +11,7 @@
 #define ONE 1
 #define FAIL -1 
 #define EXE_LOAD_SZ ( 33 * OFFSET_4M - LOAD_ADDR)
-#define MB_136 (OFFSET_4M*34)
+#define MB_128 (OFFSET_4M*32)
 #define MB_132 (OFFSET_4M*33)
 
 /* - - - - - - - - - - - - - - - - - - - - - - 
@@ -101,11 +101,11 @@ void parse_input(const char * in, char * exec_buf, char * args_buf, int size)
 
 }
 
-int syscall_vidmap(int ** vid_ptr)
+int syscall_vidmap(uint8_t ** vid_ptr)
 {
-    if((int)(*vid_ptr)>(MB_136-sizeof(int)) || (int)(*vid_ptr)<MB_132)
+    if((int)(vid_ptr)>(MB_132-sizeof(int)) || (int)(vid_ptr)<MB_128)
         return -1;
-    *(vid_ptr) = (int *)MB_136+OFFSET_VIDEO;
+    *(vid_ptr) = (uint8_t *)MB_132+OFFSET_VIDEO;
     return 0;
 }
 

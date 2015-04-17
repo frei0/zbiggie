@@ -46,7 +46,6 @@ int kopen (FILE * f, const int8_t * name){
     dentry_t dentry;
     if (read_dentry_by_name(name, &dentry)) return -1;
     f->pos = 0;
-    f->flags = 0;
     switch (dentry.ftype){
         case FTYPE_REGULAR:
             f->inode = dentry.inode_num;

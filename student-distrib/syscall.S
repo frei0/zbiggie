@@ -19,7 +19,7 @@ syscall:
 	cmpl 	$SYSCALL_MAX_INDEX, %eax
 	ja		syscall_fail
 	call *jump_table(,%eax,4)
-
+unsave:
     popl %edi
     popl %esi
     popl %edx
@@ -31,8 +31,10 @@ syscall:
 
 jump_table: 	/*jump table of syscalls*/
 	.long halt, execute, read, write, open, close, getargs, vidmap, set_handler, sigreturn
+
 syscall_fail:
-	ret
+    movl $-1,%eax
+    jmp unsave
 
 
 halt:
@@ -71,21 +73,23 @@ execute:
     iret
 read: 
 
-    pushl %edx
+    pushl %edx #save edx, ecx
     pushl %ecx
 
     
     pushl %ebx
     call get_file
-    addl $4, %esp #pop c-args
     cmpl $-1, %eax #fail if bad fd
-    je syscall_fail
+    je read_done
+    addl $4, %esp #pop c-args
 
-    pushl %eax
+    pushl %eax #edx, ecx already here, put eax
     call kread
 
+read_done:
     addl $12, %esp #pop c-args
     ret
+
 
 write: 
     pushl %edx
@@ -94,9 +98,9 @@ write:
     
     pushl %ebx
     call get_file
-    addl $4, %esp #pop c-args
     cmpl $-1, %eax #fail if bad fd
-    je syscall_fail
+    je read_done
+    addl $4, %esp #pop c-args
 
     pushl %eax
     call kwrite
