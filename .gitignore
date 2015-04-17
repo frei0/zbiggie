@@ -2,6 +2,7 @@ student-distrib/*.o
 student-distrib/Makefile.dep
 student-distrib/billsMakefile.dep
 student-distrib/bootimg
+student-distrib/filesys_img
 student-distrib/mp3.img
 student-distrib/new_mp3.img
 */tags
