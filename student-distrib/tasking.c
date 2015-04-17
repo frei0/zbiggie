@@ -24,16 +24,22 @@ pcb_t * get_pcb(int i){
     return  (pcb_t *) (OFFSET_8M - (i+1)* OFFSET_8K) ;
 }
 
+void init_pcbs(){
+    int i;
+    for (i = 0; i <= MAX_PID; ++i)
+        get_pcb(i)->present = 0;
+}
+
 pcb_t * get_current_pcb(){
     pcb_t * my_pcb =  get_pcb(current_process);
-    //printf("geting pcb: %x", my_pcb);
     return my_pcb; 
 }
 
 FILE * get_file(int fd){
     if (fd >= MAX_FILES || fd < 0) return (void *) -1;
-    pcb_t * pcb_ptr = get_pcb(current_process);
-    return &(pcb_ptr->f[fd]);
+    FILE * f = get_pcb(current_process)->f;
+    if (0 == (f[fd].flags & FILE_FLAG_IN_USE)) return -1;
+    return &(f[fd]);
 }
 
 int get_new_fd(){
@@ -48,8 +54,9 @@ int get_new_fd(){
     return -1;
 }
 int free_fd(int fd){
-    if (fd >= MAX_FILES || fd < 0) return -1;
+    if (fd >= MAX_FILES || fd < 2) return -1;
     FILE * f = get_pcb(current_process)->f;
+    if (0 == (f[fd].flags & FILE_FLAG_IN_USE)) return -1;
     f[fd].flags|=(~FILE_FLAG_IN_USE);
     return 0;
 }
