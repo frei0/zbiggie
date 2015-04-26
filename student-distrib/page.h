@@ -9,6 +9,9 @@ extern void init_pd(int pd_num);
 extern void set_cr3(int pd_num);
 extern void set_vmem_table(int term_num);
 extern void switch_video(int term_num);
+volatile int current_terminal;
+volatile int active_terminal;
+
 
 #endif
 
