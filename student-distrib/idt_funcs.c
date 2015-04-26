@@ -309,16 +309,19 @@ extern void key_handler()
         if ( (in == F_1) && alt_flag )
 		{
 			switch_video(0);
+			term_switch(); 
 			//printf("FUCKKKKK TERM 1 HERE WE GO SON");
 		}
 		else if ( (in == F_2) && alt_flag )
 		{
 			switch_video(1);
+			term_switch(); 
 			//printf("TERRRRMINAL 2 DAWGS IT GET HOT HERE");	
 		}
 		else if ( (in == F_3) && alt_flag )
 		{
 			switch_video(2);
+			term_switch(); 
 			//printf("FUCK EYAAAAA. BIGGIE NUMBA 3");
 		}
 		else if ( (scan2ASCII[(int)in] == 'l') && ctrl_flag)
