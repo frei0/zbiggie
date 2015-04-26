@@ -333,6 +333,14 @@ extern void rtc_handler()
 	send_eoi(RTC_LINE);
 }
 
+extern void pit_handler()
+{
+	cli();
+	printf("got pit");
+	sti();
+	send_eoi(PIT_LINE);
+}
+
 extern void something_went_wrong()
 {
 	printf("Ughhhh we did something wrong. . . Awks \n");

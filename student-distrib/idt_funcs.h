@@ -3,6 +3,7 @@
 
 #define KEY_LINE		1
 #define KEY_PORT		0x60
+#define PIT_LINE		0
 #define PRESSED_RANGE	0x59
 #define DOWN_ARROW 		0x50
 #define UP_ARROW		0x48
