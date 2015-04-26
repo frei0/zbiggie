@@ -18,6 +18,11 @@
 #define RIGHT_SHIFT_UP	0xB6
 #define BYTE_MASK		0x000000FF
 #define OFFSET			32
+#define ALT_PRESS		0x38
+#define ALT_UP			0xB8
+#define F_1				0x3B
+#define F_2				0x3C
+#define F_3				0x3D
 
 
 
