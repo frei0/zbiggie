@@ -5,6 +5,7 @@
 #include "i8259.h"
 #include "rtc.h"
 #include "ece391syscall.h"
+#include "page.h"
 #define USER_EXCEPT_CODE 256
 
 char scan2ASCII[256] = 
@@ -36,14 +37,13 @@ char shift2ASCII[256] =
 	};
 char notPrintableArray[128] = 
     {
-        0x0F, 0x37, 0x38, 0x3B, 0x3C, 0x3D, 
-        0x3E, 0x3F, 0x40, 0x41, 0x42, 0x43,
-        0x44, 0x46, 0x47, 0x49, 0x4A, 0x4E, 
-        0x4F,  0x52, 0x51, 0x71, 0x52, 0x53, 
-        0x57, 0x58, 
+        0x0F, 0x37, 0x3E, 0x3F, 0x40, 0x41, 
+		0x42, 0x43, 0x44, 0x46, 0x47, 0x49, 
+		0x4A, 0x4E, 0x4F, 0x52, 0x51, 0x71, 
+		0x52, 0x53, 0x57, 0x58, 
     };
 
-int shift_l_flag = 0, shift_r_flag = 0, caps_lock_flag = 0, ctrl_flag = 0;
+int shift_l_flag = 0, shift_r_flag = 0, caps_lock_flag = 0, ctrl_flag = 0, alt_flag = 0;
 
 volatile int rtc_f = 0;
 
@@ -235,9 +235,11 @@ extern void key_handler()
 	cli();
 	in = (char)inb(KEY_PORT);
 
+
 	int isALetter = (scan2ASCII[(int)in] > 96) && (scan2ASCII[(int)in] < 123);
 	int isPrintable = (((int)in > 1) && ((int)in < 123));
 
+	//printf("%x", in); 
     for(i = 0; i < 128; i ++)
     {
        if(in == notPrintableArray[i])
@@ -245,17 +247,16 @@ extern void key_handler()
     }
     if(notPrintable)
     {
+		//do nothing!	
     }
     else if (in == DOWN_ARROW)
 	{
 		//do nothing
-        
         term_write(0,"hi!",3);
-	//	term_puts(term_read()); 
 	}
     else if(in == UP_ARROW)
     {
-        //do nothing!;
+        //do nothing!
     }
     else if (in == LEFT_ARROW)
 	{
@@ -264,6 +265,11 @@ extern void key_handler()
     else if (in == RIGHT_ARROW)
 	{
 		term_move_right(); 
+	}
+	else if ( in == ALT_PRESS )
+	{
+		alt_flag = 1; 
+		//term_write(0, "ON!", 3);
 	}
     else if (in == CONTROL_DOWN)
 	{
@@ -293,9 +299,29 @@ extern void key_handler()
 	{
 		shift_r_flag = 0; 
 	}
+	else if  ((BYTE_MASK & in) == ALT_UP)
+	{
+		alt_flag = 0; 
+		//term_write(0,"OFF",3); 
+	}
     else if(isPrintable)
 	{
-        if ( (scan2ASCII[(int)in] == 'l') && ctrl_flag)
+        if ( (in == F_1) && alt_flag )
+		{
+			switch_video(0);
+			printf("FUCKKKKK TERM 1 HERE WE GO SON");
+		}
+		else if ( (in == F_2) && alt_flag )
+		{
+			switch_video(1);
+			printf("TERRRRMINAL 2 DAWGS IT GET HOT HERE");	
+		}
+		else if ( (in == F_3) && alt_flag )
+		{
+			switch_video(2);
+			printf("FUCK EYAAAAA. BIGGIE NUMBA 3");
+		}
+		else if ( (scan2ASCII[(int)in] == 'l') && ctrl_flag)
         {
             term_clear();
             term_init();
@@ -311,8 +337,6 @@ extern void key_handler()
 		}
 		else 
 		{
-        //else if(scan2ASCII[(int)in] == 'j')
-         //   term_puts("you hit j!");
             term_putc(scan2ASCII[(int)in]); 
 		}
     }

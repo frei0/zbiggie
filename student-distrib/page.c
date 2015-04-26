@@ -1,4 +1,5 @@
 #include "page.h"
+#include "lib.h"
 #define PDE_PRESENT        0x1 
 #define PDE_WRITE          0x2 
 #define PDE_USER           0x4 
@@ -20,6 +21,8 @@
 
 unsigned page_directories[NUM_PDS][PD_NUM_ENTRIES] __attribute__((aligned(OFFSET_4K))); //page directory 
 unsigned low_memory_table[PT_NUM_ENTRIES] __attribute__((aligned(OFFSET_4K))); //first 4M, for mapping video
+int current_terminal = 0;
+volatile int active_terminal = 10;
 
 void init_paging(void){
 	int i;
@@ -33,6 +36,7 @@ void init_paging(void){
     page_directories[KERNEL_PD][0] = (((unsigned int)low_memory_table) & PDE_ADDRESS_MASK)| PDE_PRESENT;
     low_memory_table[OFFSET_VIDEO/OFFSET_4K] = OFFSET_VIDEO | PTE_PRESENT |  PTE_WRITE | PTE_USER;
     page_directories[KERNEL_PD][1] = OFFSET_4M | PDE_SIZE | PDE_PRESENT;
+    page_directories[KERNEL_PD][NUM_PDS+1] = (NUM_PDS+1)*OFFSET_4M | PDE_SIZE | PTE_PRESENT |  PTE_WRITE;
     asm volatile(
          "mov %0, %%cr3;      \
                               \
@@ -50,6 +54,19 @@ void init_paging(void){
     );
 }
 
+void set_vmem_table(int term_num)
+{
+  //sets the nth vid_mem entry as present and user writable. 
+  //if active, maps to real memory, otherwise to term_num's buffer.
+  if (current_terminal == term_num)
+      low_memory_table[OFFSET_VIDEO/OFFSET_4K] = OFFSET_VIDEO | PTE_PRESENT |  PTE_WRITE | PTE_USER;
+  else
+  {
+      low_memory_table[OFFSET_VIDEO/OFFSET_4K] = ((NUM_PDS+1)*OFFSET_4M + term_num*OFFSET_4K) | PTE_PRESENT |  PTE_WRITE | PTE_USER;
+  }
+
+}
+
 void init_pd(int pd_num)
 {
 	int i;
@@ -59,6 +76,7 @@ void init_pd(int pd_num)
     page_directories[pd_num][1] = OFFSET_4M | PDE_SIZE | PDE_PRESENT;
     page_directories[pd_num][USER_PAGE_DIR] = (pd_num+1)*OFFSET_4M | PDE_SIZE | PDE_PRESENT | PDE_USER | PDE_WRITE; //for program image
     page_directories[pd_num][USER_PAGE_DIR+1] = (((unsigned int) low_memory_table) & PDE_ADDRESS_MASK) | PDE_PRESENT | PDE_USER | PDE_WRITE;
+    page_directories[pd_num][NUM_PDS+1] = (NUM_PDS+1)*OFFSET_4M | PDE_SIZE | PTE_PRESENT |  PTE_WRITE;
 }
 
 void set_cr3(int pd_num)
@@ -71,3 +89,18 @@ void set_cr3(int pd_num)
     : "ax", "cc","memory" 
     );
 }
+
+void switch_video(int term_num)
+{
+    if(current_terminal == term_num)
+        return;
+    memcpy((void *)((NUM_PDS+1)*OFFSET_4M + current_terminal*OFFSET_4K), (void*)OFFSET_VIDEO, OFFSET_4K);
+    current_terminal = term_num;
+    //todo: set vmem based on current pcb appropriately
+    memcpy((void*)OFFSET_VIDEO,(void*)((NUM_PDS+1)*OFFSET_4M + term_num*OFFSET_4K),OFFSET_4K);
+    /*if(active_terminal == term_num)
+    {
+        set_vmem_table(term_num);
+    }*/
+}
+
