@@ -4,6 +4,8 @@
 #include  "idt_funcs.h"
 extern void asm_keyboard();
 extern void asm_rtc();
+extern void asm_pit();
+
 
 #endif
 #endif
