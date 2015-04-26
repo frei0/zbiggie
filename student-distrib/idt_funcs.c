@@ -5,6 +5,7 @@
 #include "i8259.h"
 #include "rtc.h"
 #include "ece391syscall.h"
+#include "page.h"
 #define USER_EXCEPT_CODE 256
 
 char scan2ASCII[256] = 
@@ -307,14 +308,17 @@ extern void key_handler()
 	{
         if ( (in == F_1) && alt_flag )
 		{
+			switch_video(0);
 			printf("FUCKKKKK TERM 1 HERE WE GO SON");
 		}
 		else if ( (in == F_2) && alt_flag )
 		{
+			switch_video(1);
 			printf("TERRRRMINAL 2 DAWGS IT GET HOT HERE");	
 		}
 		else if ( (in == F_3) && alt_flag )
 		{
+			switch_video(2);
 			printf("FUCK EYAAAAA. BIGGIE NUMBA 3");
 		}
 		else if ( (scan2ASCII[(int)in] == 'l') && ctrl_flag)
