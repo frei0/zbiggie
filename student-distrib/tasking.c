@@ -38,7 +38,7 @@ pcb_t * get_current_pcb(){
 FILE * get_file(int fd){
     if (fd >= MAX_FILES || fd < 0) return (void *) -1;
     FILE * f = get_pcb(current_process)->f;
-    if (0 == (f[fd].flags & FILE_FLAG_IN_USE)) return -1;
+    if (0 == (f[fd].flags & FILE_FLAG_IN_USE)) return (void *) -1;
     return &(f[fd]);
 }
 
