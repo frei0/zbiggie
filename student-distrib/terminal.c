@@ -232,3 +232,14 @@ void term_move_right()
     }
 }
 
+void term_switch()
+{	
+		set_pos(get_screen_x(), get_screen_y());
+}
+
+
+
+
+
+
+
