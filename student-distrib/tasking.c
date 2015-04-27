@@ -110,3 +110,8 @@ void incr_current_active_process(){
     current_active_process = (current_active_process + 1) % 3;
 }
 
+void launch_shell()
+{
+    ece391_execute("shell");
+}
+
