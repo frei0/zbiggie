@@ -14,8 +14,8 @@ typedef struct pcb{
     char present; //boolean
 } pcb_t;
 extern int current_active_process;
-int processes[NUM_PROCESSES]; //PID for each running thread 
 
+void incr_current_active_process(); 
 int setup_new_process();
 void switch_context(int pid);
 FILE * get_file(int fd);

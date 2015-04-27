@@ -2,7 +2,7 @@
 #define PARENT 4
 #include "syscall.h" 
 
-.globl syscall
+.globl syscall,execute
 .align 4
 
 

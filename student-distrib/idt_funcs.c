@@ -184,7 +184,14 @@ extern void general_protection()
 //14
 extern void page_fault()
 {
-	printf("page_fault\n");
+    int x; 
+    asm volatile("popl %%ecx\n \
+             movl %%ecx, %0"
+             :"=r" (x)
+             :
+             :"%ecx"
+            );
+	printf("page_fault: %x\n", x);
     ece391_halt(USER_EXCEPT_CODE);
 	while(1);
 }
