@@ -112,18 +112,7 @@ void switch_video(int term_num)
     memcpy((void*)((NUM_PDS+1)*OFFSET_4M + 3*OFFSET_4K),(void*)((NUM_PDS+1)*OFFSET_4M + term_num*OFFSET_4K),OFFSET_4K);
     switch_context(get_current_pid());
     sti();
-=======
-	cli(); 
-    memcpy((void *)((NUM_PDS+1)*OFFSET_4M + current_terminal*OFFSET_4K), 
-					(void*)((NUM_PDS+1)*OFFSET_4M + 3*OFFSET_4K), OFFSET_4K);
-    current_terminal = term_num;
-    //todo: set vmem based on current pcb appropriately
-    memcpy((void*)((NUM_PDS+1)*OFFSET_4M + 3*OFFSET_4K),
-					(void*)((NUM_PDS+1)*OFFSET_4M + term_num*OFFSET_4K),OFFSET_4K);
-	sti(); 
-	switch_context(get_current_pid());
->>>>>>> Stashed changes
-    /*if(active_terminal == term_num)
+	/*if(active_terminal == term_num)
     {
         set_vmem_table(term_num);
     }*/

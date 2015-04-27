@@ -47,8 +47,6 @@ void switch_term_xy(int term)
 	screen_x = term_xs[term];
 	screen_y = term_ys[term];
 	prev_term = term;
-	screen_x[current_terminal] = screen_y[current_terminal] = biggest_y = 0;
-	set_vmem_table(current_active_process); 
 	sti();
 }
 
