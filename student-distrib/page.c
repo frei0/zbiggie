@@ -99,13 +99,19 @@ void set_cr3(int pd_num)
 
 void switch_video(int term_num)
 {
+    cli();
     if(current_terminal == term_num)
+    {
+        sti();
         return;
+    }
     memcpy((void *)((NUM_PDS+1)*OFFSET_4M + current_terminal*OFFSET_4K), (void*)((NUM_PDS+1)*OFFSET_4M + 3*OFFSET_4K), OFFSET_4K);
+    switch_term_xy(term_num);
     current_terminal = term_num;
     //todo: set vmem based on current pcb appropriately
     memcpy((void*)((NUM_PDS+1)*OFFSET_4M + 3*OFFSET_4K),(void*)((NUM_PDS+1)*OFFSET_4M + term_num*OFFSET_4K),OFFSET_4K);
     switch_context(get_current_pid());
+    sti();
     /*if(active_terminal == term_num)
     {
         set_vmem_table(term_num);
