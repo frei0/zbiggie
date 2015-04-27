@@ -13,7 +13,7 @@ typedef struct pcb{
     FILE f[MAX_FILES];
     char present; //boolean
 } pcb_t;
-int current_active_process;
+extern int current_active_process;
 int processes[NUM_PROCESSES]; //PID for each running thread 
 
 int setup_new_process();

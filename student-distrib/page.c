@@ -98,6 +98,7 @@ void switch_video(int term_num)
     current_terminal = term_num;
     //todo: set vmem based on current pcb appropriately
     memcpy((void*)OFFSET_VIDEO,(void*)((NUM_PDS+1)*OFFSET_4M + term_num*OFFSET_4K),OFFSET_4K);
+    switch_context(get_current_pid());
     /*if(active_terminal == term_num)
     {
         set_vmem_table(term_num);
