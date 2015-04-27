@@ -24,6 +24,7 @@ int get_next_task_pid();
 void save_queue();
 void init_pcbs();
 void free_current_pcb();
+extern char * execstring;
 
 int free_fd(int fd);
 int get_new_fd();
