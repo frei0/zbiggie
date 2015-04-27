@@ -104,10 +104,12 @@ int setup_new_process(){
 
 void switch_context(int pid){
 //    printf("switching to context of pid %d\n", pid);
+    cli();
     current_process = pid;
     set_vmem_table(current_active_process);
     set_cr3(pid);    
     tss.esp0 = (OFFSET_8M - pid*OFFSET_8K);
+    sti();
 }
 
 void incr_current_active_process(){

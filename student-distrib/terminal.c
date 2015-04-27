@@ -80,6 +80,7 @@ void term_init()
 void term_putc(char c)
 {
     //int i;
+    cli();
     char bs_char;
     //new line, new buf
     if(c == '\n' || c == '\r') 
@@ -128,7 +129,7 @@ void term_putc(char c)
            if(get_screen_y() > write_y[current_terminal] ||( get_screen_y() == write_y[current_terminal] 
                    && get_screen_x() > write_x[current_terminal]))
            {
-           putc(bs_char);
+           putc_kb(bs_char);
            move_left();
            }
        }
@@ -142,6 +143,7 @@ void term_putc(char c)
         cur_pos[current_terminal] ++;
         cur_size[current_terminal]++;
     }
+    sti();
 
 }
 
@@ -169,10 +171,14 @@ int term_puts(char * str)
  * Function: prints a string to the terminal*/
 int term_write(FILE * f, char * buf, int cnt)
 {
+   cli();
+   switch_term_xy(current_active_process);
    int i;
    for (i = 0; i < cnt; ++i) putc(buf[i]);
-   write_x[current_terminal] = get_screen_x(); 
-   write_y[current_terminal] = get_screen_y(); 
+   write_x[current_active_process] = get_screen_x(); 
+   write_y[current_active_process] = get_screen_y(); 
+   switch_term_xy(current_terminal);
+   sti();
    return cnt;
 }
 
@@ -186,6 +192,7 @@ int term_read(FILE * f, char * buf, int numbytes)
    wait_for_nl = 1;
    while(current_terminal != current_active_process){} 
    while (wait_for_nl) {}
+   cli();
    for(i = 0; i < numbytes; i++)
    {
        //if end of line or NULL
@@ -194,6 +201,7 @@ int term_read(FILE * f, char * buf, int numbytes)
            return i+1;  //we have a whole line
        }
    }
+   sti();
    return i;
 }
 
@@ -236,6 +244,7 @@ void term_move_right()
 
 void term_switch()
 {	
+        switch_term_xy(current_terminal);
 		set_pos(get_screen_x(), get_screen_y());
 }
 
