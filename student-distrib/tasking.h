@@ -21,6 +21,7 @@ void switch_context(int pid);
 FILE * get_file(int fd);
 int get_current_pid();
 int get_next_task_pid();
+int get_current_task_pid();
 void save_queue();
 void init_pcbs();
 void free_current_pcb();
@@ -30,7 +31,6 @@ int free_fd(int fd);
 int get_new_fd();
 
 void launch_shell();
-
 pcb_t * get_pcb(int);
 pcb_t * get_current_pcb();
 
