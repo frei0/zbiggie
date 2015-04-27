@@ -28,6 +28,8 @@ void free_current_pcb();
 int free_fd(int fd);
 int get_new_fd();
 
+void launch_shell();
+
 pcb_t * get_pcb(int);
 pcb_t * get_current_pcb();
 
