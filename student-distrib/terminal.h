@@ -16,5 +16,6 @@ int term_write(FILE * f, char * buf, int n);
 int term_read(FILE * f, char * buf, int n);
 int stdout_open(FILE *f);
 int stdin_open(FILE *f);
+void term_switch();
 
 #endif

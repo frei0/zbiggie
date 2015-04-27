@@ -1,18 +1,20 @@
 #include "lib.h"
 #include "i8259.h"
 #include "terminal.h"
+#include "page.h"
 #define START_POS 10
 #define NUM_BUFS 10
 #define CHAR_W 8
 #define KB_IRQ 1
 #define BACKSPACE 0x08
 
-char buffer[BUF_SIZE];
-int cur_pos = 0; 
-int cur_size = 0;
-int prev_size;
-int write_x = -1;
-int write_y = -1;
+char buffer[3][BUF_SIZE];
+int cur_pos[3] = {0,0,0};
+int cur_size[3] = {0,0,0};
+int prev_size[3]; 
+int write_x[3] = {-1,-1,-1}; 
+int write_y[3] = {-1,-1,-1}; 
+
 volatile int wait_for_nl;
 
 
@@ -36,7 +38,7 @@ int stdin_open(FILE * f){
  * initializes the terminal*/
 void term_open()
 {
-    buffer[0] = '\0';
+	buffer[current_terminal][0] = '\0'; 
     disable_irq(KB_IRQ);
     term_init();
 }
@@ -59,13 +61,15 @@ void term_close()
 void term_init()
 {
     int j;
-        for(j = 0; j < BUF_SIZE; j++)
-            buffer[j] = 0;
+    for(j = 0; j < BUF_SIZE; j++)
+	{
+		buffer[current_terminal][j] = 0; 
+	}
+	cur_pos[current_terminal] = 0; 
+	cur_size[current_terminal] = 0;
+	write_x[current_terminal] = -1;
+	write_y[current_terminal] = -1; 	
     puts("zbiggie term active!\n");
-    cur_pos = 0;
-    cur_size = 0;
-    write_x = -1;
-    write_y = -1;
 }
 
 /*void term_putc(char c)
@@ -79,17 +83,17 @@ void term_putc(char c)
     //new line, new buf
     if(c == '\n' || c == '\r') 
     {
-        if(cur_size < BUF_SIZE)
-            buffer[cur_size] = '\n';
+        if(cur_size[current_terminal] < BUF_SIZE)
+            buffer[current_terminal][cur_size[current_terminal]] = '\n';
 
-        cur_pos = 0;
+        cur_pos[current_terminal] = 0;
         set_x(START_POS);
         putc_kb(c);
         //puts("zbiggie: ");
-        prev_size = cur_size;
-        cur_size = 0;
-        write_x = -1;
-        write_y = -1;
+        prev_size[current_terminal] = cur_size[current_terminal];
+        cur_size[current_terminal] = 0;
+        write_x[current_terminal] = -1;
+        write_y[current_terminal] = -1;
         wait_for_nl = 0;
     }
     //backspace
@@ -98,30 +102,30 @@ void term_putc(char c)
        bs_char = ' ';
        //if we're backspacing from the end of the line, BS with a null
        //otherwise bs with a space
-       if(cur_pos >= cur_size -1)
+       if(cur_pos[current_terminal] >= cur_size[current_terminal] -1)
        {
            bs_char = 0;
-           cur_size --;
+           cur_size[current_terminal] --;
        }       
        //if not the first character, delete the char then move left
-       if(cur_pos > 0)
+       if(cur_pos[current_terminal] > 0)
        {
-           if(get_screen_y() > write_y || (get_screen_y() == write_y 
-                   && get_screen_x() > write_x))
+           if(get_screen_y() > write_y[current_terminal] || (get_screen_y() == write_y[current_terminal] 
+                   && get_screen_x() > write_x[current_terminal]))
            {
            move_left();
            putc_kb(bs_char); 
            move_left();
            }
-           cur_pos--;
-           buffer[cur_pos] = bs_char;
+           cur_pos[current_terminal]--;
+           buffer[current_terminal][cur_pos[current_terminal]] = bs_char;
        }
        //if first character, just delete, don't move left
        else
        {
-           buffer[cur_pos] = bs_char;
-           if(get_screen_y() > write_y ||( get_screen_y() == write_y 
-                   && get_screen_x() > write_x))
+           buffer[current_terminal][cur_pos[current_terminal]] = bs_char;
+           if(get_screen_y() > write_y[current_terminal] ||( get_screen_y() == write_y[current_terminal] 
+                   && get_screen_x() > write_x[current_terminal]))
            {
            putc(bs_char);
            move_left();
@@ -130,12 +134,12 @@ void term_putc(char c)
     }
     //if just a regular character and buffer isn't full, 
     //print it and put it in the buffer
-    else if(cur_pos < BUF_SIZE-1)
+    else if(cur_pos[current_terminal] < BUF_SIZE-1)
     {
         putc_kb(c);
-        buffer[cur_pos] = c;
-        cur_pos ++;
-        cur_size++;
+        buffer[current_terminal][cur_pos[current_terminal]] = c;
+        cur_pos[current_terminal] ++;
+        cur_size[current_terminal]++;
     }
 
 }
@@ -166,8 +170,8 @@ int term_write(FILE * f, char * buf, int cnt)
 {
    int i;
    for (i = 0; i < cnt; ++i) putc(buf[i]);
-   write_x = get_screen_x();
-   write_y = get_screen_y(); 
+   write_x[current_terminal] = get_screen_x(); 
+   write_y[current_terminal] = get_screen_y(); 
    return cnt;
 }
 
@@ -183,7 +187,7 @@ int term_read(FILE * f, char * buf, int numbytes)
    for(i = 0; i < numbytes; i++)
    {
        //if end of line or NULL
-        buf[i] = buffer[i];
+        buf[i] = buffer[current_terminal][i];
        if(buf[i] == '\n'){
            return i+1;  //we have a whole line
        }
@@ -200,7 +204,6 @@ void term_clear()
 {
     clear();
     set_pos(0, 0);
-    //term_init();
 }
 
 /* void term_move_left()
@@ -212,7 +215,7 @@ void term_move_left()
     if(cur_pos > 0)
     {
         move_left();
-        cur_pos--;
+        cur_pos[current_terminal]--;
     }
 }
 
@@ -225,7 +228,18 @@ void term_move_right()
     if(cur_pos < cur_size)
     {
         move_right();
-        cur_pos++;
+        cur_pos[current_terminal]++;
     }
 }
+
+void term_switch()
+{	
+		set_pos(get_screen_x(), get_screen_y());
+}
+
+
+
+
+
+
 

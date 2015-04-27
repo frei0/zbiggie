@@ -21,7 +21,7 @@
 
 unsigned page_directories[NUM_PDS][PD_NUM_ENTRIES] __attribute__((aligned(OFFSET_4K))); //page directory 
 unsigned low_memory_table[PT_NUM_ENTRIES] __attribute__((aligned(OFFSET_4K))); //first 4M, for mapping video
-int current_terminal = 0;
+volatile int current_terminal = 0;
 volatile int active_terminal = 10;
 
 void init_paging(void){
