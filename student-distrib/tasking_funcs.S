@@ -25,7 +25,7 @@ next_task:
 
 
 switching:
-    CALL get_next_task_pid
+    CALL get_current_task_pid
     pushl %eax
     CALL switch_context #switch memory map
     addl $4,%esp

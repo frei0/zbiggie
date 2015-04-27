@@ -73,6 +73,11 @@ int get_next_task_pid()
     return processes[(current_active_process + 1) % NUM_PROCESSES];
 }
 
+int get_current_task_pid()
+{
+    return processes[current_active_process];
+}
+
 void free_current_pcb()
 {
     pcb_t* pcb_ptr = get_current_pcb();
@@ -83,7 +88,6 @@ void save_queue()
 {
     processes[current_active_process] = current_process;
 }
-
 int setup_new_process(){
     int pid = find_free_pcb();
     if (pid==-1) return -1;
@@ -107,11 +111,12 @@ void switch_context(int pid){
 }
 
 void incr_current_active_process(){
-    current_active_process = (current_active_process + 1) % 3;
+    current_active_process = (current_active_process + 1) % NUM_PROCESSES;
 }
 
 void launch_shell()
 {
+   // processes[current_active_process] = find_free_pcb();
     ece391_execute("shell");
 }
 
