@@ -99,7 +99,7 @@ int setup_new_process(){
 }
 
 void switch_context(int pid){
-    printf("switching to context of pid %d\n", pid);
+//    printf("switching to context of pid %d\n", pid);
     current_process = pid;
     set_vmem_table(current_active_process);
     set_cr3(pid);    
@@ -114,4 +114,6 @@ void launch_shell()
 {
     ece391_execute("shell");
 }
+
+char * execstring = "shell";
 

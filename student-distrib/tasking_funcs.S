@@ -11,6 +11,10 @@ next_task:
     call send_eoi
     addl $4,%esp
 
+    CALL save_queue
+    CALL get_current_pcb
+    movl %esp, (%eax)
+
     CALL get_next_task_pid
     pushl %eax
     CALL incr_current_active_process
@@ -18,22 +22,22 @@ next_task:
     cmpl  $0,%eax
     jz    launch_new_shell
 
-    CALL get_current_pcb
-    movl %esp, (%eax)
-    CALL save_queue
 
 
 switching:
     CALL get_next_task_pid
+    pushl %eax
     CALL switch_context #switch memory map
-    CALL get_pcb
+    addl $4,%esp
+    CALL get_current_pcb
     movl (%eax), %esp #restore old stack w/ iret context of next task
     popal
     sti 
     iret
 
 launch_new_shell:
-    CALL launch_shell
+    movl execstring,%ebx
+    jmp execute
 
 shellstring:
     .ASCIZ "shell"
