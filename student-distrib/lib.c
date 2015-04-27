@@ -4,6 +4,7 @@
 
 #include "lib.h"
 #include "page.h"
+#include "tasking.h"
 #define VIDEO 0xB8000
 #define NUM_COLS 80
 #define NUM_ROWS 25
@@ -272,6 +273,7 @@ putc_kb(uint8_t c)
 {
 	char line_empty;
 	int i;
+	set_vmem_table(current_terminal);
     if(c == '\n' || c == '\r') {
 		//cases for if two lines have been printed and enter is hit while
 		//the cursor is on the top line
@@ -363,6 +365,7 @@ putc_kb(uint8_t c)
 	if(screen_y[current_terminal] >= NUM_ROWS)
 		scroll();
 	cursor_loc(screen_x[current_terminal], screen_y[current_terminal]); 
+	set_vmem_table(current_active_process);
 }
 
 void 
