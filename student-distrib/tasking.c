@@ -9,6 +9,7 @@
 #define OFFSET_8K (OFFSET_4K*2)
 
 int current_process = 0; //0 is not the shell, but the entry point
+int current_active_process = 0; //has value 0,1,2
 
 int find_free_pcb(){
     int i = 1;
@@ -98,6 +99,7 @@ int setup_new_process(){
 
 void switch_context(int pid){
     current_process = pid;
+    set_vmem_table(current_active_process);
     set_cr3(pid);    
     tss.esp0 = (OFFSET_8M - pid*OFFSET_8K);
 }
