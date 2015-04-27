@@ -2,6 +2,7 @@
 #include "i8259.h"
 #include "terminal.h"
 #include "page.h"
+#include "tasking.h"
 #define START_POS 10
 #define NUM_BUFS 10
 #define CHAR_W 8
@@ -183,6 +184,7 @@ int term_read(FILE * f, char * buf, int numbytes)
 {
    int i;
    wait_for_nl = 1;
+   while(current_terminal != current_active_process){} 
    while (wait_for_nl) {}
    for(i = 0; i < numbytes; i++)
    {
