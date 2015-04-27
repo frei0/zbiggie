@@ -68,7 +68,7 @@ int get_current_pid()
 
 int get_next_task_pid()
 {
-    return threads[(current_thread + 1) % NUM_THREADS];
+    return processes[(current_active_process + 1) % NUM_PROCESSES];
 }
 
 void free_current_pcb()
@@ -79,7 +79,7 @@ void free_current_pcb()
 
 void save_queue()
 {
-
+    processes[current_active_process] = current_process;
 }
 
 int setup_new_process(){

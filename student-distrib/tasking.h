@@ -5,7 +5,7 @@
 #include "terminal.h"
 #define MAX_PID 7
 #define MAX_FILES 8
-#define NUM_THREADS 3
+#define NUM_PROCESSES 3
 typedef struct pcb{
     uint32_t esp;
     int parent;
@@ -13,8 +13,8 @@ typedef struct pcb{
     FILE f[MAX_FILES];
     char present; //boolean
 } pcb_t;
-int current_thread;
-int threads[NUM_THREADS]; //PID for each running thread 
+int current_active_process;
+int processes[NUM_PROCESSES]; //PID for each running thread 
 
 int setup_new_process();
 void switch_context(int pid);
