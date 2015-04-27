@@ -66,10 +66,20 @@ int get_current_pid()
     return current_process;
 }
 
+int get_next_task_pid()
+{
+    return threads[(current_thread + 1) % NUM_THREADS];
+}
+
 void free_current_pcb()
 {
     pcb_t* pcb_ptr = get_current_pcb();
     pcb_ptr->present = 0;
+}
+
+void save_queue()
+{
+
 }
 
 int setup_new_process(){
