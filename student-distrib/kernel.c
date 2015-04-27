@@ -80,7 +80,7 @@ void populate_idt()
 	SET_IDT_ENTRY(idt[SYS_CALLS_INDEX],&syscall);
 	idt[SYS_CALLS_INDEX].dpl = 3;
 	idt[SYS_CALLS_INDEX].reserved3 = 1;
-	SET_IDT_ENTRY(idt[PIT_INDEX],&asm_pit);
+	SET_IDT_ENTRY(idt[PIT_INDEX],&next_task);
 
 	/*loading IDTR*/ 
 	lidt(idt_desc_ptr);
@@ -322,12 +322,12 @@ entry (unsigned long magic, unsigned long addr)
 
 
 
-	while (1) {
-		printf("Welcome to zbigos. Sending you to a shell...\n");
-		ece391_execute((const uint8_t*)"shell");
-	}
+	//while (1) {
+	//	printf("Welcome to zbigos. Sending you to a shell...\n");
+	//	ece391_execute((const uint8_t*)"shell");
+	//}
 	/* Spin (nicely, so we don't chew up cycles) */
-	//asm volatile(".1: hlt; jmp .1;");
+	asm volatile(".1: hlt; jmp .1;");
 }
 
 

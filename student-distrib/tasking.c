@@ -8,6 +8,7 @@
 #define OFFSET_8M (OFFSET_4M*2)
 #define OFFSET_8K (OFFSET_4K*2)
 
+int processes[NUM_PROCESSES] = {0}; //PID for each running thread 
 int current_process = 0; //0 is not the shell, but the entry point
 int current_active_process = 0; //has value 0,1,2
 
@@ -98,9 +99,14 @@ int setup_new_process(){
 }
 
 void switch_context(int pid){
+    printf("switching to context of pid %d\n", pid);
     current_process = pid;
     set_vmem_table(current_active_process);
     set_cr3(pid);    
     tss.esp0 = (OFFSET_8M - pid*OFFSET_8K);
+}
+
+void incr_current_active_process(){
+    current_active_process = (current_active_process + 1) % 3;
 }
 
