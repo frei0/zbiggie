@@ -107,7 +107,7 @@ void switch_context(int pid){
     cli();
     current_process = pid;
     set_vmem_table(current_active_process);
-    set_cr3(pid);    
+	set_cr3(pid);    
     tss.esp0 = (OFFSET_8M - pid*OFFSET_8K);
     sti();
 }

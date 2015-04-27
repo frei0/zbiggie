@@ -30,6 +30,8 @@ void
 clear(void)
 {
     int32_t i;
+	cli(); 
+	set_vmem_table(current_terminal); 
     for(i=0; i<NUM_ROWS*NUM_COLS; i++) {
         *(uint8_t *)(video_mem + (i << 1)) = ' ';
         *(uint8_t *)(video_mem + (i << 1) + 1) = ATTRIB;
@@ -45,6 +47,8 @@ void switch_term_xy(int term)
 	screen_x = term_xs[term];
 	screen_y = term_ys[term];
 	prev_term = term;
+	screen_x[current_terminal] = screen_y[current_terminal] = biggest_y = 0;
+	set_vmem_table(current_active_process); 
 	sti();
 }
 
