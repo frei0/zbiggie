@@ -173,6 +173,7 @@ int term_write(FILE * f, char * buf, int cnt)
 {
    cli();
    switch_term_xy(current_active_process);
+   set_vmem_table(current_active_process);
    int i;
    for (i = 0; i < cnt; ++i) putc(buf[i]);
    write_x[current_active_process] = get_screen_x(); 
@@ -190,14 +191,15 @@ int term_read(FILE * f, char * buf, int numbytes)
 {
    int i;
    wait_for_nl = 1;
-   while(current_terminal != current_active_process){} 
    while (wait_for_nl) {}
+   while(current_terminal != current_active_process){} 
    cli();
    for(i = 0; i < numbytes; i++)
    {
        //if end of line or NULL
         buf[i] = buffer[current_terminal][i];
        if(buf[i] == '\n'){
+           sti();
            return i+1;  //we have a whole line
        }
    }
