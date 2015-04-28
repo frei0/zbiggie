@@ -19,7 +19,7 @@ int term_bigys[NUM_PROCESSES] = {0};
 int prev_term = 0;
 static int biggest_y;
 static char* map_video_mem = (char *)VIDEO;
-void * video_mem = (void *) ((8+1)*OFFSET_4M + 3*OFFSET_4K);
+char * video_mem = (void *) ((8+1)*OFFSET_4M + 3*OFFSET_4K);
 
 /*
 * void clear(void);
@@ -262,7 +262,34 @@ puts(int8_t* s)
 *   Return Value: void
 *	Function: Output a character to the console 
 */
-
+void
+mt_putc(uint8_t c)
+{
+	cli();
+	switch_term_xy(current_active_process);
+    if(c == '\n' || c == '\r') {
+        screen_y++;
+		biggest_y++;
+        screen_x=0;
+    } else {
+        *(uint8_t *)(map_video_mem + ((NUM_COLS*screen_y + screen_x) << 1)) = c;
+        *(uint8_t *)(map_video_mem + ((NUM_COLS*screen_y + screen_x) << 1) + 1) = ATTRIB;
+        screen_x++;
+        //screen_x %= NUM_COLS;
+        //screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
+    }
+    if(screen_x >= NUM_COLS)
+	{
+		screen_y++;
+		biggest_y++;
+		screen_x = 0;
+	}
+	if(screen_y >= NUM_ROWS)
+		mt_scroll();
+	if (current_terminal == current_active_process)	cursor_loc(screen_x, screen_y); 
+	switch_term_xy(current_terminal);
+	sti();
+}
 void
 putc(uint8_t c)
 {
@@ -289,6 +316,7 @@ putc(uint8_t c)
 	cursor_loc(screen_x, screen_y); 
 	sti();
 }
+
 void
 putc_kb(uint8_t c)
 {
@@ -389,6 +417,29 @@ putc_kb(uint8_t c)
 	sti();
 }
 
+void 
+mt_scroll()
+{
+	if (current_active_process == current_terminal) return scroll();
+	int x, y;
+	for(y = 1; y < NUM_ROWS; ++y)
+	{
+		for(x = 0; x < NUM_COLS; x++)
+		{
+			*(uint8_t *)(map_video_mem + ((NUM_COLS*(y-1) + x) << 1)) = *(uint8_t *)(video_mem + ((NUM_COLS*(y) + x) << 1)) ;
+			*(uint8_t *)(map_video_mem + ((NUM_COLS*(y-1) + x) << 1)+1) = *(uint8_t *)(video_mem + ((NUM_COLS*(y) + x) << 1)+1) ;
+
+		}
+	}
+	screen_y = biggest_y = NUM_ROWS -1;
+	for(x = 0; x < NUM_COLS; x++)
+	{
+			*(uint8_t *)(map_video_mem + ((NUM_COLS*(screen_y) + x) << 1)) = 0x00;
+			*(uint8_t *)(map_video_mem + ((NUM_COLS*(screen_y) + x) << 1)+1) = ATTRIB;
+
+	}
+	screen_x = 0;
+}
 void 
 scroll()
 {
