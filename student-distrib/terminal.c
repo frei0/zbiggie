@@ -172,10 +172,9 @@ int term_puts(char * str)
 int term_write(FILE * f, char * buf, int cnt)
 {
    cli();
-   switch_term_xy(current_active_process);
-   set_vmem_table(current_active_process);
    int i;
-   for (i = 0; i < cnt; ++i) putc(buf[i]);
+   for (i = 0; i < cnt; ++i) mt_putc(buf[i]);
+   switch_term_xy(current_active_process);
    write_x[current_active_process] = get_screen_x(); 
    write_y[current_active_process] = get_screen_y(); 
    switch_term_xy(current_terminal);
