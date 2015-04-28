@@ -289,20 +289,19 @@ putc(uint8_t c)
 void
 putc_kb(uint8_t c)
 {
-	cli();
-	set_vmem_table(current_terminal);
+	void * real_video_mem = (void *) ((8+1)*OFFSET_4M + 3*OFFSET_4K);
 	char line_empty;
 	int i;
     if(c == '\n' || c == '\r') {
 		//cases for if two lines have been printed and enter is hit while
 		//the cursor is on the top line
-		if(screen_y < NUM_ROWS - 1)
+		if(term_ys[current_terminal] < NUM_ROWS - 1)
 		{
 			line_empty = 1;
 			//check line below for text
 		    for(i = 0; i < NUM_COLS; i++)
 			{
-				if(*(uint8_t *)(video_mem + ((NUM_COLS*(screen_y+1) + i) << 1)) != ' ')
+				if(*(uint8_t *)(real_video_mem + ((NUM_COLS*(term_ys[current_terminal]+1) + i) << 1)) != ' ')
 					line_empty = 0;
 			}
 			if(!line_empty)
@@ -310,20 +309,20 @@ putc_kb(uint8_t c)
 				//if we're at the 2nd to last line, we'll need to scroll
 				//scroll puts the cursor at the bottom left so we don't 
 				//need to double scroll
-				if(screen_y == NUM_ROWS-2)
+				if(term_ys[current_terminal] == NUM_ROWS-2)
 					scroll();	
 				//if in the middle, move y down 2 and x to the front
 				else
 				{
-					screen_y+=2;
-					screen_x = 0;
+					term_ys[current_terminal]+=2;
+					term_xs[current_terminal] = 0;
 				}
 			}
 			//if the line below is empty, just move down 1 line
 			else
 			{
-				screen_y++;
-				screen_x = 0;
+				term_ys[current_terminal]++;
+				term_xs[current_terminal] = 0;
 			}
 		}
 		//if the cursor is on the bottom line, there can't be more than one line
@@ -331,61 +330,63 @@ putc_kb(uint8_t c)
 		//will scroll the screen
 		else
 		{
-			screen_y++;
-			screen_x = 0;
+			term_ys[current_terminal]++;
+			term_xs[current_terminal] = 0;
 		}
     }
 	else if( c == 0x08)
 	{
-    		if((screen_y == 0 && screen_x == 0))
+    		if((term_ys[current_terminal] == 0 && term_xs[current_terminal] == 0))
 	   		{
-	   			*(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1)) = ' ';
-            	*(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1) + 1) = ATTRIB;
+	   			*(uint8_t *)(real_video_mem + ((NUM_COLS*term_ys[current_terminal] + term_xs[current_terminal]) << 1)) = ' ';
+            	*(uint8_t *)(real_video_mem + ((NUM_COLS*term_ys[current_terminal] + term_xs[current_terminal]) << 1) + 1) = ATTRIB;
 	   		}
 	   		else
 	   		{
-		   		screen_x--; 
-		   		if(screen_x < 0)
+		   		term_xs[current_terminal]--; 
+		   		if(term_xs[current_terminal] < 0)
 		   		{
-		   			screen_x = NUM_COLS -1;
-		   			screen_y--;
+		   			term_xs[current_terminal] = NUM_COLS -1;
+		   			term_ys[current_terminal]--;
 					biggest_y--;
-		   			if(screen_y < 0)
+		   			if(term_ys[current_terminal] < 0)
 					{
-		   				screen_y = 0;
+		   				term_ys[current_terminal] = 0;
 						biggest_y=0;
 					}
 		   		}
-		    	*(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1)) = ' ';
-	            *(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1) + 1) = ATTRIB;
+		    	*(uint8_t *)(real_video_mem + ((NUM_COLS*term_ys[current_terminal] + term_xs[current_terminal]) << 1)) = ' ';
+	            *(uint8_t *)(real_video_mem + ((NUM_COLS*term_ys[current_terminal] + term_xs[current_terminal]) << 1) + 1) = ATTRIB;
         }
     	
     } 
 	else
 	{
-    	if(screen_x >= NUM_COLS)
+    	if(term_xs[current_terminal] >= NUM_COLS)
 		{
-    		screen_y++;
+    		term_ys[current_terminal]++;
 			biggest_y++;
-    		screen_x = 0;
+    		term_xs[current_terminal] = 0;
     	}
-        *(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1)) = c;
-        *(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1) + 1) = ATTRIB;
-        screen_x++;
-        //screen_x %= NUM_COLS;
-        //screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
+        *(uint8_t *)(real_video_mem + ((NUM_COLS*term_ys[current_terminal] + term_xs[current_terminal]) << 1)) = c;
+        *(uint8_t *)(real_video_mem + ((NUM_COLS*term_ys[current_terminal] + term_xs[current_terminal]) << 1) + 1) = ATTRIB;
+        term_xs[current_terminal]++;
+        //term_xs[current_terminal] %= NUM_COLS;
+        //term_ys[current_terminal] = (screen_y + (term_xs[current_terminal] / NUM_COLS)) % NUM_ROWS;
     }
-    if(screen_x >= NUM_COLS)
+    if(term_xs[current_terminal] >= NUM_COLS)
 	{
-		screen_y++;
+		term_ys[current_terminal]++;
 		biggest_y++;
-		screen_x = 0;
+		term_xs[current_terminal] = 0;
 	}
-	if(screen_y >= NUM_ROWS)
+	if(term_ys[current_terminal] >= NUM_ROWS)
 		scroll();
-	cursor_loc(screen_x, screen_y); 
-	set_vmem_table(current_active_process);
-	sti();
+	cursor_loc(term_xs[current_terminal], term_ys[current_terminal]); 
+	if (current_terminal == current_active_process){
+		screen_x = term_xs[current_terminal];
+		screen_y = term_ys[current_terminal];
+	}
 }
 
 void 

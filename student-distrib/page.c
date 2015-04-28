@@ -37,7 +37,7 @@ void init_paging(void){
     page_directories[KERNEL_PD][0] = (((unsigned int)low_memory_table) & PDE_ADDRESS_MASK)| PDE_PRESENT;
     low_memory_table[OFFSET_VIDEO/OFFSET_4K] = OFFSET_VIDEO | PTE_PRESENT |  PTE_WRITE | PTE_USER;
     page_directories[KERNEL_PD][1] = OFFSET_4M | PDE_SIZE | PDE_PRESENT;
-    page_directories[KERNEL_PD][NUM_PDS+1] = (NUM_PDS+1)*OFFSET_4M | PDE_SIZE | PTE_PRESENT |  PTE_WRITE;
+    page_directories[KERNEL_PD][NUM_PDS+1] = (((unsigned int)video_table) & PDE_ADDRESS_MASK) | PDE_PRESENT |  PTE_WRITE | PDE_USER;
 
     int term_num; for (term_num = 0; term_num < 3; term_num++)
        video_table[term_num] = ((NUM_PDS+1)*OFFSET_4M + term_num*OFFSET_4K) | PTE_PRESENT |  PTE_WRITE | PTE_USER;
