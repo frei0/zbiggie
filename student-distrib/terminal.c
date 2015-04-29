@@ -112,8 +112,8 @@ void term_putc(char c)
        //if not the first character, delete the char then move left
        if(cur_pos[current_terminal] > 0)
        {
-           if(get_screen_y() > write_y[current_terminal] || (get_screen_y() == write_y[current_terminal] 
-                   && get_screen_x() > write_x[current_terminal]))
+           if(get_screen_y(current_terminal) > write_y[current_terminal] || (get_screen_y(current_terminal) == write_y[current_terminal] 
+                   && get_screen_x(current_terminal) > write_x[current_terminal]))
            {
            move_left();
            putc_kb(bs_char); 
@@ -126,8 +126,8 @@ void term_putc(char c)
        else
        {
            buffer[current_terminal][cur_pos[current_terminal]] = bs_char;
-           if(get_screen_y() > write_y[current_terminal] ||( get_screen_y() == write_y[current_terminal] 
-                   && get_screen_x() > write_x[current_terminal]))
+           if(get_screen_y(current_terminal) > write_y[current_terminal] ||( get_screen_y(current_terminal) == write_y[current_terminal] 
+                   && get_screen_x(current_terminal) > write_x[current_terminal]))
            {
            putc_kb(bs_char);
            move_left();
@@ -175,8 +175,8 @@ int term_write(FILE * f, char * buf, int cnt)
    int i;
    for (i = 0; i < cnt; ++i) mt_putc(buf[i]);
    switch_term_xy(current_active_process);
-   write_x[current_active_process] = get_screen_x(); 
-   write_y[current_active_process] = get_screen_y(); 
+   write_x[current_active_process] = get_screen_x(current_active_process); 
+   write_y[current_active_process] = get_screen_y(current_active_process); 
    switch_term_xy(current_terminal);
    sti();
    return cnt;
@@ -246,7 +246,7 @@ void term_move_right()
 void term_switch()
 {	
         switch_term_xy(current_terminal);
-		set_pos(get_screen_x(), get_screen_y());
+		set_pos(get_screen_x(current_terminal), get_screen_y(current_terminal));
 }
 
 

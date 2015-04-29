@@ -26,7 +26,7 @@ volatile int current_terminal = 0;
 volatile int active_terminal = 10;
 
 void init_paging(void){
-	int i;
+	int i,j;
 	for (i = 0; i < PD_NUM_ENTRIES; ++i)
 		page_directories[KERNEL_PD][i]=0x0; //fill page directory with non present entries
 
@@ -59,7 +59,20 @@ void init_paging(void){
     : "r" (page_directories[KERNEL_PD]), "i" (PAGING_PSE), "i" (PAGING_ENABLE)
     : "ax", "cc","memory" 
     );
+    for(i = 1; i < 3; i++)
+    {
+       set_vmem_table(i);
+       for(j = OFFSET_VIDEO; j < OFFSET_VIDEO + OFFSET_4K; j++)
+       {
+           if(j % 2 == 0)
+               *((char*)j) = 0;
+           else
+               *((char*)j) = 0x7;
+       }
+    }
+    set_vmem_table(0);
 }
+
 
 void set_vmem_table(int term_num)
 {
