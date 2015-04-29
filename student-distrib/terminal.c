@@ -129,7 +129,7 @@ void term_putc(char c)
            if(get_screen_y(current_terminal) > write_y[current_terminal] ||( get_screen_y(current_terminal) == write_y[current_terminal] 
                    && get_screen_x(current_terminal) > write_x[current_terminal]))
            {
-           putc_kb(bs_char);
+           putc(bs_char);
            move_left();
            }
        }

@@ -11,14 +11,11 @@
 #define CHAR_W 8
 static int screen_x[NUM_PROCESSES]; //the current terminal's x and y, not bg term
 static int screen_y[NUM_PROCESSES];
-static int mt_screen_x[NUM_PROCESSES] = {0}; //the current terminal's x and y, not bg term
-static int mt_screen_y[NUM_PROCESSES] = {0}; //the current terminal's x and y, not bg term
 int term_xs[NUM_PROCESSES] = {0};
 int term_ys[NUM_PROCESSES] = {0};
 int term_bigys[NUM_PROCESSES] = {0};
 int prev_term = 0;
 static int biggest_y[NUM_PROCESSES];
-static int mt_biggest_y[NUM_PROCESSES] = {0};
 static char* map_video_mem = (char *)VIDEO;
 char * video_mem = (char *) ((8+1)*OFFSET_4M + 3*OFFSET_4K);
 char attribs[NUM_PROCESSES] = {0x30, 0x40, 0x50};
@@ -284,41 +281,28 @@ mt_putc(uint8_t c)
 	switch_term_xy(current_active_process);
 
     if(c == '\n' || c == '\r') {
-		mt_screen_y[current_active_process]++;
-		mt_biggest_y[current_active_process]++;
-        mt_screen_x[current_active_process]=0;
+		screen_y[current_active_process]++;
+		biggest_y[current_active_process]++;
+        screen_x[current_active_process]=0;
     } else {
 		
-        uint8_t* cond = (uint8_t *)(map_video_mem + ((NUM_COLS*mt_screen_y[current_active_process] + mt_screen_x[current_active_process]) << 1));
+        uint8_t* cond = (uint8_t *)(map_video_mem + ((NUM_COLS*screen_y[current_active_process] + screen_x[current_active_process]) << 1));
 		if(cond > 0 && cond < map_video_mem+OFFSET_4K-1)
 		{
-        *(uint8_t *)(map_video_mem + ((NUM_COLS*mt_screen_y[current_active_process] + mt_screen_x[current_active_process]) << 1)) = c;
-        *(uint8_t *)(map_video_mem + ((NUM_COLS*mt_screen_y[current_active_process] + mt_screen_x[current_active_process]) << 1) + 1) = attribs[current_active_process];
+        *(uint8_t *)(map_video_mem + ((NUM_COLS*screen_y[current_active_process] + screen_x[current_active_process]) << 1)) = c;
+        *(uint8_t *)(map_video_mem + ((NUM_COLS*screen_y[current_active_process] + screen_x[current_active_process]) << 1) + 1) = attribs[current_active_process];
 		}
-        mt_screen_x[current_active_process]++;
+        screen_x[current_active_process]++;
         //screen_x[current_terminal] %= NUM_COLS;
         //screen_y[current_terminal] = (screen_y[current_terminal] + (screen_x[current_terminal] / NUM_COLS)) % NUM_ROWS;
     }
-    if(mt_screen_x[current_terminal] >= NUM_COLS)
+    if(screen_x[current_terminal] >= NUM_COLS)
 	{
-		mt_screen_y[current_active_process]++;
-		mt_biggest_y[current_active_process]++;
-		mt_screen_x[current_active_process] = 0;
+		screen_y[current_active_process]++;
+		biggest_y[current_active_process]++;
+		screen_x[current_active_process] = 0;
 	}
-	if(current_active_process != current_terminal)
-	{
-	if(mt_screen_y[current_active_process] > screen_y[current_active_process])
-	{
-		screen_x[current_active_process] = mt_screen_x[current_active_process];
-		screen_y[current_active_process] = mt_screen_y[current_active_process];
-		biggest_y[current_active_process] = mt_biggest_y[current_active_process];
-	}
-	else if(mt_screen_x[current_active_process] > screen_x[current_active_process])
-	{
-		screen_x[current_active_process] = mt_screen_x[current_active_process];
-	}
-	}
-	if(mt_screen_y[current_active_process] >= NUM_ROWS)
+	if(screen_y[current_active_process] >= NUM_ROWS)
 		mt_scroll();
 	cursor_loc(screen_x[current_terminal], screen_y[current_terminal]);
 	switch_term_xy(current_terminal);
@@ -328,9 +312,9 @@ void
 putc(uint8_t c)
 {
 	cli();
-//	screen_x[current_terminal] = mt_screen_x[current_terminal];
-//	screen_y[current_terminal] = mt_screen_y[current_terminal];
-//	biggest_y[current_terminal] = mt_biggest_y[current_terminal];
+//	screen_x[current_terminal] = screen_x[current_terminal];
+//	screen_y[current_terminal] = screen_y[current_terminal];
+//	biggest_y[current_terminal] = biggest_y[current_terminal];
 
     if(c == '\n' || c == '\r') {
         screen_y[current_terminal]++;
@@ -356,12 +340,6 @@ putc(uint8_t c)
 	if(screen_y[current_terminal] >= NUM_ROWS)
 		scroll();
 	cursor_loc(screen_x[current_terminal], screen_y[current_terminal]); 
-	if(current_active_process == current_terminal)
-	{
-		mt_screen_x[current_terminal] = screen_x[current_terminal];
-		mt_screen_y[current_terminal] = screen_y[current_terminal];
-		mt_biggest_y[current_terminal] = biggest_y[current_terminal];
-	}
 
 
 	sti();
@@ -373,9 +351,9 @@ putc_kb(uint8_t c)
 	char line_empty;
 	int i;
 	uint8_t * cond;
-	//screen_x[current_terminal] = mt_screen_x[current_terminal];
-	//screen_y[current_terminal] = mt_screen_y[current_terminal];
-	//biggest_y[current_terminal] = mt_biggest_y[current_terminal];
+	//screen_x[current_terminal] = screen_x[current_terminal];
+	//screen_y[current_terminal] = screen_y[current_terminal];
+	//biggest_y[current_terminal] = biggest_y[current_terminal];
 
     if(c == '\n' || c == '\r') {
 		//cases for if two lines have been printed and enter is hit while
@@ -481,10 +459,6 @@ putc_kb(uint8_t c)
 		scroll();
 	cursor_loc(screen_x[current_terminal], screen_y[current_terminal]); 
 	//set_vmem_table(current_active_process);
-	mt_screen_x[current_terminal] = screen_x[current_terminal];
-	mt_screen_y[current_terminal] = screen_y[current_terminal];
-	mt_biggest_y[current_terminal] = biggest_y[current_terminal];
-
 	sti();
 }
 
@@ -502,14 +476,14 @@ mt_scroll()
 
 		}
 	}
-	mt_screen_y[current_active_process] = mt_biggest_y[current_active_process] = NUM_ROWS -1;
+	screen_y[current_active_process] = biggest_y[current_active_process] = NUM_ROWS -1;
 	for(x = 0; x < NUM_COLS; x++)
 	{
-			*(uint8_t *)(map_video_mem + ((NUM_COLS*(mt_screen_y[current_active_process]) + x) << 1)) = 0x00;
-			*(uint8_t *)(map_video_mem + ((NUM_COLS*(mt_screen_y[current_active_process]) + x) << 1)+1) = attribs[current_active_process];
+			*(uint8_t *)(map_video_mem + ((NUM_COLS*(screen_y[current_active_process]) + x) << 1)) = 0x00;
+			*(uint8_t *)(map_video_mem + ((NUM_COLS*(screen_y[current_active_process]) + x) << 1)+1) = attribs[current_active_process];
 
 	}
-	mt_screen_x[current_active_process] = 0;
+	screen_x[current_active_process] = 0;
 }
 void 
 scroll()
