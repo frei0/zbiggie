@@ -15,6 +15,7 @@
 #include "zbigfs.h"
 #include "syscall.h"
 #include "syscall_funcs.h"
+#include "tasking_funcs.h"
 #include "ece391syscall.h"
 
 /* Macros. */
@@ -27,7 +28,6 @@
 #define RTC_INDEX 0x28
 #define SYS_CALLS_INDEX 0x80
 #define PIT_INDEX 0x20
-
 
 /* Check if MAGIC is valid and print the Multiboot information structure
    pointed by ADDR. */
@@ -80,7 +80,7 @@ void populate_idt()
 	SET_IDT_ENTRY(idt[SYS_CALLS_INDEX],&syscall);
 	idt[SYS_CALLS_INDEX].dpl = 3;
 	idt[SYS_CALLS_INDEX].reserved3 = 1;
-	SET_IDT_ENTRY(idt[PIT_INDEX],&asm_pit);
+	SET_IDT_ENTRY(idt[PIT_INDEX],&next_task);
 
 	/*loading IDTR*/ 
 	lidt(idt_desc_ptr);
@@ -319,15 +319,14 @@ entry (unsigned long magic, unsigned long addr)
 	
 	*/
 	init_pcbs();
+	term_clear();
 
-
-
-	while (1) {
-		printf("Welcome to zbigos. Sending you to a shell...\n");
-		ece391_execute((const uint8_t*)"shell");
-	}
+	//while (1) {
+	//	printf("Welcome to zbigos. Sending you to a shell...\n");
+	//	ece391_execute((const uint8_t*)"shell");
+	//}
 	/* Spin (nicely, so we don't chew up cycles) */
-	//asm volatile(".1: hlt; jmp .1;");
+	asm volatile(".1: hlt; jmp .1;");
 }
 
 

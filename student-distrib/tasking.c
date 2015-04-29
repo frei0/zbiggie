@@ -8,7 +8,9 @@
 #define OFFSET_8M (OFFSET_4M*2)
 #define OFFSET_8K (OFFSET_4K*2)
 
+int processes[NUM_PROCESSES] = {0}; //PID for each running thread 
 int current_process = 0; //0 is not the shell, but the entry point
+int current_active_process = 0; //has value 0,1,2
 
 int find_free_pcb(){
     int i = 1;
@@ -66,12 +68,26 @@ int get_current_pid()
     return current_process;
 }
 
+int get_next_task_pid()
+{
+    return processes[(current_active_process + 1) % NUM_PROCESSES];
+}
+
+int get_current_task_pid()
+{
+    return processes[current_active_process];
+}
+
 void free_current_pcb()
 {
     pcb_t* pcb_ptr = get_current_pcb();
     pcb_ptr->present = 0;
 }
 
+void save_queue()
+{
+    processes[current_active_process] = current_process;
+}
 int setup_new_process(){
     int pid = find_free_pcb();
     if (pid==-1) return -1;
@@ -87,8 +103,24 @@ int setup_new_process(){
 }
 
 void switch_context(int pid){
+//    printf("switching to context of pid %d\n", pid);
+    cli();
     current_process = pid;
-    set_cr3(pid);    
+    set_vmem_table(current_active_process);
+	set_cr3(pid);    
     tss.esp0 = (OFFSET_8M - pid*OFFSET_8K);
+    sti();
 }
+
+void incr_current_active_process(){
+    current_active_process = (current_active_process + 1) % NUM_PROCESSES;
+}
+
+void launch_shell()
+{
+   // processes[current_active_process] = find_free_pcb();
+    ece391_execute("shell");
+}
+
+char * execstring = "shell";
 

@@ -43,7 +43,8 @@ char notPrintableArray[128] =
 		0x52, 0x53, 0x57, 0x58, 
     };
 
-int shift_l_flag = 0, shift_r_flag = 0, caps_lock_flag = 0, ctrl_flag = 0, alt_flag = 0;
+int shift_l_flag[3] = {0}, shift_r_flag[3] = {0}, ctrl_flag[3] = {0};
+int caps_lock_flag = 0, alt_flag = 0;
 
 volatile int rtc_f = 0;
 
@@ -184,7 +185,14 @@ extern void general_protection()
 //14
 extern void page_fault()
 {
-	printf("page_fault\n");
+    int x; 
+    asm volatile("popl %%ecx\n \
+             movl %%ecx, %0"
+             :"=r" (x)
+             :
+             :"%ecx"
+            );
+	printf("page_fault: %x\n", x);
     ece391_halt(USER_EXCEPT_CODE);
 	while(1);
 }
@@ -273,15 +281,15 @@ extern void key_handler()
 	}
     else if (in == CONTROL_DOWN)
 	{
-		ctrl_flag = 1; 
+		ctrl_flag[current_terminal] = 1; 
 	}
     else if (in == LEFT_SHIFT)
 	{
-		shift_l_flag = 1; 
+		shift_l_flag[current_terminal] = 1; 
 	}
     else if (in == RIGHT_SHIFT)
 	{
-		shift_r_flag = 1;
+		shift_r_flag[current_terminal] = 1;
 	}
     else if (in == CAPS_LOCK)
 	{
@@ -289,15 +297,15 @@ extern void key_handler()
 	}
     else if ((BYTE_MASK & in) == CONTROL_UP)
 	{
-		ctrl_flag = 0; 
+		ctrl_flag[current_terminal] = 0; 
 	}
     else if ((BYTE_MASK & in) == LEFT_SHIFT_UP)
 	{
-		shift_l_flag = 0; 
+		shift_l_flag[current_terminal] = 0; 
 	}
     else if ((BYTE_MASK & in) == RIGHT_SHIFT_UP)
 	{
-		shift_r_flag = 0; 
+		shift_r_flag[current_terminal] = 0; 
 	}
 	else if  ((BYTE_MASK & in) == ALT_UP)
 	{
@@ -324,13 +332,13 @@ extern void key_handler()
 			term_switch(); 
 			//printf("FUCK EYAAAAA. BIGGIE NUMBA 3");
 		}
-		else if ( (scan2ASCII[(int)in] == 'l') && ctrl_flag)
+		else if ( (scan2ASCII[(int)in] == 'l') && ctrl_flag[current_terminal])
         {
             term_clear();
             term_init();
             
         }
-        else if(isALetter && ((shift_r_flag || shift_l_flag) ^ caps_lock_flag))
+        else if(isALetter && ((shift_r_flag[current_terminal] || shift_l_flag[current_terminal]) ^ caps_lock_flag))
 		{
 			term_putc(scan2ASCII[(int)in] - OFFSET);
 		}
