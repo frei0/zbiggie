@@ -342,7 +342,7 @@ extern void key_handler()
 		{
 			term_putc(scan2ASCII[(int)in] - OFFSET);
 		}
-		else if(shift_r_flag || shift_l_flag)
+		else if(shift_r_flag[current_terminal] || shift_l_flag[current_terminal])
 		{
 			term_putc(shift2ASCII[(int)in]); 
 		}
