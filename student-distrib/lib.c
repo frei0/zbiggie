@@ -57,14 +57,14 @@ void switch_term_xy(int term)
 	sti();
 }
 
-int get_screen_x()
+int get_screen_x(int term)
 {
-	return screen_x[current_terminal];
+	return screen_x[term];
 }
 
-int get_screen_y()
+int get_screen_y(int term)
 {
-	return screen_y[current_terminal];
+	return screen_y[term];
 }
 
 void
@@ -305,16 +305,22 @@ mt_putc(uint8_t c)
 		mt_biggest_y[current_active_process]++;
 		mt_screen_x[current_active_process] = 0;
 	}
+	if(current_active_process != current_terminal)
+	{
+	if(mt_screen_y[current_active_process] > screen_y[current_active_process])
+	{
+		screen_x[current_active_process] = mt_screen_x[current_active_process];
+		screen_y[current_active_process] = mt_screen_y[current_active_process];
+		biggest_y[current_active_process] = mt_biggest_y[current_active_process];
+	}
+	else if(mt_screen_x[current_active_process] > screen_x[current_active_process])
+	{
+		screen_x[current_active_process] = mt_screen_x[current_active_process];
+	}
+	}
 	if(mt_screen_y[current_active_process] >= NUM_ROWS)
 		mt_scroll();
-	/*if(current_active_process == current_terminal)
-	{
-		screen_x[current_terminal] = mt_screen_x[current_terminal][current_terminal];
-		screen_y[current_terminal] = mt_screen_y[current_terminal][current_terminal];
-		biggest_y[current_terminal] = mt_biggest_y[current_terminal][current_terminal];
-		cursor_loc(mt_screen_x[current_terminal][current_terminal], mt_screen_y[current_terminal][current_terminal]); 
-	}
-	*/
+	cursor_loc(screen_x[current_terminal], screen_y[current_terminal]);
 	switch_term_xy(current_terminal);
 	sti();
 }
@@ -322,9 +328,9 @@ void
 putc(uint8_t c)
 {
 	cli();
-	//screen_x[current_terminal] = mt_screen_x[current_terminal][current_terminal];
-	//screen_y[current_terminal] = mt_screen_y[current_terminal][current_terminal];
-	//biggest_y[current_terminal] = mt_biggest_y[current_terminal][current_terminal];
+//	screen_x[current_terminal] = mt_screen_x[current_terminal];
+//	screen_y[current_terminal] = mt_screen_y[current_terminal];
+//	biggest_y[current_terminal] = mt_biggest_y[current_terminal];
 
     if(c == '\n' || c == '\r') {
         screen_y[current_terminal]++;
@@ -367,9 +373,9 @@ putc_kb(uint8_t c)
 	char line_empty;
 	int i;
 	uint8_t * cond;
-	//screen_x[current_terminal] = mt_screen_x[current_terminal][current_terminal];
-	//screen_y[current_terminal] = mt_screen_y[current_terminal][current_terminal];
-	//biggest_y[current_terminal] = mt_biggest_y[current_terminal][current_terminal];
+	//screen_x[current_terminal] = mt_screen_x[current_terminal];
+	//screen_y[current_terminal] = mt_screen_y[current_terminal];
+	//biggest_y[current_terminal] = mt_biggest_y[current_terminal];
 
     if(c == '\n' || c == '\r') {
 		//cases for if two lines have been printed and enter is hit while
@@ -474,13 +480,10 @@ putc_kb(uint8_t c)
 	if(screen_y[current_terminal] >= NUM_ROWS)
 		scroll();
 	cursor_loc(screen_x[current_terminal], screen_y[current_terminal]); 
-	set_vmem_table(current_active_process);
-	if(current_active_process == current_terminal)
-	{
-		mt_screen_x[current_terminal] = screen_x[current_terminal];
-		mt_screen_y[current_terminal] = screen_y[current_terminal];
-		mt_biggest_y[current_terminal] = biggest_y[current_terminal];
-	}
+	//set_vmem_table(current_active_process);
+	mt_screen_x[current_terminal] = screen_x[current_terminal];
+	mt_screen_y[current_terminal] = screen_y[current_terminal];
+	mt_biggest_y[current_terminal] = biggest_y[current_terminal];
 
 	sti();
 }
