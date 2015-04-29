@@ -4,11 +4,9 @@
 
 #include "lib.h"
 #include "page.h"
-#include "tasking.h"
 #define VIDEO 0xB8000
 #define NUM_COLS 80
 #define NUM_ROWS 25
-#define ATTRIB 0x7
 #define SCREEN_W 320
 #define CHAR_W 8
 static int screen_x[NUM_PROCESSES]; //the current terminal's x and y, not bg term
@@ -23,6 +21,7 @@ static int biggest_y[NUM_PROCESSES];
 static int mt_biggest_y[NUM_PROCESSES] = {0};
 static char* map_video_mem = (char *)VIDEO;
 char * video_mem = (char *) ((8+1)*OFFSET_4M + 3*OFFSET_4K);
+char attribs[NUM_PROCESSES] = {0x30, 0x40, 0x50};
 
 /*
 * void clear(void);
@@ -38,9 +37,10 @@ clear(void)
 	cli(); 
     for(i=0; i<NUM_ROWS*NUM_COLS; i++) {
         *(uint8_t *)(video_mem + (i << 1)) = ' ';
-        *(uint8_t *)(video_mem + (i << 1) + 1) = ATTRIB;
+        *(uint8_t *)(video_mem + (i << 1) + 1) = attribs[current_terminal];
     }
 	screen_x[current_terminal] = screen_y[current_terminal] = biggest_y[current_terminal] = 0;
+	sti();
 }
 
 void switch_term_xy(int term)
@@ -293,7 +293,7 @@ mt_putc(uint8_t c)
 		if(cond > 0 && cond < map_video_mem+OFFSET_4K-1)
 		{
         *(uint8_t *)(map_video_mem + ((NUM_COLS*mt_screen_y[current_active_process] + mt_screen_x[current_active_process]) << 1)) = c;
-        *(uint8_t *)(map_video_mem + ((NUM_COLS*mt_screen_y[current_active_process] + mt_screen_x[current_active_process]) << 1) + 1) = ATTRIB;
+        *(uint8_t *)(map_video_mem + ((NUM_COLS*mt_screen_y[current_active_process] + mt_screen_x[current_active_process]) << 1) + 1) = attribs[current_active_process];
 		}
         mt_screen_x[current_active_process]++;
         //screen_x[current_terminal] %= NUM_COLS;
@@ -341,7 +341,7 @@ putc(uint8_t c)
 		if(cond > 0 && cond < video_mem+OFFSET_4K-1)
 		{
         *(uint8_t *)(video_mem + ((NUM_COLS*screen_y[current_terminal] + screen_x[current_terminal]) << 1)) = c;
-        *(uint8_t *)(video_mem + ((NUM_COLS*screen_y[current_terminal] + screen_x[current_terminal]) << 1) + 1) = ATTRIB;
+        *(uint8_t *)(video_mem + ((NUM_COLS*screen_y[current_terminal] + screen_x[current_terminal]) << 1) + 1) = attribs[current_active_process];
 		}
         screen_x[current_terminal]++;
         //screen_x[current_terminal] %= NUM_COLS;
@@ -427,7 +427,7 @@ putc_kb(uint8_t c)
 				if(cond > 0 && cond < video_mem+OFFSET_4K-1)
 				{
 	   			*(uint8_t *)(video_mem + ((NUM_COLS*screen_y[current_terminal] + screen_x[current_terminal]) << 1)) = ' ';
-            	*(uint8_t *)(video_mem + ((NUM_COLS*screen_y[current_terminal] + screen_x[current_terminal]) << 1) + 1) = ATTRIB;
+            	*(uint8_t *)(video_mem + ((NUM_COLS*screen_y[current_terminal] + screen_x[current_terminal]) << 1) + 1) = attribs[current_terminal];
 				}
 	   		}
 	   		else
@@ -448,7 +448,7 @@ putc_kb(uint8_t c)
 				if(cond > 0 && cond < video_mem+OFFSET_4K-1)
 				{
 		    	*(uint8_t *)(video_mem + ((NUM_COLS*screen_y[current_terminal] + screen_x[current_terminal]) << 1)) = ' ';
-	            *(uint8_t *)(video_mem + ((NUM_COLS*screen_y[current_terminal] + screen_x[current_terminal]) << 1) + 1) = ATTRIB;
+	            *(uint8_t *)(video_mem + ((NUM_COLS*screen_y[current_terminal] + screen_x[current_terminal]) << 1) + 1) = attribs[current_terminal];
 				}
         }
     	
@@ -465,7 +465,7 @@ putc_kb(uint8_t c)
 		if(cond > 0 && cond < video_mem+OFFSET_4K-1)
 		{
         *(uint8_t *)(video_mem + ((NUM_COLS*screen_y[current_terminal] + screen_x[current_terminal]) << 1)) = c;
-        *(uint8_t *)(video_mem + ((NUM_COLS*screen_y[current_terminal] + screen_x[current_terminal]) << 1) + 1) = ATTRIB;
+        *(uint8_t *)(video_mem + ((NUM_COLS*screen_y[current_terminal] + screen_x[current_terminal]) << 1) + 1) = attribs[current_terminal];
 		}
         screen_x[current_terminal]++;
         //screen_x[current_terminal] %= NUM_COLS;
@@ -506,7 +506,7 @@ mt_scroll()
 	for(x = 0; x < NUM_COLS; x++)
 	{
 			*(uint8_t *)(map_video_mem + ((NUM_COLS*(mt_screen_y[current_active_process]) + x) << 1)) = 0x00;
-			*(uint8_t *)(map_video_mem + ((NUM_COLS*(mt_screen_y[current_active_process]) + x) << 1)+1) = ATTRIB;
+			*(uint8_t *)(map_video_mem + ((NUM_COLS*(mt_screen_y[current_active_process]) + x) << 1)+1) = attribs[current_active_process];
 
 	}
 	mt_screen_x[current_active_process] = 0;
@@ -528,7 +528,7 @@ scroll()
 	for(x = 0; x < NUM_COLS; x++)
 	{
 			*(uint8_t *)(video_mem + ((NUM_COLS*(screen_y[current_terminal]) + x) << 1)) = 0x00;
-			*(uint8_t *)(video_mem + ((NUM_COLS*(screen_y[current_terminal]) + x) << 1)+1) = ATTRIB;
+			*(uint8_t *)(video_mem + ((NUM_COLS*(screen_y[current_terminal]) + x) << 1)+1) = attribs[current_terminal];
 
 	}
 	screen_x[current_terminal] = 0;

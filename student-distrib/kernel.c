@@ -319,8 +319,7 @@ entry (unsigned long magic, unsigned long addr)
 	
 	*/
 	init_pcbs();
-
-
+	term_clear();
 
 	//while (1) {
 	//	printf("Welcome to zbigos. Sending you to a shell...\n");

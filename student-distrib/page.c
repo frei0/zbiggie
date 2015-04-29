@@ -26,7 +26,7 @@ volatile int current_terminal = 0;
 volatile int active_terminal = 10;
 
 void init_paging(void){
-	int i,j;
+	int i;
 	for (i = 0; i < PD_NUM_ENTRIES; ++i)
 		page_directories[KERNEL_PD][i]=0x0; //fill page directory with non present entries
 
@@ -59,17 +59,19 @@ void init_paging(void){
     : "r" (page_directories[KERNEL_PD]), "i" (PAGING_PSE), "i" (PAGING_ENABLE)
     : "ax", "cc","memory" 
     );
-
+    void * j;
     for(i = 0; i < 3; i++)
     {
        set_vmem_table(i);
-       for(j = OFFSET_VIDEO; j < OFFSET_VIDEO + OFFSET_4K; j++)
+       j =  (void *)((NUM_PDS+1)*OFFSET_4M + i*OFFSET_4K);
+       for(; j < ((NUM_PDS+1)*OFFSET_4M + i*OFFSET_4K) + OFFSET_4K; j++)
        {
-           if(j % 2 == 0)
+           if((int)j % 2 == 0)
                *((char*)j) = 0;
            else
-               *((char*)j) = j%127;
+               *((char*)j) = attribs[i];
        }
+       
     }
     set_vmem_table(0);
 }
@@ -119,12 +121,14 @@ void switch_video(int term_num)
         sti();
         return;
     }
+    int j;
     memcpy((void *)((NUM_PDS+1)*OFFSET_4M + current_terminal*OFFSET_4K), (void*)((NUM_PDS+1)*OFFSET_4M + 3*OFFSET_4K), OFFSET_4K);
     switch_term_xy(term_num);
     current_terminal = term_num;
     //todo: set vmem based on current pcb appropriately
     memcpy((void*)((NUM_PDS+1)*OFFSET_4M + 3*OFFSET_4K),(void*)((NUM_PDS+1)*OFFSET_4M + term_num*OFFSET_4K),OFFSET_4K);
     switch_context(get_current_pid());
+
     sti();
 	/*if(active_terminal == term_num)
     {
