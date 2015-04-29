@@ -42,6 +42,10 @@ void init_paging(void){
     int term_num; for (term_num = 0; term_num < 3; term_num++)
        video_table[term_num] = ((NUM_PDS+1)*OFFSET_4M + term_num*OFFSET_4K) | PTE_PRESENT |  PTE_WRITE | PTE_USER;
     video_table[3] = OFFSET_VIDEO | PTE_PRESENT |  PTE_WRITE | PTE_USER;
+    video_table[4] = OFFSET_VIDEO | PTE_PRESENT |  PTE_WRITE | PTE_USER;
+
+    for(i = 0; i < NUM_PDS; i++)
+        init_pd(i);
 
   
     asm volatile(
