@@ -59,7 +59,8 @@ void init_paging(void){
     : "r" (page_directories[KERNEL_PD]), "i" (PAGING_PSE), "i" (PAGING_ENABLE)
     : "ax", "cc","memory" 
     );
-    for(i = 1; i < 3; i++)
+
+    for(i = 0; i < 3; i++)
     {
        set_vmem_table(i);
        for(j = OFFSET_VIDEO; j < OFFSET_VIDEO + OFFSET_4K; j++)
@@ -67,7 +68,7 @@ void init_paging(void){
            if(j % 2 == 0)
                *((char*)j) = 0;
            else
-               *((char*)j) = 0x7;
+               *((char*)j) = j%127;
        }
     }
     set_vmem_table(0);
