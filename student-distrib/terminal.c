@@ -16,7 +16,7 @@ int prev_size[3];
 int write_x[3] = {-1,-1,-1}; 
 int write_y[3] = {-1,-1,-1}; 
 
-volatile int wait_for_nl;
+volatile int wait_for_nl[3] = {0,0,0};
 
 
 int noread(){ return -1;} //cant read from stdout!
@@ -96,7 +96,7 @@ void term_putc(char c)
         cur_size[current_terminal] = 0;
         write_x[current_terminal] = -1;
         write_y[current_terminal] = -1;
-        wait_for_nl = 0;
+        wait_for_nl[current_terminal] = 0;
     }
     //backspace
     else if(c == BACKSPACE)
@@ -189,9 +189,9 @@ int term_write(FILE * f, char * buf, int cnt)
 int term_read(FILE * f, char * buf, int numbytes)
 {
    int i;
-   wait_for_nl = 1;
-   while (wait_for_nl) {}
-   while(current_terminal != current_active_process){} 
+   int this_read_terminal = current_active_process;
+   wait_for_nl[this_read_terminal] = 1;
+   while (wait_for_nl[this_read_terminal]) {}
    cli();
    for(i = 0; i < numbytes; i++)
    {
