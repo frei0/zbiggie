@@ -1,6 +1,7 @@
 #define ASM 1
 #define PARENT 4
 #include "syscall.h" 
+#include "tasking_funcs.h"
 
 .globl syscall,execute
 .align 4
@@ -40,9 +41,16 @@ invalid_syscall:
 syscall_fail:
     movl $-1,%eax
     ret
+launch_new_shell:
+    movl execstring,%ebx
+    jmp execute
+
 
 halt:
     CALL free_current_pcb
+    CALL get_current_pid
+    cmpl $4, %eax
+    jb launch_new_shell 
     CALL get_current_pcb
     pushl PARENT(%eax)
     CALL switch_context #switch memory map
