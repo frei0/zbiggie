@@ -88,8 +88,6 @@ void term_putc(char c)
             buffer[current_terminal][cur_size[current_terminal]] = '\n';
 
         cur_pos[current_terminal] = 0;
-        set_x(START_POS);
-        putc_kb(c);
         //puts("zbiggie: ");
         prev_size[current_terminal] = cur_size[current_terminal];
         cur_size[current_terminal] = 0;
@@ -192,6 +190,8 @@ int term_read(FILE * f, char * buf, int numbytes)
    wait_for_nl[this_read_terminal] = 1;
    while (wait_for_nl[this_read_terminal]) {}
    cli();
+    set_x(START_POS);
+    putc_kb('\n');
    for(i = 0; i < numbytes; i++)
    {
        //if end of line or NULL
