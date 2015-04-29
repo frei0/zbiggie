@@ -4,9 +4,12 @@
 
 #ifndef _LIB_H
 #define _LIB_H
+#define ATTRIB 0x30 
 
 #include "types.h"
+#include "tasking.h"
 
+extern char attribs[NUM_PROCESSES];
 
 int32_t printf(int8_t *format, ...);
 void mt_putc(uint8_t c);
