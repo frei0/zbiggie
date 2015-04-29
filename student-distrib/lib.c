@@ -287,7 +287,7 @@ mt_putc(uint8_t c)
     } else {
 		
         uint8_t* cond = (uint8_t *)(map_video_mem + ((NUM_COLS*screen_y[current_active_process] + screen_x[current_active_process]) << 1));
-		if(cond > 0 && cond < map_video_mem+OFFSET_4K-1)
+		if( (int) cond > 0 && (int)cond < (int)map_video_mem+OFFSET_4K-1)
 		{
         *(uint8_t *)(map_video_mem + ((NUM_COLS*screen_y[current_active_process] + screen_x[current_active_process]) << 1)) = c;
         *(uint8_t *)(map_video_mem + ((NUM_COLS*screen_y[current_active_process] + screen_x[current_active_process]) << 1) + 1) = attribs[current_active_process];
@@ -322,7 +322,7 @@ putc(uint8_t c)
         screen_x[current_terminal]=0;
     } else {
         uint8_t* cond = (uint8_t *)(video_mem + ((NUM_COLS*screen_y[current_terminal] + screen_x[current_terminal]) << 1));
-		if(cond > 0 && cond < video_mem+OFFSET_4K-1)
+		if((int)cond > 0 && (int)cond < (int)video_mem+OFFSET_4K-1)
 		{
         *(uint8_t *)(video_mem + ((NUM_COLS*screen_y[current_terminal] + screen_x[current_terminal]) << 1)) = c;
         *(uint8_t *)(video_mem + ((NUM_COLS*screen_y[current_terminal] + screen_x[current_terminal]) << 1) + 1) = attribs[current_terminal];
@@ -349,8 +349,6 @@ void
 putc_kb(uint8_t c)
 {
 	cli();
-	char line_empty;
-	int i;
 	uint8_t * cond;
 	//screen_x[current_terminal] = screen_x[current_terminal];
 	//screen_y[current_terminal] = screen_y[current_terminal];
@@ -365,7 +363,7 @@ putc_kb(uint8_t c)
     		if((screen_y[current_terminal] == 0 && screen_x[current_terminal] == 0))
 	   		{
 				cond = (uint8_t *)(video_mem + ((NUM_COLS*screen_y[current_terminal] + screen_x[current_terminal]) << 1));
-				if(cond > 0 && cond < video_mem+OFFSET_4K-1)
+				if((int)cond > 0 && (int)cond < (int)video_mem+OFFSET_4K-1)
 				{
 	   			*(uint8_t *)(video_mem + ((NUM_COLS*screen_y[current_terminal] + screen_x[current_terminal]) << 1)) = ' ';
             	*(uint8_t *)(video_mem + ((NUM_COLS*screen_y[current_terminal] + screen_x[current_terminal]) << 1) + 1) = attribs[current_terminal];
@@ -386,7 +384,7 @@ putc_kb(uint8_t c)
 					}
 		   		}
 				cond = (uint8_t *)(video_mem + ((NUM_COLS*screen_y[current_terminal] + screen_x[current_terminal]) << 1));
-				if(cond > 0 && cond < video_mem+OFFSET_4K-1)
+				if((int)cond > 0 && (int)cond < (int)video_mem+OFFSET_4K-1)
 				{
 		    	*(uint8_t *)(video_mem + ((NUM_COLS*screen_y[current_terminal] + screen_x[current_terminal]) << 1)) = ' ';
 	            *(uint8_t *)(video_mem + ((NUM_COLS*screen_y[current_terminal] + screen_x[current_terminal]) << 1) + 1) = attribs[current_terminal];
@@ -403,7 +401,7 @@ putc_kb(uint8_t c)
     		screen_x[current_terminal] = 0;
     	}
         cond = (uint8_t *)(video_mem + ((NUM_COLS*screen_y[current_terminal] + screen_x[current_terminal]) << 1));
-		if(cond > 0 && cond < video_mem+OFFSET_4K-1)
+		if((int)cond > 0 && (int)cond < (int)video_mem+OFFSET_4K-1)
 		{
         *(uint8_t *)(video_mem + ((NUM_COLS*screen_y[current_terminal] + screen_x[current_terminal]) << 1)) = c;
         *(uint8_t *)(video_mem + ((NUM_COLS*screen_y[current_terminal] + screen_x[current_terminal]) << 1) + 1) = attribs[current_terminal];

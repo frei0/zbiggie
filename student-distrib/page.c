@@ -64,7 +64,7 @@ void init_paging(void){
     {
        set_vmem_table(i);
        j =  (void *)((NUM_PDS+1)*OFFSET_4M + i*OFFSET_4K);
-       for(; j < ((NUM_PDS+1)*OFFSET_4M + i*OFFSET_4K) + OFFSET_4K; j++)
+       for(; (int)j < ((NUM_PDS+1)*OFFSET_4M + i*OFFSET_4K) + OFFSET_4K; j++)
        {
            if((int)j % 2 == 0)
                *((char*)j) = 0;
@@ -121,7 +121,6 @@ void switch_video(int term_num)
         sti();
         return;
     }
-    int j;
     memcpy((void *)((NUM_PDS+1)*OFFSET_4M + current_terminal*OFFSET_4K), (void*)((NUM_PDS+1)*OFFSET_4M + 3*OFFSET_4K), OFFSET_4K);
     switch_term_xy(term_num);
     current_terminal = term_num;
