@@ -325,7 +325,7 @@ putc(uint8_t c)
 		if(cond > 0 && cond < video_mem+OFFSET_4K-1)
 		{
         *(uint8_t *)(video_mem + ((NUM_COLS*screen_y[current_terminal] + screen_x[current_terminal]) << 1)) = c;
-        *(uint8_t *)(video_mem + ((NUM_COLS*screen_y[current_terminal] + screen_x[current_terminal]) << 1) + 1) = attribs[current_active_process];
+        *(uint8_t *)(video_mem + ((NUM_COLS*screen_y[current_terminal] + screen_x[current_terminal]) << 1) + 1) = attribs[current_terminal];
 		}
         screen_x[current_terminal]++;
         //screen_x[current_terminal] %= NUM_COLS;
@@ -348,14 +348,15 @@ putc(uint8_t c)
 void
 putc_kb(uint8_t c)
 {
+	cli();
 	char line_empty;
 	int i;
 	uint8_t * cond;
 	//screen_x[current_terminal] = screen_x[current_terminal];
 	//screen_y[current_terminal] = screen_y[current_terminal];
 	//biggest_y[current_terminal] = biggest_y[current_terminal];
-
-    if(c == '\n' || c == '\r') {
+	
+    if((c == '\n' || c == '\r')) {
 		screen_y[current_terminal]++;
 		screen_x[current_terminal] = 0;
     }
@@ -468,6 +469,8 @@ scroll()
 
 	}
 	screen_x[current_terminal] = 0;
+	write_y[current_terminal]--;
+	write_x[current_terminal] = 0;
 }
 /*
 * int8_t* itoa(uint32_t value, int8_t* buf, int32_t radix);

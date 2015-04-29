@@ -18,4 +18,6 @@ int stdout_open(FILE *f);
 int stdin_open(FILE *f);
 void term_switch();
 
+extern int write_x[3]; 
+extern int write_y[3]; 
 #endif
