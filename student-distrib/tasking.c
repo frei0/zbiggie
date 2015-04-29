@@ -3,7 +3,7 @@
 #include "page.h"
 #include "x86_desc.h"
 #include "lib.h"
-
+#include "ece391syscall.h"
 
 #define OFFSET_8M (OFFSET_4M*2)
 #define OFFSET_8K (OFFSET_4K*2)
@@ -114,12 +114,6 @@ void switch_context(int pid){
 
 void incr_current_active_process(){
     current_active_process = (current_active_process + 1) % NUM_PROCESSES;
-}
-
-void launch_shell()
-{
-   // processes[current_active_process] = find_free_pcb();
-    ece391_execute("shell");
 }
 
 char * execstring = "shell";
