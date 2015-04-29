@@ -2,6 +2,7 @@
 #include "i8259.h"
 #include "terminal.h"
 #include "page.h"
+#include "tasking.h"
 #define START_POS 10
 #define NUM_BUFS 10
 #define CHAR_W 8
@@ -15,7 +16,7 @@ int prev_size[3];
 int write_x[3] = {-1,-1,-1}; 
 int write_y[3] = {-1,-1,-1}; 
 
-volatile int wait_for_nl;
+volatile int wait_for_nl[3] = {0,0,0};
 
 
 int noread(){ return -1;} //cant read from stdout!
@@ -79,6 +80,7 @@ void term_init()
 void term_putc(char c)
 {
     //int i;
+    cli();
     char bs_char;
     //new line, new buf
     if(c == '\n' || c == '\r') 
@@ -94,7 +96,7 @@ void term_putc(char c)
         cur_size[current_terminal] = 0;
         write_x[current_terminal] = -1;
         write_y[current_terminal] = -1;
-        wait_for_nl = 0;
+        wait_for_nl[current_terminal] = 0;
     }
     //backspace
     else if(c == BACKSPACE)
@@ -110,8 +112,8 @@ void term_putc(char c)
        //if not the first character, delete the char then move left
        if(cur_pos[current_terminal] > 0)
        {
-           if(get_screen_y() > write_y[current_terminal] || (get_screen_y() == write_y[current_terminal] 
-                   && get_screen_x() > write_x[current_terminal]))
+           if(get_screen_y(current_terminal) > write_y[current_terminal] || (get_screen_y(current_terminal) == write_y[current_terminal] 
+                   && get_screen_x(current_terminal) > write_x[current_terminal]))
            {
            move_left();
            putc_kb(bs_char); 
@@ -124,8 +126,8 @@ void term_putc(char c)
        else
        {
            buffer[current_terminal][cur_pos[current_terminal]] = bs_char;
-           if(get_screen_y() > write_y[current_terminal] ||( get_screen_y() == write_y[current_terminal] 
-                   && get_screen_x() > write_x[current_terminal]))
+           if(get_screen_y(current_terminal) > write_y[current_terminal] ||( get_screen_y(current_terminal) == write_y[current_terminal] 
+                   && get_screen_x(current_terminal) > write_x[current_terminal]))
            {
            putc(bs_char);
            move_left();
@@ -141,6 +143,7 @@ void term_putc(char c)
         cur_pos[current_terminal] ++;
         cur_size[current_terminal]++;
     }
+    sti();
 
 }
 
@@ -168,10 +171,14 @@ int term_puts(char * str)
  * Function: prints a string to the terminal*/
 int term_write(FILE * f, char * buf, int cnt)
 {
+   cli();
    int i;
-   for (i = 0; i < cnt; ++i) putc(buf[i]);
-   write_x[current_terminal] = get_screen_x(); 
-   write_y[current_terminal] = get_screen_y(); 
+   for (i = 0; i < cnt; ++i) mt_putc(buf[i]);
+   switch_term_xy(current_active_process);
+   write_x[current_active_process] = get_screen_x(current_active_process); 
+   write_y[current_active_process] = get_screen_y(current_active_process); 
+   switch_term_xy(current_terminal);
+   sti();
    return cnt;
 }
 
@@ -182,16 +189,20 @@ int term_write(FILE * f, char * buf, int cnt)
 int term_read(FILE * f, char * buf, int numbytes)
 {
    int i;
-   wait_for_nl = 1;
-   while (wait_for_nl) {}
+   int this_read_terminal = current_active_process;
+   wait_for_nl[this_read_terminal] = 1;
+   while (wait_for_nl[this_read_terminal]) {}
+   cli();
    for(i = 0; i < numbytes; i++)
    {
        //if end of line or NULL
         buf[i] = buffer[current_terminal][i];
        if(buf[i] == '\n'){
+           sti();
            return i+1;  //we have a whole line
        }
    }
+   sti();
    return i;
 }
 
@@ -234,7 +245,8 @@ void term_move_right()
 
 void term_switch()
 {	
-		set_pos(get_screen_x(), get_screen_y());
+        switch_term_xy(current_terminal);
+		set_pos(get_screen_x(current_terminal), get_screen_y(current_terminal));
 }
 
 

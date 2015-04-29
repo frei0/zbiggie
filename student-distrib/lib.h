@@ -4,14 +4,19 @@
 
 #ifndef _LIB_H
 #define _LIB_H
+#define ATTRIB 0x30 
 
 #include "types.h"
+#include "tasking.h"
 
+extern char attribs[NUM_PROCESSES];
 
 int32_t printf(int8_t *format, ...);
+void mt_putc(uint8_t c);
 void putc(uint8_t c);
 void putc_kb(uint8_t c);
 void scroll();
+void mt_scroll();
 int32_t puts(int8_t *s);
 int8_t *itoa(uint32_t value, int8_t* buf, int32_t radix);
 int8_t *strrev(int8_t* s);
@@ -23,9 +28,10 @@ void move_right(void);
 void move_left(void); 
 void test_interrupts(void);
 void cursor_loc(int x, int y);
-int get_screen_x();
-int get_screen_y();
-
+int get_screen_x(int term);
+int get_screen_y(int term);
+void switch_term_xy(int term);
+	
 void* memset(void* s, int32_t c, uint32_t n);
 void* memset_word(void* s, int32_t c, uint32_t n);
 void* memset_dword(void* s, int32_t c, uint32_t n);

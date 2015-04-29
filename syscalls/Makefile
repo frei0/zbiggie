@@ -1,5 +1,5 @@
-CFLAGS += -Wall -nostdlib -ffreestanding
-LDFLAGS += -nostdlib -ffreestanding
+CFLAGS += -m32 -Wall -nostdlib -ffreestanding -g
+LDFLAGS += -melf_i386 -nostdlib
 CC = gcc
 
 ALL: cat grep hello ls pingpong counter shell sigtest testprint syserr
@@ -11,7 +11,7 @@ ALL: cat grep hello ls pingpong counter shell sigtest testprint syserr
 	$(CC) $(CFLAGS) -c -Wall -o $@ $<
 
 %.exe: ece391%.o ece391syscall.o ece391support.o
-	$(CC) $(LDFLAGS) -o $@ $^
+	ld $(LDFLAGS) -o $@ $^
 
 %: %.exe
 	../elfconvert $<
