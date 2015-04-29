@@ -70,7 +70,6 @@ void term_init()
 	cur_size[current_terminal] = 0;
 	write_x[current_terminal] = -1;
 	write_y[current_terminal] = -1; 	
-    puts("zbiggie term active!\n");
 }
 
 /*void term_putc(char c)

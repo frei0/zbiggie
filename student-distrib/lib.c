@@ -356,46 +356,8 @@ putc_kb(uint8_t c)
 	//biggest_y[current_terminal] = biggest_y[current_terminal];
 
     if(c == '\n' || c == '\r') {
-		//cases for if two lines have been printed and enter is hit while
-		//the cursor is on the top line
-		if(screen_y[current_terminal] < NUM_ROWS - 1)
-		{
-			line_empty = 1;
-			//check line below for text
-		    for(i = 0; i < NUM_COLS; i++)
-			{
-				if(*(uint8_t *)(video_mem + ((NUM_COLS*(screen_y[current_terminal]+1) + i) << 1)) != ' ')
-					line_empty = 0;
-			}
-			if(!line_empty)
-			{
-				//if we're at the 2nd to last line, we'll need to scroll
-				//scroll puts the cursor at the bottom left so we don't 
-				//need to double scroll
-				if(screen_y[current_terminal] == NUM_ROWS-2)
-					scroll();	
-				//if in the middle, move y down 2 and x to the front
-				else
-				{
-					screen_y[current_terminal]+=2;
-					screen_x[current_terminal] = 0;
-				}
-			}
-			//if the line below is empty, just move down 1 line
-			else
-			{
-				screen_y[current_terminal]++;
-				screen_x[current_terminal] = 0;
-			}
-		}
-		//if the cursor is on the bottom line, there can't be more than one line
-		//printed, so just move y down one and the case at the end of this function
-		//will scroll the screen
-		else
-		{
-			screen_y[current_terminal]++;
-			screen_x[current_terminal] = 0;
-		}
+		screen_y[current_terminal]++;
+		screen_x[current_terminal] = 0;
     }
 	else if( c == 0x08)
 	{
