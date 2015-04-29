@@ -13,13 +13,16 @@
 #define CHAR_W 8
 static int screen_x; //the current terminal's x and y, not bg term
 static int screen_y;
+static int mt_screen_x[NUM_PROCESSES] = {0}; //the current terminal's x and y, not bg term
+static int mt_screen_y[NUM_PROCESSES] = {0}; //the current terminal's x and y, not bg term
 int term_xs[NUM_PROCESSES] = {0};
 int term_ys[NUM_PROCESSES] = {0};
 int term_bigys[NUM_PROCESSES] = {0};
 int prev_term = 0;
 static int biggest_y;
+static int mt_biggest_y[NUM_PROCESSES] = {0};
 static char* map_video_mem = (char *)VIDEO;
-char * video_mem = (void *) ((8+1)*OFFSET_4M + 3*OFFSET_4K);
+char * video_mem = (char *) ((8+1)*OFFSET_4M + 3*OFFSET_4K);
 
 /*
 * void clear(void);
@@ -42,6 +45,7 @@ clear(void)
 
 void switch_term_xy(int term)
 {
+	return;
 	cli();
 	term_xs[prev_term] = screen_x;
 	term_ys[prev_term] = screen_y;
@@ -108,6 +112,16 @@ move_left(void)
 	cursor_loc(screen_x, screen_y); 
 }
 
+void cursor_loc(int x, int y)
+{
+	return;
+	int coord = x + (y*80); 
+	int coord2 = coord >> 8; 
+	outb(0x0E, 0x3D4);
+	outb((unsigned char) (coord2 & 0xFF), 0x3D5);
+	outb(0x0F, 0x3D4);
+	outb((unsigned char) (coord & 0xFF),  0x3D5);
+} 
 /* Standard printf().
  * Only supports the following format strings:
  * %%  - print a literal '%' character
@@ -266,27 +280,42 @@ void
 mt_putc(uint8_t c)
 {
 	cli();
+	if(current_active_process == current_terminal)
+		return putc(c);
 	switch_term_xy(current_active_process);
+
     if(c == '\n' || c == '\r') {
-        screen_y++;
-		biggest_y++;
-        screen_x=0;
+		mt_screen_y[current_active_process]++;
+		mt_biggest_y[current_active_process]++;
+        mt_screen_x[current_active_process]=0;
     } else {
-        *(uint8_t *)(map_video_mem + ((NUM_COLS*screen_y + screen_x) << 1)) = c;
-        *(uint8_t *)(map_video_mem + ((NUM_COLS*screen_y + screen_x) << 1) + 1) = ATTRIB;
-        screen_x++;
+		
+        uint8_t* cond = (uint8_t *)(map_video_mem + ((NUM_COLS*mt_screen_y[current_active_process] + mt_screen_x[current_active_process]) << 1));
+		if(cond > 0 && cond < map_video_mem+OFFSET_4K-1)
+		{
+        *(uint8_t *)(map_video_mem + ((NUM_COLS*mt_screen_y[current_active_process] + mt_screen_x[current_active_process]) << 1)) = c;
+        *(uint8_t *)(map_video_mem + ((NUM_COLS*mt_screen_y[current_active_process] + mt_screen_x[current_active_process]) << 1) + 1) = ATTRIB;
+		}
+        mt_screen_x[current_active_process]++;
         //screen_x %= NUM_COLS;
         //screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
     }
-    if(screen_x >= NUM_COLS)
+    if(mt_screen_x[current_active_process] >= NUM_COLS)
 	{
-		screen_y++;
-		biggest_y++;
-		screen_x = 0;
+		mt_screen_y[current_active_process]++;
+		mt_biggest_y[current_active_process]++;
+		mt_screen_x[current_active_process] = 0;
 	}
-	if(screen_y >= NUM_ROWS)
+	if(mt_screen_y[current_active_process] >= NUM_ROWS)
 		mt_scroll();
-	if (current_terminal == current_active_process)	cursor_loc(screen_x, screen_y); 
+	/*if(current_active_process == current_terminal)
+	{
+		screen_x = mt_screen_x[current_terminal];
+		screen_y = mt_screen_y[current_terminal];
+		biggest_y = mt_biggest_y[current_terminal];
+		cursor_loc(mt_screen_x[current_terminal], mt_screen_y[current_terminal]); 
+	}
+	*/
 	switch_term_xy(current_terminal);
 	sti();
 }
@@ -294,13 +323,21 @@ void
 putc(uint8_t c)
 {
 	cli();
+	screen_x = mt_screen_x[current_terminal];
+	screen_y = mt_screen_y[current_terminal];
+	biggest_y = mt_biggest_y[current_terminal];
+
     if(c == '\n' || c == '\r') {
         screen_y++;
 		biggest_y++;
         screen_x=0;
     } else {
+        uint8_t* cond = (uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1));
+		if(cond > 0 && cond < video_mem+OFFSET_4K-1)
+		{
         *(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1)) = c;
         *(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1) + 1) = ATTRIB;
+		}
         screen_x++;
         //screen_x %= NUM_COLS;
         //screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
@@ -314,6 +351,14 @@ putc(uint8_t c)
 	if(screen_y >= NUM_ROWS)
 		scroll();
 	cursor_loc(screen_x, screen_y); 
+	if(current_active_process == current_terminal)
+	{
+		mt_screen_x[current_terminal] = screen_x;
+		mt_screen_y[current_terminal] = screen_y;
+		mt_biggest_y[current_terminal] = biggest_y;
+	}
+
+
 	sti();
 }
 
@@ -322,6 +367,11 @@ putc_kb(uint8_t c)
 {
 	char line_empty;
 	int i;
+	uint8_t * cond;
+	//screen_x = mt_screen_x[current_terminal];
+	//screen_y = mt_screen_y[current_terminal];
+	//biggest_y = mt_biggest_y[current_terminal];
+
     if(c == '\n' || c == '\r') {
 		//cases for if two lines have been printed and enter is hit while
 		//the cursor is on the top line
@@ -368,8 +418,12 @@ putc_kb(uint8_t c)
 	{
     		if((screen_y == 0 && screen_x == 0))
 	   		{
+				cond = (uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1));
+				if(cond > 0 && cond < video_mem+OFFSET_4K-1)
+				{
 	   			*(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1)) = ' ';
             	*(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1) + 1) = ATTRIB;
+				}
 	   		}
 	   		else
 	   		{
@@ -385,8 +439,12 @@ putc_kb(uint8_t c)
 						biggest_y=0;
 					}
 		   		}
+				cond = (uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1));
+				if(cond > 0 && cond < video_mem+OFFSET_4K-1)
+				{
 		    	*(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1)) = ' ';
 	            *(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1) + 1) = ATTRIB;
+				}
         }
     	
     } 
@@ -398,8 +456,12 @@ putc_kb(uint8_t c)
 			biggest_y++;
     		screen_x = 0;
     	}
+        cond = (uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1));
+		if(cond > 0 && cond < video_mem+OFFSET_4K-1)
+		{
         *(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1)) = c;
         *(uint8_t *)(video_mem + ((NUM_COLS*screen_y + screen_x) << 1) + 1) = ATTRIB;
+		}
         screen_x++;
         //screen_x %= NUM_COLS;
         //screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
@@ -414,6 +476,13 @@ putc_kb(uint8_t c)
 		scroll();
 	cursor_loc(screen_x, screen_y); 
 	set_vmem_table(current_active_process);
+	if(current_active_process == current_terminal)
+	{
+		mt_screen_x[current_terminal] = screen_x;
+		mt_screen_y[current_terminal] = screen_y;
+		mt_biggest_y[current_terminal] = biggest_y;
+	}
+
 	sti();
 }
 
@@ -830,14 +899,5 @@ test_interrupts(void)
 	}
 }
 
-void cursor_loc(int x, int y)
-{
-	int coord = x + (y*80); 
-	int coord2 = coord >> 8; 
-	outb(0x0E, 0x3D4);
-	outb((unsigned char) (coord2 & 0xFF), 0x3D5);
-	outb(0x0F, 0x3D4);
-	outb((unsigned char) (coord & 0xFF),  0x3D5);
-} 
 
 
