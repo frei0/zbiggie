@@ -79,7 +79,6 @@ void term_init()
 void term_putc(char c)
 {
     //int i;
-    cli();
     char bs_char;
     //new line, new buf
     if(c == '\n' || c == '\r') 
@@ -140,7 +139,6 @@ void term_putc(char c)
         cur_pos[current_terminal] ++;
         cur_size[current_terminal]++;
     }
-    sti();
 
 }
 

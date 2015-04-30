@@ -348,7 +348,6 @@ putc(uint8_t c)
 void
 putc_kb(uint8_t c)
 {
-	cli();
 	uint8_t * cond;
 	//screen_x[current_terminal] = screen_x[current_terminal];
 	//screen_y[current_terminal] = screen_y[current_terminal];
@@ -420,7 +419,6 @@ putc_kb(uint8_t c)
 		scroll();
 	cursor_loc(screen_x[current_terminal], screen_y[current_terminal]); 
 	//set_vmem_table(current_active_process);
-	sti();
 }
 
 void 
