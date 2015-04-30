@@ -11,14 +11,15 @@
 #define ONE 1
 #define FAIL -1 
 #define EXE_LOAD_SZ ( 33 * OFFSET_4M - LOAD_ADDR)
-#define MB_128 (OFFSET_4M*32)
-#define MB_132 (OFFSET_4M*33)
+#define OFFSET_128M (OFFSET_4M*32)
+#define OFFSET_132M (OFFSET_4M*33)
 
 /* - - - - - - - - - - - - - - - - - - - - - - 
     Helper Functions
  - - - - - - - - - - - - - - - - - - - - - - */ 
 
 int syscall_open(const char * name){
+    if(! usr_ptr_ok(name, strlen(name))) return -1;
     int fd = get_new_fd();
     if (fd == -1) return -1;
     int ret = kopen(get_file(fd), name);
@@ -31,6 +32,7 @@ int syscall_open(const char * name){
 
 int min(int a, int b){ return a<b?a:b;}
 int syscall_getargs(char * buf, int nbytes){
+    if(! usr_ptr_ok(buf, nbytes)) return -1;
     int bytes_copied = (int)strncpy(buf, get_current_pcb()->cmdstring, min(nbytes, BUF_SIZE));
     if(bytes_copied < nbytes)
         return -1;
@@ -106,9 +108,14 @@ void parse_input(const char * in, char * exec_buf, char * args_buf, int size)
 
 int syscall_vidmap(uint8_t ** vid_ptr)
 {
-    if((int)(vid_ptr)>(MB_132-sizeof(int)) || (int)(vid_ptr)<MB_128)
-        return -1;
-    *(vid_ptr) = (uint8_t *)MB_132+OFFSET_VIDEO;
+    if(! usr_ptr_ok(vid_ptr, sizeof(uint8_t *)))
+            return -1;
+    *(vid_ptr) = (uint8_t *)OFFSET_132M+OFFSET_VIDEO;
+    return 0;
+}
+
+int usr_ptr_ok(const void * p, uint32_t s){
+    if (((int) p) >= OFFSET_128M && ((int)p) + s <= OFFSET_132M) return 1;
     return 0;
 }
 

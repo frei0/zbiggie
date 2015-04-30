@@ -3,7 +3,7 @@
 #include "syscall.h" 
 #include "tasking_funcs.h"
 
-.globl syscall,execute
+.globl syscall,kexecute
 .align 4
 
 
@@ -61,7 +61,16 @@ halt:
 
     ret
 
-execute: 
+execute:
+    pushl %ebx
+    CALL strlen
+    pushl %eax
+    pushl %ebx
+    CALL usr_ptr_ok
+    addl $12, %esp
+    orl %eax,%eax
+    jz syscall_fail
+kexecute:
     CALL get_current_pcb
 
     movl %eax, %edi
@@ -89,6 +98,9 @@ read:
 
     pushl %edx #save edx, ecx
     pushl %ecx
+    call usr_ptr_ok
+    orl %eax,%eax
+    jz read_bad_ptr
 
     
     pushl %ebx
@@ -103,11 +115,18 @@ read:
 read_done:
     addl $12, %esp #pop c-args
     ret
+read_bad_ptr:
+    addl $8, %esp
+    movl $-1,%eax
+    ret
 
 
 write: 
     pushl %edx
     pushl %ecx
+    call usr_ptr_ok
+    orl %eax,%eax
+    jz read_bad_ptr
 
     
     pushl %ebx

@@ -37,7 +37,7 @@ switching:
 
 launch_new_shell:
     movl execstring,%ebx
-    jmp execute
+    jmp kexecute
 
 shellstring:
     .ASCIZ "shell"

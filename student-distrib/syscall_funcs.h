@@ -12,5 +12,6 @@ int syscall_open(const char * name);
 int syscall_close(int fd);
 int syscall_getargs(char * buf, int nbytes);
 int syscall_vidmap(uint8_t ** vid_ptr);
+int usr_ptr_ok(const void * p, uint32_t s);
 #endif /*ASM*/
 #endif /*_SYSCALL_FUNCS_H*/
