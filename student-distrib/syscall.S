@@ -135,9 +135,10 @@ close:
     ret
 
 getargs:
+    pushl %ecx
     pushl %ebx
     call syscall_getargs
-    addl $4, %esp #pop c-args
+    addl $8, %esp #pop c-args
     ret
 	 
 vidmap:
