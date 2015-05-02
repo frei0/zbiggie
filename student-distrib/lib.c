@@ -17,7 +17,7 @@ int term_bigys[NUM_PROCESSES] = {0};
 int prev_term = 0;
 static int biggest_y[NUM_PROCESSES];
 static char* map_video_mem = (char *)VIDEO;
-char * video_mem = (char *) ((8+1)*OFFSET_4M + 3*OFFSET_4K);
+char * video_mem = (char *) ((NUM_PDS+1)*OFFSET_4M + 3*OFFSET_4K);
 char attribs[NUM_PROCESSES] = {0x30, 0x40, 0x50};
 
 /*
