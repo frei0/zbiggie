@@ -43,7 +43,7 @@ syscall_fail:
     ret
 launch_new_shell:
     movl execstring,%ebx
-    jmp execute
+    jmp kexecute
 
 
 halt:
