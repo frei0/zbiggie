@@ -4,6 +4,7 @@
 #include "x86_desc.h"
 #include "lib.h"
 #include "ece391syscall.h"
+#include "syscall_funcs.h"
 
 #define OFFSET_8M (OFFSET_4M*2)
 #define OFFSET_8K (OFFSET_4K*2)
@@ -81,6 +82,10 @@ int get_current_task_pid()
 void free_current_pcb()
 {
     pcb_t* pcb_ptr = get_current_pcb();
+    int i;
+    for (i = 0; i < MAX_FILES; ++i){
+        syscall_close(i);
+    }
     pcb_ptr->present = 0;
 }
 
