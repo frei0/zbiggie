@@ -55,6 +55,11 @@ void * load_exec_to_mem( const char * fname)
 
     parse_input(fname, exec, args, BUF_SIZE);
     char buf[EXE_HEADER_SZ];
+
+    dentry_t d;
+    read_dentry_by_name(exec, &d);
+    if (d.ftype != FTYPE_REGULAR) {return (void*) FAIL;}
+
 	if (kopen(&f, exec)) { return (void*)FAIL;}
     char * mem = (char *) LOAD_ADDR;
 	kread(&f, buf, EXE_HEADER_SZ);
