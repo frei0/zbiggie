@@ -1,5 +1,6 @@
 #ifndef PAGE_H
 #define PAGE_H
+#define NUM_PDS (MAX_PID+1)
 #define OFFSET_4M      0x400000
 #define OFFSET_4K      0x1000
 #define OFFSET_VIDEO   0xB8000

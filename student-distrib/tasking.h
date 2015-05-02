@@ -3,7 +3,7 @@
 #include "zbigfs.h"
 #include "types.h"
 #include "terminal.h"
-#define MAX_PID 7
+#define MAX_PID 10
 #define MAX_FILES 8
 #define NUM_PROCESSES 3
 typedef struct pcb{
