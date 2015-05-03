@@ -32,6 +32,13 @@
 /* Check if MAGIC is valid and print the Multiboot information structure
    pointed by ADDR. */
 
+
+/*
+* void populate_idt();
+*   Inputs: none
+*   Return Value: void
+*	Function: Fills the idt with the correct functions
+*/
 void populate_idt()
 {
 	int i;

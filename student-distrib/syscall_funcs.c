@@ -17,7 +17,12 @@
 /* - - - - - - - - - - - - - - - - - - - - - - 
     Helper Functions
  - - - - - - - - - - - - - - - - - - - - - - */ 
-
+/*
+* int syscall_open(const char * name);
+*   Inputs: name = name of file
+*   Return Value: file descriptor or -1 on failure
+*   Function: Returns a file descriptor to the file that should be opened 
+*/
 int syscall_open(const char * name){
     if(! usr_ptr_ok(name, strlen(name))) return -1;
     int fd = get_new_fd();
@@ -30,7 +35,22 @@ int syscall_open(const char * name){
     return fd;
 }
 
+/*
+* int min(int a, int b);
+*   Inputs: a, first integer to compare
+*           b, second integer to compare
+*   Return Value: smaller number
+*   Function: Compares to numbers to find minimum 
+*/
 int min(int a, int b){ return a<b?a:b;}
+
+/*
+* int syscall_getargs(char * buf, int nbytes);
+*   Inputs: buf, buffer to write to
+*           nbytes, number of bytes to copy
+*   Return Value: 0 on sucess, -1 on failure
+*   Function: Gets arguments from command line 
+*/
 int syscall_getargs(char * buf, int nbytes){
     if(! usr_ptr_ok(buf, nbytes)) return -1;
     int bytes_copied = (int)strncpy(buf, get_current_pcb()->cmdstring, min(nbytes, BUF_SIZE));
@@ -39,6 +59,12 @@ int syscall_getargs(char * buf, int nbytes){
     return 0;
 }
 
+/*
+* int syscall_close(int fd);
+*   Inputs: fd, a file descriptor to close it
+*   Return Value: 0 on sucessful close, -1 on failure
+*   Function: Closes a previously opened file
+*/
 int syscall_close(int fd){
     FILE * f = get_file(fd);
     if ((int)(f)==-1) return -1;
@@ -46,6 +72,12 @@ int syscall_close(int fd){
     return free_fd(fd);
 }
 
+/*
+* void * load_exec_to_mem(const char * fnname);
+*   Inputs: fname, name of file to load to memory
+*   Return Value: void * of entry point into memory
+*   Function: Loads executable from file into physical memory
+*/
 void * load_exec_to_mem( const char * fname)
 {
  	FILE f;
@@ -79,6 +111,14 @@ void * load_exec_to_mem( const char * fname)
     return entry;
 }
 
+/*
+* void parse_input(const char * in, char * exec_buf, char * args_buf, int size);
+*   Inputs: in, input to parse
+*           exec_buf, executable buffer
+*           args_buf, buffer to store args
+*   Return Value: void
+*   Function: Parses command line and fills buffers
+*/
 void parse_input(const char * in, char * exec_buf, char * args_buf, int size)
 {
     int in_i = 0;
@@ -111,6 +151,12 @@ void parse_input(const char * in, char * exec_buf, char * args_buf, int size)
 
 }
 
+/*
+* int syscall_vidmap(uint8_t ** vid_ptr);
+*   Inputs: vid_ptr, pointer to current video memory
+*   Return Value: 0 on sucess, -1 on failure
+*   Function: Maps video memory pointer 
+*/
 int syscall_vidmap(uint8_t ** vid_ptr)
 {
     if(! usr_ptr_ok(vid_ptr, sizeof(uint8_t *)))
@@ -119,6 +165,13 @@ int syscall_vidmap(uint8_t ** vid_ptr)
     return 0;
 }
 
+/*
+* int usr_ptr_ok(const void * p, uint32_t s);
+*   Inputs: p, pointer to check
+*           s, size
+*   Return Value: 1 on failure, 0 on sucess
+*   Function: Checks validity of pointer 
+*/
 int usr_ptr_ok(const void * p, uint32_t s){
     if (((int) p) >= OFFSET_128M && ((int)p) + s <= OFFSET_132M) return 1;
     return 0;
