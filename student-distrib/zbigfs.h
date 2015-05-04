@@ -26,7 +26,7 @@ typedef struct FILE{
 	int32_t pos;
 	int32_t flags;
 } FILE;
-int zbigfs_mount(void * base_addr);
+void zbigfs_mount(void * base_addr);
 int kopen(FILE*, const int8_t * name);
 int kread (FILE * f, void * buf, uint32_t numbytes );
 int kwrite(FILE * f, void * buf, uint32_t numbytes );
