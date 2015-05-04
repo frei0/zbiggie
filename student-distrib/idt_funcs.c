@@ -338,11 +338,11 @@ extern void key_handler()
             term_init();
             
         }
-        else if ( (scan2ASCII[(int)in] == 'c') && ctrl_flag[current_terminal])
+        /*else if ( (scan2ASCII[(int)in] == 'c') && ctrl_flag[current_terminal])
         {
             ece391_halt(0);
             
-        }
+        }*/
         else if(isALetter && ((shift_r_flag[current_terminal] || shift_l_flag[current_terminal]) ^ caps_lock_flag))
 		{
 			term_putc(scan2ASCII[(int)in] - OFFSET);
