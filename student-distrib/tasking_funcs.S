@@ -4,6 +4,11 @@
 .globl next_task
 .align 4
 
+/* next task 
+ * inputs: none 
+ * return: none 
+ * function: swittches to next task in run queue
+ */
 next_task:
     cli
     pushal
@@ -11,19 +16,16 @@ next_task:
     call send_eoi
     addl $4,%esp
 
-    CALL save_queue
+    CALL save_queue #save current pid to current run queue entry
     CALL get_current_pcb
-    movl %esp, (%eax)
+    movl %esp, (%eax) #save current stack to pcb
 
-    CALL get_next_task_pid
+    CALL get_next_task_pid 
     pushl %eax
     CALL incr_current_active_process
     popl %eax
     cmpl  $0,%eax
-    jz    launch_new_shell
-
-
-
+    jz    launch_new_shell #if next run queue entry is empty, start a base shell
 switching:
     CALL get_current_task_pid
     pushl %eax
@@ -34,7 +36,7 @@ switching:
     popal
     sti 
     iret
-
+#executes "shell"
 launch_new_shell:
     movl execstring,%ebx
     jmp kexecute
