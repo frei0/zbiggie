@@ -14,7 +14,7 @@ uint8_t slave_mask; /* IRQs 8-15 */
 /*
 * void i8259_init();
 *   Inputs: none
-*   Return none
+*   Return: none
 *   Function: Initializes the master and slave PIC
 */
 void
@@ -38,7 +38,7 @@ i8259_init(void)
 /*
 * void enable_irq(uint32_t irq_num);
 *   Inputs: irq_num, irq line to enable
-*   Return none
+*   Return: none
 *   Function: Enable (unmask) given irq
 */
 void
@@ -60,7 +60,7 @@ enable_irq(uint32_t irq_num)
 /*
 * void disable_irq(uint32_t irq_num);
 *   Inputs: irq_num, irq line to disable
-*   Return none
+*   Return: none
 *   Function: Disnable (mask) given irq
 */
 void
@@ -82,7 +82,7 @@ disable_irq(uint32_t irq_num)
 /*
 * void enable_irq(uint32_t irq_num);
 *   Inputs: irq_num, irq line to send EOI signal to
-*   Return none
+*   Return: none
 *   Function: Send end of interrupt (EOI) to master and slave PIC
 */
 void
