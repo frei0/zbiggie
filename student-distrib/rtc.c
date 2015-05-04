@@ -8,10 +8,12 @@
 #include "lib.h"
 #include "idt_funcs.h"
 
-/* Initialize the rtc
- *
- * interrupts must be disabled
- */
+/*
+* void rtc_init();
+*   Inputs: none
+*   Return: none
+*   Function: Initializes the RTC
+*/
 void
 rtc_init(void)
 {
@@ -24,6 +26,12 @@ rtc_init(void)
     enable_irq(RTC_LINE);
 }
 
+/*
+* int change_rtc_freq(int rate);
+*   Inputs: rate, new rate for RTC
+*   Return: 0 on sucess, -1 on failuer
+*   Function: Change the rate of the RTC to 32768 >> (rate-1)
+*/
 int change_rtc_freq(int rate)
 {
 	//Check to see if it is outside the range of the RTC
@@ -36,26 +44,43 @@ int change_rtc_freq(int rate)
 	outb(NO_NMI_A, RTC_INDEX_PORT); //select port A, keep NMI disabled
 	char previous_rate = inb(RTC_RW_PORT);
 	outb(NO_NMI_A, RTC_INDEX_PORT); // reselect A
-	outb((previous_rate & RATE_MASK)|rate, RTC_RW_PORT);
+	outb((previous_rate & RATE_MASK)|rate, RTC_RW_PORT); //Set the rate 
 	outb( inb(RTC_INDEX_PORT) & NMI_ON, RTC_INDEX_PORT); //enable NMI again
 	sti();
 	return 0;
 
 }
 
+/*
+* int rtc_read();
+*   Inputs: none
+*   Return: Always returns 0
+*   Function: Waits for the next RTC interrupt
+*/
 int rtc_read(void)
 {
-	//Set the rtc flag to one then wait for it to be reset
+	//Set the rtc flag to one then wait for it to be reset by rtc interrupt
 	rtc_f = 1;
 	while(rtc_f);
 	return 0;
 }
 
-int rtc_write(FILE *f, unsigned int * frequency, int numbytes)
+/*
+* int rtc_write(FILE * f, unsigned int * frequency, int numbytes);
+*   Inputs: f, file for RTC write to be associated with
+*			frequency, the new freqency to be changed to
+* 			numbyres, bytes to be written
+*   Return: 0 on success of both the switch statment and change_rtc_freq
+*			-1 on failure
+*   Function: Changes the RTC's frequency based on the input frequency
+*/
+int rtc_write(FILE * f, unsigned int * frequency, int numbytes)
 {
+	//Check to make sure we are writing 4 bytes
 	if (numbytes!=4) return -1;
 	int new_rate;
 	//Switch statement to check for valid frequency
+	//If it is not a power of two between 2^1 and 2^10, it is invalid
 	switch(*frequency)
 	{
 		case HZ_2:
@@ -95,13 +120,24 @@ int rtc_write(FILE *f, unsigned int * frequency, int numbytes)
 	return change_rtc_freq(new_rate);
 }
 
+/*
+* int rtc_open();
+*   Inputs: none
+*   Return: 0 on success of change_rtc_freq, -1 on failure
+*   Function: Sets the RTC to its slowest possible rate
+*/
 int rtc_open()
 {
 	//Resets the rtc to the slowest rate
 	int default_rate = MIN_RATE;
 	return change_rtc_freq(default_rate);
 }
-
+/*
+* int rtc_init();
+*   Inputs: none
+*   Return: 0
+*   Function: Return 0 because you can't actually close the RTC
+*/
 int rtc_close(void)
 {
 	return 0;
