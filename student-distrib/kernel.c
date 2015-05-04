@@ -27,6 +27,13 @@
 #define RTC_INDEX 0x28
 #define SYS_CALLS_INDEX 0x80
 #define PIT_INDEX 0x20
+#define PIT_CTRL_ADDR 0x43
+#define PIT_PORT0_CTRL_ADDR 0x40
+#define PIT_DEFAULT_RATE_LOW 0
+#define PIT_DEFAULT_RATE_HIGH 0
+#define PIT_MODIFY_LOW  0x10
+#define PIT_MODIFY_HIGH 0x20
+#define PIT_MODE_2 (1<<2)
 
 /* Check if MAGIC is valid and print the Multiboot information structure
    pointed by ADDR. */
@@ -239,9 +246,9 @@ entry (unsigned long magic, unsigned long addr)
 
 	i8259_init();
 	rtc_init();
-	outb(0x34,0x43);
-	outb(0,0x40);
-	outb(0,0x40);
+	outb(PIT_MODIFY_LOW | PIT_MODIFY_HIGH | PIT_MODE_2 ,PIT_CTRL_ADDR);
+	outb(PIT_DEFAULT_RATE_LOW,PIT_PORT0_CTRL_ADDR); //set low byte
+	outb(PIT_DEFAULT_RATE_HIGH,PIT_PORT0_CTRL_ADDR); //set high byte
 	disable_irq(0);
 
 	/* Initialize devices, memory, filesystem, enable device interrupts on the
