@@ -239,7 +239,11 @@ void term_move_right()
         cur_pos[current_terminal]++;
     }
 }
-
+/* void term_switch()
+ * inputs: none
+ * return: none
+ * function: Switches between terminals
+ */
 void term_switch()
 {	
         switch_term_xy(current_terminal);
