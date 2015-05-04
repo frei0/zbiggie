@@ -5,6 +5,7 @@
 #include "lib.h"
 #include "page.h"
 #define VIDEO 0xB8000
+#define BS 0x08
 #define NUM_COLS 80
 #define NUM_ROWS 25
 #define SCREEN_W 320
@@ -40,30 +41,34 @@ clear(void)
 	sti();
 }
 
-void switch_term_xy(int term)
-{
-	return;
-	cli();
-	term_xs[prev_term] = screen_x[current_terminal];
-	term_ys[prev_term] = screen_y[current_terminal];
-	term_bigys[prev_term] = biggest_y[current_terminal];
-	screen_x[current_terminal] = term_xs[term];
-	screen_y[current_terminal] = term_ys[term];
-	biggest_y[current_terminal] = term_bigys[term];
-	prev_term = term;
-	sti();
-}
-
+/*
+* 	int get_screen_x(int term));
+*   Inputs: terminal num 
+*   Return Value: screen_x 
+*	Function: returns screen_x for the desired terminal 
+*/
 int get_screen_x(int term)
 {
 	return screen_x[term];
 }
 
+/*
+* 	int get_screen_y(int term));
+*   Inputs: terminal num 
+*   Return Value: screen_y 
+*	Function: returns screen_y for the desired terminal 
+*/
 int get_screen_y(int term)
 {
 	return screen_y[term];
 }
 
+/*
+* 	void set_pos(int x, int y) 
+*   Inputs: x, y 
+*   Return Value: none 
+*	Function: sets screen_x and screen_y as well as the cursor position
+*/
 void
 set_pos(int x, int y)
 {
@@ -71,6 +76,12 @@ set_pos(int x, int y)
     screen_y[current_terminal] = y;
     cursor_loc(screen_x[current_terminal], screen_y[current_terminal]); 
 }
+/*
+* 	void set_x(int x) 
+*   Inputs: x 
+*   Return Value: none 
+*	Function: sets screen_x 
+*/
 void
 set_x(int x)
 {
@@ -79,6 +90,12 @@ set_x(int x)
 }
 
 
+/*
+*   move_right()
+*   Inputs: none 
+*   Return Value: none 
+*	Function: moves screen_x and the cursor right:
+*/
 void 
 move_right(void)
 {
@@ -94,6 +111,12 @@ move_right(void)
 	cursor_loc(screen_x[current_terminal], screen_y[current_terminal]); 
 }
 
+/*
+*   void move_left()
+*   Inputs: none 
+*   Return Value: none 
+*	Function: moves screen_x and the cursor left
+*/
 void
 move_left(void)
 {
@@ -109,6 +132,12 @@ move_left(void)
 	cursor_loc(screen_x[current_terminal], screen_y[current_terminal]); 
 }
 
+/*
+*   void cursor_loc(int x, int y) 
+*   Inputs: int x, int y 
+*   Return Value: none 
+*	Function: moves the cursor to x,y 
+*/
 void cursor_loc(int x, int y)
 {
 	int coord = x + (y*80); 
@@ -278,7 +307,6 @@ mt_putc(uint8_t c)
 	cli();
 	if(current_active_process == current_terminal)
 		return putc(c);
-	switch_term_xy(current_active_process);
 
     if(c == '\n' || c == '\r') {
 		screen_y[current_active_process]++;
@@ -305,9 +333,14 @@ mt_putc(uint8_t c)
 	if(screen_y[current_active_process] >= NUM_ROWS)
 		mt_scroll();
 	cursor_loc(screen_x[current_terminal], screen_y[current_terminal]);
-	switch_term_xy(current_terminal);
 	sti();
 }
+/*
+* void putc(uint8_t c);
+*   Inputs: uint_8* c = character to print
+*   Return Value: void
+*	Function: Output a character to the screen
+*/
 void
 putc(uint8_t c)
 {
@@ -345,25 +378,32 @@ putc(uint8_t c)
 	sti();
 }
 
+/*
+* void putc_kb(uint8_t c);
+*   Inputs: uint_8* c = character to print
+*   Return Value: void
+*	Function: Output a character to the screen and also wrap it + interpret
+*	keyboard functionality like enter and backspace
+*/
 void
 putc_kb(uint8_t c)
 {
 	uint8_t * cond;
-	//screen_x[current_terminal] = screen_x[current_terminal];
-	//screen_y[current_terminal] = screen_y[current_terminal];
-	//biggest_y[current_terminal] = biggest_y[current_terminal];
-	
+ 	//enter	
     if((c == '\n' || c == '\r')) {
 		screen_y[current_terminal]++;
 		screen_x[current_terminal] = 0;
     }
-	else if( c == 0x08)
+	//backspace
+	else if( c == BS)
 	{
     		if((screen_y[current_terminal] == 0 && screen_x[current_terminal] == 0))
 	   		{
+				//check if video address we are about to write to is valid
 				cond = (uint8_t *)(video_mem + ((NUM_COLS*screen_y[current_terminal] + screen_x[current_terminal]) << 1));
 				if((int)cond > 0 && (int)cond < (int)video_mem+OFFSET_4K-1)
 				{
+					//write to vid mem
 	   			*(uint8_t *)(video_mem + ((NUM_COLS*screen_y[current_terminal] + screen_x[current_terminal]) << 1)) = ' ';
             	*(uint8_t *)(video_mem + ((NUM_COLS*screen_y[current_terminal] + screen_x[current_terminal]) << 1) + 1) = attribs[current_terminal];
 				}
@@ -382,11 +422,13 @@ putc_kb(uint8_t c)
 						biggest_y[current_terminal]=0;
 					}
 		   		}
+				//check if video address we are about to write to is valid
 				cond = (uint8_t *)(video_mem + ((NUM_COLS*screen_y[current_terminal] + screen_x[current_terminal]) << 1));
 				if((int)cond > 0 && (int)cond < (int)video_mem+OFFSET_4K-1)
 				{
-		    	*(uint8_t *)(video_mem + ((NUM_COLS*screen_y[current_terminal] + screen_x[current_terminal]) << 1)) = ' ';
-	            *(uint8_t *)(video_mem + ((NUM_COLS*screen_y[current_terminal] + screen_x[current_terminal]) << 1) + 1) = attribs[current_terminal];
+					//write to vid mem
+					*(uint8_t *)(video_mem + ((NUM_COLS*screen_y[current_terminal] + screen_x[current_terminal]) << 1)) = ' ';
+					*(uint8_t *)(video_mem + ((NUM_COLS*screen_y[current_terminal] + screen_x[current_terminal]) << 1) + 1) = attribs[current_terminal];
 				}
         }
     	
@@ -399,28 +441,35 @@ putc_kb(uint8_t c)
 			biggest_y[current_terminal]++;
     		screen_x[current_terminal] = 0;
     	}
+		//check if video address we are about to write to is valid
         cond = (uint8_t *)(video_mem + ((NUM_COLS*screen_y[current_terminal] + screen_x[current_terminal]) << 1));
 		if((int)cond > 0 && (int)cond < (int)video_mem+OFFSET_4K-1)
 		{
-        *(uint8_t *)(video_mem + ((NUM_COLS*screen_y[current_terminal] + screen_x[current_terminal]) << 1)) = c;
-        *(uint8_t *)(video_mem + ((NUM_COLS*screen_y[current_terminal] + screen_x[current_terminal]) << 1) + 1) = attribs[current_terminal];
+			//write to vid mem
+			*(uint8_t *)(video_mem + ((NUM_COLS*screen_y[current_terminal] + screen_x[current_terminal]) << 1)) = c;
+			*(uint8_t *)(video_mem + ((NUM_COLS*screen_y[current_terminal] + screen_x[current_terminal]) << 1) + 1) = attribs[current_terminal];
 		}
         screen_x[current_terminal]++;
-        //screen_x[current_terminal] %= NUM_COLS;
-        //screen_y[current_terminal] = (screen_y[current_terminal] + (screen_x[current_terminal] / NUM_COLS)) % NUM_ROWS;
     }
+	//if we've gone off the side of the screen, move to a new line
     if(screen_x[current_terminal] >= NUM_COLS)
 	{
 		screen_y[current_terminal]++;
 		biggest_y[current_terminal]++;
 		screen_x[current_terminal] = 0;
 	}
+	//if we've gone off the bottom of screen, scroll it
 	if(screen_y[current_terminal] >= NUM_ROWS)
 		scroll();
 	cursor_loc(screen_x[current_terminal], screen_y[current_terminal]); 
-	//set_vmem_table(current_active_process);
 }
 
+/*
+* void mt_scroll();
+*   Inputs: none 
+*   Return Value: void
+*	Function: scroll the screen up. can be foreground our background
+*/
 void 
 mt_scroll()
 {
@@ -430,6 +479,7 @@ mt_scroll()
 	{
 		for(x = 0; x < NUM_COLS; x++)
 		{
+			//write to vid mem
 			*(uint8_t *)(map_video_mem + ((NUM_COLS*(y-1) + x) << 1)) = *(uint8_t *)(map_video_mem + ((NUM_COLS*(y) + x) << 1)) ;
 			*(uint8_t *)(map_video_mem + ((NUM_COLS*(y-1) + x) << 1)+1) = *(uint8_t *)(map_video_mem + ((NUM_COLS*(y) + x) << 1)+1) ;
 
@@ -438,12 +488,19 @@ mt_scroll()
 	screen_y[current_active_process] = biggest_y[current_active_process] = NUM_ROWS -1;
 	for(x = 0; x < NUM_COLS; x++)
 	{
+			//write to vid mem
 			*(uint8_t *)(map_video_mem + ((NUM_COLS*(screen_y[current_active_process]) + x) << 1)) = 0x00;
 			*(uint8_t *)(map_video_mem + ((NUM_COLS*(screen_y[current_active_process]) + x) << 1)+1) = attribs[current_active_process];
 
 	}
 	screen_x[current_active_process] = 0;
 }
+/*
+* void scroll();
+*   Inputs: none 
+*   Return Value: void
+*	Function: scroll the screen up. 
+*/
 void 
 scroll()
 {
@@ -452,6 +509,7 @@ scroll()
 	{
 		for(x = 0; x < NUM_COLS; x++)
 		{
+			//write to vid mem
 			*(uint8_t *)(video_mem + ((NUM_COLS*(y-1) + x) << 1)) = *(uint8_t *)(video_mem + ((NUM_COLS*(y) + x) << 1)) ;
 			*(uint8_t *)(video_mem + ((NUM_COLS*(y-1) + x) << 1)+1) = *(uint8_t *)(video_mem + ((NUM_COLS*(y) + x) << 1)+1) ;
 
@@ -460,6 +518,7 @@ scroll()
 	screen_y[current_terminal] = biggest_y[current_terminal] = NUM_ROWS -1;
 	for(x = 0; x < NUM_COLS; x++)
 	{
+			//write to vid mem
 			*(uint8_t *)(video_mem + ((NUM_COLS*(screen_y[current_terminal]) + x) << 1)) = 0x00;
 			*(uint8_t *)(video_mem + ((NUM_COLS*(screen_y[current_terminal]) + x) << 1)+1) = attribs[current_terminal];
 
