@@ -161,7 +161,6 @@ void switch_video(int term_num)
     }
     //Copy memory from video memory to the right buffer and switch the position of the cursor to the new terminal
     memcpy((void *)((NUM_PDS+1)*OFFSET_4M + current_terminal*OFFSET_4K), (void*)((NUM_PDS+1)*OFFSET_4M + 3*OFFSET_4K), OFFSET_4K);
-    switch_term_xy(term_num);
     current_terminal = term_num;
 
     //Copy the new terminal's video buffer to real video memory then make sure the process is in the right context

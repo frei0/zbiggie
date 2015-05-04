@@ -30,7 +30,6 @@ void test_interrupts(void);
 void cursor_loc(int x, int y);
 int get_screen_x(int term);
 int get_screen_y(int term);
-void switch_term_xy(int term);
 	
 void* memset(void* s, int32_t c, uint32_t n);
 void* memset_word(void* s, int32_t c, uint32_t n);

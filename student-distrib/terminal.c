@@ -171,11 +171,9 @@ int term_write(FILE * f, char * buf, int cnt)
    cli();
    int i;
    for (i = 0; i < cnt; ++i) mt_putc(buf[i]);
-   switch_term_xy(current_active_process);
    //store x and y so that the user can't backspace over what we wrote
    write_x[current_active_process] = get_screen_x(current_active_process); 
    write_y[current_active_process] = get_screen_y(current_active_process); 
-   switch_term_xy(current_terminal);
    sti();
    return cnt;
 }
@@ -252,7 +250,6 @@ void term_move_right()
  */
 void term_switch()
 {	
-        switch_term_xy(current_terminal);
         //set cursor position to x,y of the terminal we're switching too
 		set_pos(get_screen_x(current_terminal), get_screen_y(current_terminal));
 }
