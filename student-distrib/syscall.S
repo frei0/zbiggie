@@ -21,7 +21,7 @@ syscall:
     pushl %esi
     pushl %edi
 
-	decl	%eax	
+	decl	%eax	#check syscall number then call it or return error
 	cmpl 	$SYSCALL_MAX_INDEX, %eax
 	ja	    invalid_syscall	
     cmpl    $0, %eax
