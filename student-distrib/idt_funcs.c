@@ -4,7 +4,6 @@
 #include "x86_desc.h"
 #include "i8259.h"
 #include "rtc.h"
-#include "ece391syscall.h"
 #include "page.h"
 #define USER_EXCEPT_CODE 256
 #define LOWER_PRINT_BOUND 1
@@ -12,6 +11,16 @@
 #define UPPER_LETTER_BOUND 123
 #define LOWER_LETTER_BOUND 96
 
+/*
+* void ece391_halt();
+*   Inputs: code, integer for which terminal to halt in
+*   Return: none
+*   Function: Halts a process in the active terminal
+*/
+
+void ece391_halt(int code){
+    asm volatile("movl $1, %%eax; movl %0, %%ebx; int $0x80" : : "r"(code) : "eax", "ebx");
+}
 char scan2ASCII[256] = 
 	{
 		0x00, 0x00, 0x31, 0x32, 0x33, 0x34,
