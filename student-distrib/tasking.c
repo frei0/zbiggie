@@ -3,7 +3,6 @@
 #include "page.h"
 #include "x86_desc.h"
 #include "lib.h"
-#include "ece391syscall.h"
 #include "syscall_funcs.h"
 
 #define OFFSET_8M (OFFSET_4M*2)
