@@ -16,7 +16,6 @@
 #include "syscall.h"
 #include "syscall_funcs.h"
 #include "tasking_funcs.h"
-#include "ece391syscall.h"
 
 /* Macros. */
 /* Check if the bit BIT in FLAGS is set. */
