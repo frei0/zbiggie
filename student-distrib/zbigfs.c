@@ -142,7 +142,7 @@ int kclose(FILE * f){return 0;}
 int32_t read_dentry_by_name (const int8_t * fname, dentry_t * dentry){
 	int i;
 	for (i = 0; i < zbigfs_start->num_dentry; ++i){
-		if (0==strncmp(fname, zbigfs_start->dentries[i].fname, FNAME_MAX_LEN-1)){
+		if (0==strncmp(fname, zbigfs_start->dentries[i].fname, FNAME_MAX_LEN-1)){ //check for fname match
 			return read_dentry_by_index(i,dentry);
 		}
 	}
@@ -158,8 +158,8 @@ int32_t read_dentry_by_name (const int8_t * fname, dentry_t * dentry){
  */
 int32_t read_dentry_by_index (uint32_t i, dentry_t * dentry){
 	if (i >= zbigfs_start->num_dentry) return -1;
-	strncpy(dentry->fname, zbigfs_start->dentries[i].fname, FNAME_MAX_LEN);
-	dentry->ftype = zbigfs_start->dentries[i].ftype;
+	strncpy(dentry->fname, zbigfs_start->dentries[i].fname, FNAME_MAX_LEN); //read fname to dentry
+	dentry->ftype = zbigfs_start->dentries[i].ftype; //set file type
 	if (dentry->ftype == FTYPE_REGULAR){
 		dentry->inode_num = zbigfs_start->dentries[i].inode_num;
 	}
@@ -176,22 +176,22 @@ int32_t read_dentry_by_index (uint32_t i, dentry_t * dentry){
  *   RETURN VALUE: number of bytes actually read on success, -1 if not found (the inode was out of range)
  */
 int32_t read_data (uint32_t inode, uint32_t offset, uint8_t * buf, uint32_t length){
-	if (inode >= zbigfs_start->num_inode) return -1;
-	inode_t * inode_entry = (inode_t *)(zbigfs_start +1+ inode);
-	char * datablock0 = (char *) (zbigfs_start+1+ zbigfs_start->num_inode);
+	if (inode >= zbigfs_start->num_inode) return -1; //out of range
+	inode_t * inode_entry = (inode_t *)(zbigfs_start +1+ inode); //get the entry
+	char * datablock0 = (char *) (zbigfs_start+1+ zbigfs_start->num_inode); //get the datablock base address in memory
 	uint32_t first = offset;
 	uint32_t last = offset + length;
 	if (last > inode_entry->length) last = inode_entry->length;
 	if (last < first) return 0;
-	while (offset/ZBIGFS_BLOCK_SIZE < last/ZBIGFS_BLOCK_SIZE){
+	while (offset/ZBIGFS_BLOCK_SIZE < last/ZBIGFS_BLOCK_SIZE){ //while there is still a whole block to read
 		memcpy(buf, datablock0 + ZBIGFS_BLOCK_SIZE * inode_entry->datablock_num[offset/ZBIGFS_BLOCK_SIZE] +
-                offset%ZBIGFS_BLOCK_SIZE, ZBIGFS_BLOCK_SIZE - (offset%ZBIGFS_BLOCK_SIZE));
+                offset%ZBIGFS_BLOCK_SIZE, ZBIGFS_BLOCK_SIZE - (offset%ZBIGFS_BLOCK_SIZE)); //read the block from the point we are interested in
 		buf += ZBIGFS_BLOCK_SIZE - (offset%ZBIGFS_BLOCK_SIZE);
 		offset += ZBIGFS_BLOCK_SIZE - (offset%ZBIGFS_BLOCK_SIZE);
 	}
 	memcpy(buf, datablock0 + ZBIGFS_BLOCK_SIZE * inode_entry->datablock_num[offset/ZBIGFS_BLOCK_SIZE] + 
-            offset%ZBIGFS_BLOCK_SIZE, last%ZBIGFS_BLOCK_SIZE - (offset%ZBIGFS_BLOCK_SIZE));
-	return last - first;
+            offset%ZBIGFS_BLOCK_SIZE, last%ZBIGFS_BLOCK_SIZE - (offset%ZBIGFS_BLOCK_SIZE)); //read the block to the point we are interested in
+	return last - first; //return total bytes
 }
 
 /* 
