@@ -4,10 +4,11 @@
 #include "x86_desc.h"
 #include "i8259.h"
 #include "rtc.h"
-#include "ece391syscall.h"
 #include "page.h"
 #define USER_EXCEPT_CODE 256
-
+void ece391_halt(int code){
+    asm volatile("movl $1, %%eax; movl %0, %%ebx; int $0x80" : : "r"(code) : "eax", "ebx");
+}
 char scan2ASCII[256] = 
 	{
 		0x00, 0x00, 0x31, 0x32, 0x33, 0x34,
