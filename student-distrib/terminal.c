@@ -39,6 +39,7 @@ int stdin_open(FILE * f){
  * initializes the terminal*/
 void term_open()
 {
+    //initialize buffer
 	buffer[current_terminal][0] = '\0'; 
     disable_irq(KB_IRQ);
     term_init();
@@ -62,6 +63,7 @@ void term_close()
 void term_init()
 {
     int j;
+    //initialize values
     for(j = 0; j < BUF_SIZE; j++)
 	{
 		buffer[current_terminal][j] = 0; 
@@ -80,14 +82,14 @@ void term_putc(char c)
 {
     //int i;
     char bs_char;
-    //new line, new buf
+    //new line/return
     if(c == '\n' || c == '\r') 
     {
+        //if it fits, put in a \n
         if(cur_size[current_terminal] < BUF_SIZE)
             buffer[current_terminal][cur_size[current_terminal]] = '\n';
-
+        //clear everything (new buf)
         cur_pos[current_terminal] = 0;
-        //puts("zbiggie: ");
         prev_size[current_terminal] = cur_size[current_terminal];
         cur_size[current_terminal] = 0;
         write_x[current_terminal] = -1;
@@ -170,6 +172,7 @@ int term_write(FILE * f, char * buf, int cnt)
    int i;
    for (i = 0; i < cnt; ++i) mt_putc(buf[i]);
    switch_term_xy(current_active_process);
+   //store x and y so that the user can't backspace over what we wrote
    write_x[current_active_process] = get_screen_x(current_active_process); 
    write_y[current_active_process] = get_screen_y(current_active_process); 
    switch_term_xy(current_terminal);
@@ -185,9 +188,11 @@ int term_read(FILE * f, char * buf, int numbytes)
 {
    int i;
    int this_read_terminal = current_active_process;
+   //block until user hits return
    wait_for_nl[this_read_terminal] = 1;
    while (wait_for_nl[this_read_terminal]) {}
    cli();
+   //move cursor to the beginning o fnew line
     set_x(START_POS);
     putc_kb('\n');
    for(i = 0; i < numbytes; i++)
@@ -211,6 +216,7 @@ int term_read(FILE * f, char * buf, int numbytes)
 void term_clear()
 {
     clear();
+    //move cursor to 0,0
     set_pos(0, 0);
 }
 
@@ -247,6 +253,7 @@ void term_move_right()
 void term_switch()
 {	
         switch_term_xy(current_terminal);
+        //set cursor position to x,y of the terminal we're switching too
 		set_pos(get_screen_x(current_terminal), get_screen_y(current_terminal));
 }
 
