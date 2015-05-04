@@ -10,6 +10,11 @@
 #define NUM_ROWS 25
 #define SCREEN_W 320
 #define CHAR_W 8
+#define MASK 0xFF
+#define C_LOC1 0x0E
+#define C_LOC2 0x0F
+#define CURSOR_BIT 0x3D4
+#define CURSOR_OUT 0x3D5
 static int screen_x[NUM_PROCESSES]; //the current terminal's x and y, not bg term
 static int screen_y[NUM_PROCESSES];
 int term_xs[NUM_PROCESSES] = {0};
@@ -140,12 +145,12 @@ move_left(void)
 */
 void cursor_loc(int x, int y)
 {
-	int coord = x + (y*80); 
-	int coord2 = coord >> 8; 
-	outb(0x0E, 0x3D4);
-	outb((unsigned char) (coord2 & 0xFF), 0x3D5);
-	outb(0x0F, 0x3D4);
-	outb((unsigned char) (coord & 0xFF),  0x3D5);
+	int coord = x + (y*NUM_COLS); 
+	int coord2 = coord >> CHAR_W; 
+	outb(C_LOC1, CURSOR_BIT);
+	outb((unsigned char) (coord2 & MASK), CURSOR_OUT);
+	outb(C_LOC2, CURSOR_BIT);
+	outb((unsigned char) (coord & MASK), CURSOR_OUT );
 } 
 /* Standard printf().
  * Only supports the following format strings:
