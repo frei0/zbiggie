@@ -230,6 +230,9 @@ entry (unsigned long magic, unsigned long addr)
 		ltr(KERNEL_TSS);
 	}
 	//printf("Enabling Interrupts\n");
+
+
+	
 	/* Init the PIC */
 
 	populate_idt();
@@ -248,10 +251,13 @@ entry (unsigned long magic, unsigned long addr)
 	/* Do not enable the following until after you have set up your
 	 * IDT correctly otherwise QEMU will triple fault and simple close
 	 * without showing you any output */
+
+
+	//Enable interrupts for the first time
 	printf("Enabling Interrupts\n");
 	sti();
 
-
+	//Initialize paging and mount the filesysem
 	init_paging();
 	printf("Mounting module 0 as read-only zbigfs filesystem\n");
 	zbigfs_mount(zbigfs_location);
@@ -324,6 +330,8 @@ entry (unsigned long magic, unsigned long addr)
 	term_close();
 	
 	*/
+
+	//Initialize PCBs and then clear the terminal so it looks nice
 	init_pcbs();
 	term_clear();
 
@@ -331,6 +339,8 @@ entry (unsigned long magic, unsigned long addr)
 	//	printf("Welcome to zbigos. Sending you to a shell...\n");
 	//	ece391_execute((const uint8_t*)"shell");
 	//}
+
+
 	/* Spin (nicely, so we don't chew up cycles) */
 	asm volatile(".1: hlt; jmp .1;");
 }
