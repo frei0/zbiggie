@@ -7,9 +7,14 @@
 .align 4
 
 
-
+/* syscall
+ * inputs: %ebx, %ecx, %edx, c-style int
+ * return: %eax
+ * function: top of stack is interepreted as number of syscall to be called,
+ *  said syscall is called
+ */
 syscall: 
-    pushl %ebp
+    pushl %ebp #save registers
     pushl %ebx
     pushl %ecx
     pushl %edx
@@ -24,7 +29,7 @@ syscall:
     
 	call *jump_table(,%eax,4)
 unsave:
-    popl %edi
+    popl %edi #restore registers
     popl %esi
     popl %edx
     popl %ecx
@@ -45,7 +50,11 @@ launch_new_shell:
     movl execstring,%ebx
     jmp kexecute
 
-
+/* halt
+ * inputs: %ebx: int 
+ * return: returns code for program that just executed (eg error code)
+ * function: returns control to program that executed current program
+ */
 halt:
     CALL free_current_pcb
     CALL get_current_pid
@@ -61,6 +70,11 @@ halt:
 
     ret
 
+/* execute 
+ * inputs: %ebx: ptr to string containing user's stdin 
+ * return: %eax: returns code for program that just executed (eg error code)
+ * function: executes a program 
+ */
 execute:
     pushl %ebx
     CALL strlen
@@ -94,6 +108,11 @@ kexecute:
     pushl $USER_CS
     pushl %eax
     iret
+/* read
+ * inputs: %ebx: fd, %ecx: ptr to stringr, %edx: size
+ * output: returns num bytes or error  
+ * function: read from a file or device
+ */
 read: 
 
     pushl %edx #save edx, ecx
@@ -121,6 +140,11 @@ read_bad_ptr:
     ret
 
 
+/* write 
+ * inputs: %ebx: fd, %ecx: ptr to string %edx: size  
+ * output: returns num bytes or error  
+ * function: write to a file or device
+ */
 write: 
     pushl %edx
     pushl %ecx
@@ -141,18 +165,32 @@ write:
     addl $12, %esp #pop c-args
     ret
 
+/* open 
+ * inputs: %ebx: fdr 
+ * output: returns an fd   
+ * function: opens a file or device
+ */
 open: 
     pushl %ebx
     call syscall_open
     addl $4, %esp #pop c-args
     ret
-
+/* close 
+ * inputs: %ebx: fdr 
+ * output: 0 on sucessful close, -1 on failure
+ * function: closes a file or device
+ */
 close:
     pushl %ebx
     call syscall_close
     addl $4, %esp #pop c-args
     ret
 
+/* getargs 
+ * inputs: %ebx: ptr to buf to write args to, %ecx int num_bytes  
+ * output: 0 on sucessful close, -1 on failure
+ * function: closes a file or device
+ */
 getargs:
     pushl %ecx
     pushl %ebx
@@ -160,14 +198,20 @@ getargs:
     addl $8, %esp #pop c-args
     ret
 	 
+/* vidmap 
+ * inputs: %ebx: ptr to ptr that will point to video memory 
+ * output: 0 on sucess, -1 on failure
+ * function: maps a user pointer to video memory 
+ */
 vidmap:
     pushl %ebx
     call syscall_vidmap
     addl $4, %esp #pop c-args
     ret
- 
+/* stub */ 
 set_handler:
     ret
 
+/* stub */ 
 sigreturn: 
     ret
