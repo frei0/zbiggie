@@ -267,10 +267,10 @@ puts(int8_t* s)
 }
 
 /*
-* void putc(uint8_t c);
+* void mt_putc(uint8_t c);
 *   Inputs: uint_8* c = character to print
 *   Return Value: void
-*	Function: Output a character to the console 
+*	Function: Output a character to the console of current process, which may not be the forground one
 */
 void
 mt_putc(uint8_t c)
