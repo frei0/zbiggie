@@ -18,15 +18,40 @@ int write_y[3] = {-1,-1,-1};
 
 volatile int wait_for_nl[3] = {0,0,0};
 
+/* int noread()
+ * Inputs: none
+ * return: int
+ * function: return noread error */
+int noread()
+{
+	return -1;
+} //cant read from stdout!
 
-int noread(){ return -1;} //cant read from stdout!
-int nowrite(){ return -1;} //cant write to stdin!
+/* int nowrite()
+ * Inputs: none
+ * return: int
+ * function: return nowrite error */ 
+int nowrite()
+{ 
+	return -1;
+} //cant write to stdin!
+
 TypedFileOperation ops_stdout[3] = {(TypedFileOperation) stdout_open, (TypedFileOperation) noread, (TypedFileOperation) term_write};
 TypedFileOperation ops_stdin[3] = {(TypedFileOperation) stdin_open, (TypedFileOperation) term_read, (TypedFileOperation) nowrite};
+
+/* int stdout_open(File * f)
+ * Inputs: File pointer
+ * return: int
+ * function: stout open file*/ 
 int stdout_open(FILE * f){
     f->optable = ops_stdout;
     return 0;
 }
+
+/* int stdin_open(File * f)
+ * Inputs: File pointer
+ * return: int
+ * function: stdin open file*/
 int stdin_open(FILE * f){
     f->optable = ops_stdin;
     return 0;
@@ -68,6 +93,7 @@ void term_init()
 	{
 		buffer[current_terminal][j] = 0; 
 	}
+	//Initializing to put cursor in the top left
 	cur_pos[current_terminal] = 0; 
 	cur_size[current_terminal] = 0;
 	write_x[current_terminal] = -1;
@@ -158,6 +184,7 @@ int term_puts(char * str)
        if(str[i] == NULL)
            break;
        term_putc(str[i]);
+	   //call term_putc for each character
    }
    return i; 
 }
@@ -206,7 +233,6 @@ int term_read(FILE * f, char * buf, int numbytes)
    return i;
 }
 
-
 /* void term_clear()
  * inputs: none
  * return: none
@@ -214,8 +240,7 @@ int term_read(FILE * f, char * buf, int numbytes)
 void term_clear()
 {
     clear();
-    //move cursor to 0,0
-    set_pos(0, 0);
+    set_pos(0, 0); //reset the cursor to top left
 }
 
 /* void term_move_left()
@@ -243,11 +268,12 @@ void term_move_right()
         cur_pos[current_terminal]++;
     }
 }
+
 /* void term_switch()
  * inputs: none
  * return: none
- * function: Switches between terminals
- */
+ * function: switch the current terminal*/
+
 void term_switch()
 {	
         //set cursor position to x,y of the terminal we're switching too
