@@ -249,7 +249,31 @@ entry (unsigned long magic, unsigned long addr)
 	outb(PIT_MODIFY_LOW | PIT_MODIFY_HIGH | PIT_MODE_2 ,PIT_CTRL_ADDR);
 	outb(PIT_DEFAULT_RATE_LOW,PIT_PORT0_CTRL_ADDR); //set low byte
 	outb(PIT_DEFAULT_RATE_HIGH,PIT_PORT0_CTRL_ADDR); //set high byte
+
+	uint32_t Div;
+	 	uint8_t tmp;
+		 
+		        //Set the PIT to the desired frequency
+				 	Div = 1193180 / 1000;
+				 	 	outb(0x43, 0xb6);
+				 	 	 	outb(0x42, (uint8_t) (Div) );
+				 	 	 	 	outb(0x42, (uint8_t) (Div >> 8));
+				 	 	 	 	 
+				 	 	 	 	         //And play the sound using the PC speaker
+				 	 	 	 	          	tmp = inb(0x61);
+				 	 	 	 	          	  	if (tmp != (tmp | 3)) {
+				 	 	 	 	          	  	 		outb(0x61, tmp | 3);
+												}
+	/*			 	 	 	 	          	  	 		 	
+	char tmp = inb(0x61);
+	if (tmp != (tmp | 3)) {
+		outb(0x61, tmp | 3);
+	}
+	*/
+
 	disable_irq(0);
+
+
 
 	/* Initialize devices, memory, filesystem, enable device interrupts on the
 	 * PIC, any other initialization stuff... */
@@ -269,84 +293,10 @@ entry (unsigned long magic, unsigned long addr)
 	printf("Mounting module 0 as read-only zbigfs filesystem\n");
 	zbigfs_mount(zbigfs_location);
 
-	//term_close();
-	//term_write("hello again, world!");
-	
-	/* TODO: Execute the first program (`shell') ... */
-
-	/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - */ 
-	/* RTC TEST CODE */
-/*
-	FILE f;
-	//int retval = 
-	kopen(&f, "rtc");
-	//printf("kopen on rtc returned %d\n", retval);
-	int i;
-	for (i = 0; i < 10; ++i){
-		kread(&f, 0, 0); puts("rtc ");
-	}
-	
-	puts("\nSetting rtc to 4HZ: ");
-	int rate = 4;
-	kwrite(&f, &rate, 4);
-	for (i = 0; i < 10; ++i){
-		kread(&f, 0, 0); puts("rtc ");
-	}
-	putc('\n');
-*/
-	/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - */ 
-	/* FILE SYS TEST CODE */
-
-	/*
-	char dbuf[32];
-	printf("listing files:\n");
-	kopen(&f, ".");
-	while (kread(&f, dbuf, 32))
-		printf("%s\n", dbuf);
-
-	FILE outf;
-	stdout_open(&outf);
-	
-	char buf[200];
-	kopen(&f, "frame1.txt");
-	kread(&f, &buf, 200);
-	printf("Contents of frame1.txt:\n");
-	kwrite(&outf, buf, 200); putc('\n');
-
-	kopen(&f, "ls");
-	kread(&f, &buf, 200);
-	printf("200B of ls:\n");
-	kwrite(&outf, buf, 200); putc('\n');
-*/
-	
-
-	/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - */ 
-	/* TERMINAL TEST CODE */
-	/* write and read in idt_funcs, to the down arrow key */ 
-	/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - */ 
-
-/*	
-	term_open(); //open a kshell
-	char rbuf[200];
-	while (1){
-		if(!strncmp(rbuf, "done\n", 6)) break;
-		printf("trying to read: ");
-		retval = term_read(&f, rbuf, i--);
-		printf("got back \"%s\" from read (%d chars) \n", rbuf, retval); 
-	}
-	term_close();
-	
-	*/
 
 	//Initialize PCBs and then clear the terminal so it looks nice
 	init_pcbs();
 	term_clear();
-
-	//while (1) {
-	//	printf("Welcome to zbigos. Sending you to a shell...\n");
-	//	ece391_execute((const uint8_t*)"shell");
-	//}
-
 
 	/* Spin (nicely, so we don't chew up cycles) */
 	asm volatile(".1: hlt; jmp .1;");

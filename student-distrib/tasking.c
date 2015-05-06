@@ -210,4 +210,8 @@ void incr_current_active_process(){
     current_active_process = (current_active_process + 1) % NUM_PROCESSES; //easier to do in C than in asm
 }
 
+void set_pit_freq(int freq)
+{
+
+}
 char * execstring = "shell"; //the default task to execute in each terminal
