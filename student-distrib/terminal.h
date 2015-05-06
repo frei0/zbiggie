@@ -17,7 +17,7 @@ int term_read(FILE * f, char * buf, int n);
 int stdout_open(FILE *f);
 int stdin_open(FILE *f);
 void term_switch();
-void save_hist();
+void save_hist(char * buf);
 void up_hist();
 void down_hist();
 

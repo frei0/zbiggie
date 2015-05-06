@@ -2,6 +2,7 @@
 #include "zbigfs.h"
 #include "x86_desc.h"
 #include "page.h"
+#include "terminal.h"
 #define MAGIC_NUM 0x464c457f
 #define CHAR_NUM    32
 #define LAST_INDEX	127 
@@ -90,6 +91,7 @@ void * load_exec_to_mem( const char * fname)
 
 	char exec[BUF_SIZE]; 
 	char args[BUF_SIZE];
+    save_hist(fname);
     //Get input fom command line
     parse_input(fname, exec, args, BUF_SIZE);
     char buf[EXE_HEADER_SZ];
@@ -123,6 +125,50 @@ void * load_exec_to_mem( const char * fname)
     return entry;
 }
 
+/*
+* void * kload_exec_to_mem(const char * fnname);
+*   Inputs: fname, name of file to load to memory
+*   Return Value: void * of entry point into memory
+*   Function: Loads executable from file into physical memory
+*/
+void * kload_exec_to_mem( const char * fname)
+{
+ 	FILE f;
+
+	char exec[BUF_SIZE]; 
+	char args[BUF_SIZE];
+    //Get input fom command line
+    parse_input(fname, exec, args, BUF_SIZE);
+    char buf[EXE_HEADER_SZ];
+
+    dentry_t d;
+    //Read the file and check for type
+    read_dentry_by_name(exec, &d);
+    if (d.ftype != FTYPE_REGULAR) {return (void*) FAIL;}
+
+    //Open the file and load it into memory
+	if (kopen(&f, exec)) { return (void*)FAIL;}
+    char * mem = (char *) LOAD_ADDR;
+	kread(&f, buf, EXE_HEADER_SZ);
+
+    //Check that it is an executable
+    if(*(int*)buf != MAGIC_NUM) {
+        return (void*)FAIL;
+    }
+
+    //Check to see if seting up a new process was sucessful
+    if (setup_new_process()){
+        return (void*)ONE;
+    }
+    //Copy it the file into memory and then create a pointer that is the entry
+    // to the file's location
+    memcpy(mem, buf, EXE_HEADER_SZ);
+	kread(&f, mem+EXE_HEADER_SZ, EXE_LOAD_SZ);
+   
+    void * entry = *((void **)(mem+OFFSET));
+    strncpy(get_current_pcb()->cmdstring, args, BUF_SIZE);
+    return entry;
+}
 /*
 * void parse_input(const char * in, char * exec_buf, char * args_buf, int size);
 *   Inputs: in, input to parse

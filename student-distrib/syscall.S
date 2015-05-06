@@ -84,13 +84,36 @@ execute:
     addl $12, %esp
     orl %eax,%eax
     jz syscall_fail
-kexecute:
     CALL get_current_pcb
 
     movl %eax, %edi
 
     pushl %ebx #push string from user to load executable to memory
     CALL load_exec_to_mem
+    addl $4, %esp #pop c-args
+    cmpl $-1, %eax #fail if unable to load
+    je syscall_fail
+    cmpl $1, %eax #fail if unable to load
+    je syscall_fail
+
+    movl %esp, (%edi)
+
+    pushl $USER_DS #push iret context to jump to user executable
+    movl  $LOAD_ADDR,%ebx
+    subl  $4,%ebx
+    pushl %ebx
+    pushf
+    orl   $EFLAG_INT_ENABLE,(%esp) //change eflags to enable interrupts after jump to user
+    pushl $USER_CS
+    pushl %eax
+    iret
+kexecute:
+    CALL get_current_pcb
+
+    movl %eax, %edi
+
+    pushl %ebx #push string from user to load executable to memory
+    CALL kload_exec_to_mem
     addl $4, %esp #pop c-args
     cmpl $-1, %eax #fail if unable to load
     je syscall_fail

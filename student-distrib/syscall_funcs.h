@@ -7,6 +7,7 @@
 //Helper Functions
 int exec_check(const char * fname);
 void * load_exec_to_mem(const char * fname);
+void * kload_exec_to_mem(const char * fname);
 void parse_input(const char * in, char * exec_buf, char * args_buf, int size);
 int syscall_open(const char * name);
 int syscall_close(int fd);

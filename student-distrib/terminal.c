@@ -221,13 +221,13 @@ int term_write(FILE * f, char * buf, int cnt)
  * Returns: none 
  * Function: saves current buffer to history 
  */
-void save_hist()
+void save_hist(char * buf)
 {
     int i;
     for(i = 0; i < BUF_SIZE; i++)
         history[current_terminal][hist_indeces[current_terminal]][i] = '\0';
-    for(i = 0; buffer[current_terminal][i] != '\n'; i++)
-        history[current_terminal][hist_indeces[current_terminal]][i] = buffer[current_terminal][i];
+    for(i = 0; buf[i] != '\n' && buf[i] != 0 ; i++)
+        history[current_terminal][hist_indeces[current_terminal]][i] = buf[i];
     hist_indeces[current_terminal]++;
     hist_indeces[current_terminal] %= HIST_SIZE;
 }
@@ -320,7 +320,6 @@ int term_read(FILE * f, char * buf, int numbytes)
    while (wait_for_nl[this_read_terminal]) {}
    cli();
    //move cursor to the beginning o fnew line
-   save_hist();
    set_x(START_POS);
    putc('\n');
    for(i = 0; i < numbytes; i++)
