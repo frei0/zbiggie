@@ -4,6 +4,7 @@
 #include "page.h"
 #include "tasking.h"
 #define START_POS 10
+#define SCREEN_WIDTH 80
 #define NUM_BUFS 10
 #define CHAR_W 8
 #define KB_IRQ 1
@@ -13,8 +14,8 @@ char buffer[3][BUF_SIZE];
 int cur_pos[3] = {0,0,0};
 int cur_size[3] = {0,0,0};
 int prev_size[3]; 
-int write_x[3] = {-1,-1,-1}; 
-int write_y[3] = {-1,-1,-1}; 
+int write_x[3] = {0,0,0}; 
+int write_y[3] = {0,0,0}; 
 
 volatile int wait_for_nl[3] = {0,0,0};
 
@@ -96,8 +97,8 @@ void term_init()
 	//Initializing to put cursor in the top left
 	cur_pos[current_terminal] = 0; 
 	cur_size[current_terminal] = 0;
-	write_x[current_terminal] = -1;
-	write_y[current_terminal] = -1; 	
+	write_x[current_terminal] = 0;
+	write_y[current_terminal] = 0; 	
 }
 
 /*void term_putc(char c)
@@ -112,14 +113,14 @@ void term_putc(char c)
     if(c == '\n' || c == '\r') 
     {
         //if it fits, put in a \n
-        if(cur_size[current_terminal] < BUF_SIZE)
+       // if(cur_size[current_terminal] < BUF_SIZE)
             buffer[current_terminal][cur_size[current_terminal]] = '\n';
         //clear everything (new buf)
         cur_pos[current_terminal] = 0;
         prev_size[current_terminal] = cur_size[current_terminal];
         cur_size[current_terminal] = 0;
-        write_x[current_terminal] = -1;
-        write_y[current_terminal] = -1;
+        write_x[current_terminal] = 0;
+        write_y[current_terminal] = 0;
         wait_for_nl[current_terminal] = 0;
     }
     //backspace
@@ -160,8 +161,17 @@ void term_putc(char c)
     }
     //if just a regular character and buffer isn't full, 
     //print it and put it in the buffer
-    else if(cur_pos[current_terminal] < BUF_SIZE-1)
+    else if(cur_pos[current_terminal] < BUF_SIZE-1 && cur_size[current_terminal] < BUF_SIZE-1)
     {
+        if(cur_pos[current_terminal] < cur_size[current_terminal])
+        {
+            scoot_text();
+            int i; 
+            for(i = cur_size[current_terminal]; i > cur_pos[current_terminal]; i--) 
+            {
+                buffer[current_terminal][i] = buffer[current_terminal][i-1];
+            }
+        }
         putc_kb(c);
         buffer[current_terminal][cur_pos[current_terminal]] = c;
         cur_pos[current_terminal] ++;
@@ -218,16 +228,20 @@ int term_read(FILE * f, char * buf, int numbytes)
    while (wait_for_nl[this_read_terminal]) {}
    cli();
    //move cursor to the beginning o fnew line
-    set_x(START_POS);
-    putc_kb('\n');
+   set_x(START_POS);
+   putc('\n');
    for(i = 0; i < numbytes; i++)
    {
        //if end of line or NULL
         buf[i] = buffer[current_terminal][i];
-       if(buf[i] == '\n'){
+        buffer[current_terminal][i] = '\0';
+       if(buf[i] == '\n' || buf[i] == 0){
+           buf[i] = '\n';
+           buf[i+1] = '\0';
            sti();
            return i+1;  //we have a whole line
        }
+
    }
    sti();
    return i;
@@ -249,7 +263,7 @@ void term_clear()
  * function: move the cursor left*/
 void term_move_left()
 {
-    if(cur_pos > 0)
+    if(cur_pos[current_terminal] > 0 && (get_screen_y(current_terminal) > write_y[current_terminal] || (get_screen_x(current_terminal) > write_x[current_terminal] && get_screen_y(current_terminal) == write_y[current_terminal])))
     {
         move_left();
         cur_pos[current_terminal]--;
@@ -262,7 +276,7 @@ void term_move_left()
  * function: move the cursor right*/
 void term_move_right()
 {
-    if(cur_pos < cur_size)
+    if(cur_pos[current_terminal] < cur_size[current_terminal])
     {
         move_right();
         cur_pos[current_terminal]++;

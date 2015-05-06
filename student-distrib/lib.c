@@ -469,6 +469,27 @@ putc_kb(uint8_t c)
 	cursor_loc(screen_x[current_terminal], screen_y[current_terminal]); 
 }
 
+void scoot_text()
+{
+	int x,y;
+	for(y = NUM_ROWS -1; y > screen_y[current_terminal]; y--)
+	{
+			*(uint8_t *)(video_mem + ((NUM_COLS*y + 0) << 1)) = *(uint8_t *)(video_mem + ((NUM_COLS*(y-1) + NUM_COLS -1) << 1));
+			*(uint8_t *)(video_mem + ((NUM_COLS*y + 0) << 1) + 1) = attribs[current_terminal];
+
+		for(x = NUM_COLS -1; x > 0; x--)
+		{
+			*(uint8_t *)(video_mem + ((NUM_COLS*y + x) << 1)) = *(uint8_t *)(video_mem + ((NUM_COLS*y + x -1) << 1));
+			*(uint8_t *)(video_mem + ((NUM_COLS*y + x) << 1) + 1) = attribs[current_terminal];
+		}
+	}
+	for(x = NUM_COLS -1; x > screen_x[current_terminal]; x--)
+	{
+		*(uint8_t *)(video_mem + ((NUM_COLS*screen_y[current_terminal] + x) << 1)) = *(uint8_t *)(video_mem + ((NUM_COLS*screen_y[current_terminal] + x-1) << 1));
+		*(uint8_t *)(video_mem + ((NUM_COLS*screen_y[current_terminal] + x) << 1) + 1) = attribs[current_terminal];
+	}
+}
+
 /*
 * void mt_scroll();
 *   Inputs: none 

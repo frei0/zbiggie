@@ -250,27 +250,24 @@ entry (unsigned long magic, unsigned long addr)
 	outb(PIT_DEFAULT_RATE_LOW,PIT_PORT0_CTRL_ADDR); //set low byte
 	outb(PIT_DEFAULT_RATE_HIGH,PIT_PORT0_CTRL_ADDR); //set high byte
 
+/*
+ * pc speaker code from osdev
+ *
 	uint32_t Div;
-	 	uint8_t tmp;
+	uint8_t tmp;
 		 
-		        //Set the PIT to the desired frequency
-				 	Div = 1193180 / 1000;
-				 	 	outb(0x43, 0xb6);
-				 	 	 	outb(0x42, (uint8_t) (Div) );
-				 	 	 	 	outb(0x42, (uint8_t) (Div >> 8));
-				 	 	 	 	 
-				 	 	 	 	         //And play the sound using the PC speaker
-				 	 	 	 	          	tmp = inb(0x61);
-				 	 	 	 	          	  	if (tmp != (tmp | 3)) {
-				 	 	 	 	          	  	 		outb(0x61, tmp | 3);
-												}
-	/*			 	 	 	 	          	  	 		 	
-	char tmp = inb(0x61);
+	//Set the PIT to the desired frequency
+	Div = 1193180 / 1000;
+	outb(0x43, 0xb6);
+	outb(0x42, (uint8_t) (Div) );
+	outb(0x42, (uint8_t) (Div >> 8));
+							 
+	 //And play the sound using the PC speaker
+	tmp = inb(0x61);
 	if (tmp != (tmp | 3)) {
 		outb(0x61, tmp | 3);
 	}
-	*/
-
+*/
 	disable_irq(0);
 
 
