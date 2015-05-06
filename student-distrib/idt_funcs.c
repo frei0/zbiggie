@@ -399,10 +399,11 @@ extern void key_handler()
 	{
 		//do nothing
         //term_write(0,"hi!",3);
+        down_hist();
 	}
     else if(in == UP_ARROW)
     {
-        //do nothing!
+        up_hist();
     }
     else if (in == LEFT_ARROW)
 	{

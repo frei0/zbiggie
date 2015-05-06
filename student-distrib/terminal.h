@@ -17,6 +17,9 @@ int term_read(FILE * f, char * buf, int n);
 int stdout_open(FILE *f);
 int stdin_open(FILE *f);
 void term_switch();
+void save_hist();
+void up_hist();
+void down_hist();
 
 extern int write_x[3]; 
 extern int write_y[3]; 

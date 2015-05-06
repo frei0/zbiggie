@@ -77,9 +77,11 @@ int get_screen_y(int term)
 void
 set_pos(int x, int y)
 {
+	cli();
     screen_x[current_terminal] = x;
     screen_y[current_terminal] = y;
     cursor_loc(screen_x[current_terminal], screen_y[current_terminal]); 
+	sti();
 }
 /*
 * 	void set_x(int x) 
@@ -469,6 +471,12 @@ putc_kb(uint8_t c)
 	cursor_loc(screen_x[current_terminal], screen_y[current_terminal]); 
 }
 
+/*
+* void scoot_text();
+*   Inputs: none 
+*   Return Value: void
+*	Function: scoot all text after cursor over to the right 
+*/
 void scoot_text()
 {
 	int x,y;
@@ -551,7 +559,7 @@ scroll()
 	}
 	screen_x[current_terminal] = 0;
 	write_y[current_terminal]--;
-	write_x[current_terminal] = 0;
+	//write_x[current_terminal] = 0;
 }
 /*
 * int8_t* itoa(uint32_t value, int8_t* buf, int32_t radix);

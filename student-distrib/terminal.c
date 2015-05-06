@@ -6,11 +6,14 @@
 #define START_POS 10
 #define SCREEN_WIDTH 80
 #define NUM_BUFS 10
+#define HIST_SIZE 50
 #define CHAR_W 8
 #define KB_IRQ 1
 #define BACKSPACE 0x08
 
 char buffer[3][BUF_SIZE];
+char history[3][HIST_SIZE][BUF_SIZE] = {{{0}}};
+int hist_indeces[3] = {0,0,0};
 int cur_pos[3] = {0,0,0};
 int cur_size[3] = {0,0,0};
 int prev_size[3]; 
@@ -107,14 +110,12 @@ void term_init()
  * Function: prints a single character to the terminal*/
 void term_putc(char c)
 {
-    //int i;
     char bs_char;
     //new line/return
     if(c == '\n' || c == '\r') 
     {
-        //if it fits, put in a \n
-       // if(cur_size[current_terminal] < BUF_SIZE)
-            buffer[current_terminal][cur_size[current_terminal]] = '\n';
+        buffer[current_terminal][cur_size[current_terminal]] = '\n';
+
         //clear everything (new buf)
         cur_pos[current_terminal] = 0;
         prev_size[current_terminal] = cur_size[current_terminal];
@@ -215,6 +216,97 @@ int term_write(FILE * f, char * buf, int cnt)
    return cnt;
 }
 
+/* void save_hist()
+ * Inputs: none
+ * Returns: none 
+ * Function: saves current buffer to history 
+ */
+void save_hist()
+{
+    int i;
+    for(i = 0; i < BUF_SIZE; i++)
+        history[current_terminal][hist_indeces[current_terminal]][i] = '\0';
+    for(i = 0; buffer[current_terminal][i] != '\n'; i++)
+        history[current_terminal][hist_indeces[current_terminal]][i] = buffer[current_terminal][i];
+    hist_indeces[current_terminal]++;
+    hist_indeces[current_terminal] %= HIST_SIZE;
+}
+
+/* void up_hist()
+ * Inputs: none
+ * Returns: none 
+ * Function: restores last buffer from history 
+ */
+void up_hist()
+{
+    int i;
+    hist_indeces[current_terminal]--;
+    if(hist_indeces[current_terminal] < 0)
+        hist_indeces[current_terminal] = HIST_SIZE - 1;
+    if(history[current_terminal][hist_indeces[current_terminal]][0] == 0)
+    {
+        i = 0;
+        while(i < HIST_SIZE && history[current_terminal][hist_indeces[current_terminal]][0] == 0)
+        {
+            hist_indeces[current_terminal]--;
+            if(hist_indeces[current_terminal] < 0)
+                hist_indeces[current_terminal] = HIST_SIZE - 1;
+            i++;
+        }
+        if(history[current_terminal][hist_indeces[current_terminal]][0] == 0)
+            return;
+    }
+    set_pos(write_x[current_terminal], write_y[current_terminal]);
+    cur_pos[current_terminal] = 0;
+    cur_size[current_terminal] = 0;
+    for(i = 0; i < BUF_SIZE; i++)
+        putc('\0');
+    set_pos(write_x[current_terminal], write_y[current_terminal]);
+    for(i = 0; history[current_terminal][hist_indeces[current_terminal]][i] != '\0'; i++)
+    {
+        buffer[current_terminal][i] = history[current_terminal][hist_indeces[current_terminal]][i];
+        putc(buffer[current_terminal][i]);
+        cur_pos[current_terminal] ++;
+        cur_size[current_terminal]++;
+    }
+}
+
+/* void down_hist()
+ * Inputs: none
+ * Returns: none 
+ * Function: restores next buffer from history 
+ */
+void down_hist()
+{
+    hist_indeces[current_terminal]++;
+    hist_indeces[current_terminal] %= HIST_SIZE;
+    int i;
+    if(history[current_terminal][hist_indeces[current_terminal]][0] == 0)
+    {
+        i = 0;
+        while(i < HIST_SIZE && history[current_terminal][hist_indeces[current_terminal]][0] == 0)
+        {
+            hist_indeces[current_terminal]++;
+            hist_indeces[current_terminal] %= HIST_SIZE;
+            i++;
+        }
+        if(history[current_terminal][hist_indeces[current_terminal]][0] == 0)
+            return;
+    }
+     set_pos(write_x[current_terminal], write_y[current_terminal]);
+    for(i = 0; i < BUF_SIZE; i++)
+        putc('\0');
+    set_pos(write_x[current_terminal], write_y[current_terminal]);
+    for(i = 0; history[current_terminal][hist_indeces[current_terminal]][i] != '\0'; i++)
+    {
+        buffer[current_terminal][i] = history[current_terminal][hist_indeces[current_terminal]][i];
+        putc(buffer[current_terminal][i]);
+        cur_pos[current_terminal] ++;
+        cur_size[current_terminal]++;
+    }
+
+
+}
 /* char * term_read()
  * Inputs: none
  * Returns: the last full terminal buffer terminated in a new line
@@ -228,6 +320,7 @@ int term_read(FILE * f, char * buf, int numbytes)
    while (wait_for_nl[this_read_terminal]) {}
    cli();
    //move cursor to the beginning o fnew line
+   save_hist();
    set_x(START_POS);
    putc('\n');
    for(i = 0; i < numbytes; i++)
