@@ -14,6 +14,7 @@
 char buffer[3][BUF_SIZE];
 char history[3][HIST_SIZE][BUF_SIZE] = {{{0}}};
 int hist_indeces[3] = {0,0,0};
+int hist_bottom_indeces[3] = {0,0,0};
 int cur_pos[3] = {0,0,0};
 int cur_size[3] = {0,0,0};
 int prev_size[3]; 
@@ -224,12 +225,15 @@ int term_write(FILE * f, char * buf, int cnt)
 void save_hist(char * buf)
 {
     int i;
+    hist_bottom_indeces[current_terminal]++;
+    hist_bottom_indeces[current_terminal] %= HIST_SIZE;
     for(i = 0; i < BUF_SIZE; i++)
-        history[current_terminal][hist_indeces[current_terminal]][i] = '\0';
+        history[current_terminal][hist_bottom_indeces[current_terminal]][i] = '\0';
     for(i = 0; buf[i] != '\n' && buf[i] != 0 ; i++)
-        history[current_terminal][hist_indeces[current_terminal]][i] = buf[i];
-    hist_indeces[current_terminal]++;
-    hist_indeces[current_terminal] %= HIST_SIZE;
+        history[current_terminal][hist_bottom_indeces[current_terminal]][i] = buf[i];
+    hist_bottom_indeces[current_terminal]++;
+    hist_bottom_indeces[current_terminal] %= HIST_SIZE;
+    hist_indeces[current_terminal] = hist_bottom_indeces[current_terminal];
 }
 
 /* void up_hist()
