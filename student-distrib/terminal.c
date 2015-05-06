@@ -263,7 +263,7 @@ void up_hist()
     set_pos(write_x[current_terminal], write_y[current_terminal]);
     cur_pos[current_terminal] = 0;
     cur_size[current_terminal] = 0;
-    for(i = 0; i < BUF_SIZE; i++)
+    for(i = 0; i < BUF_SIZE && history[current_terminal][hist_indeces[current_terminal]][i] != 0; i++)
         putc('\0');
     set_pos(write_x[current_terminal], write_y[current_terminal]);
     for(i = 0; history[current_terminal][hist_indeces[current_terminal]][i] != '\0'; i++)
@@ -298,7 +298,7 @@ void down_hist()
             return;
     }
      set_pos(write_x[current_terminal], write_y[current_terminal]);
-    for(i = 0; i < BUF_SIZE; i++)
+    for(i = 0; i < BUF_SIZE && history[current_terminal][hist_indeces[current_terminal]][i] != 0; i++)
         putc('\0');
     set_pos(write_x[current_terminal], write_y[current_terminal]);
     for(i = 0; history[current_terminal][hist_indeces[current_terminal]][i] != '\0'; i++)
