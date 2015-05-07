@@ -85,7 +85,7 @@ int syscall_close(int fd){
 *   Return Value: void * of entry point into memory
 *   Function: Loads executable from file into physical memory
 */
-void * load_exec_to_mem( const char * fname)
+void * load_exec_to_mem( char * fname)
 {
  	FILE f;
 
